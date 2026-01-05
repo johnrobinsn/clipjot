@@ -1,0 +1,1 @@
+"""LinkJot backend tests."""
