@@ -62,7 +62,10 @@ def limit_exceeded_error(message: str) -> Response:
 # =============================================================================
 
 def get_api_auth(request, db) -> tuple[Optional[auth.ApiToken], Optional[database.User], Optional[Response]]:
-    """Extract and validate API token from request.
+    """Extract and validate API token or session token from request.
+
+    Accepts both API tokens and session tokens for Bearer auth.
+    Session tokens get full read/write permissions.
 
     Returns (token, user, error_response) tuple.
     If error_response is not None, return it immediately.
@@ -81,13 +84,29 @@ def get_api_auth(request, db) -> tuple[Optional[auth.ApiToken], Optional[databas
     if not allowed:
         return None, None, rate_limited_error(retry_after)
 
-    # Validate token
+    # Try API token first
     result = auth.validate_api_token(db, token_str)
-    if not result:
-        return None, None, invalid_token_error()
+    if result:
+        token, user = result
+        return token, user, None
 
-    token, user = result
-    return token, user, None
+    # Fall back to session token (for extension/mobile apps)
+    session_result = auth.validate_session(db, token_str)
+    if session_result:
+        session, user = session_result
+        # Create a virtual ApiToken with full permissions for session-based auth
+        virtual_token = auth.ApiToken(
+            id=0,
+            user_id=user.id,
+            name="session",
+            token_hash="",
+            scope="write",  # "write" includes read permissions
+            created_at=session.created_at,
+            last_used_at=session.last_activity_at,
+        )
+        return virtual_token, user, None
+
+    return None, None, invalid_token_error()
 
 
 def require_scope(token: auth.ApiToken, scope: str) -> Optional[Response]:

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkJot Settings</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body class="bg-base-200 min-h-screen">
+  <div class="container mx-auto max-w-lg p-6">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h1 class="card-title text-2xl mb-6">
+          <img src="../icons/icon48.png" alt="LinkJot" class="w-8 h-8">
+          LinkJot Settings
+        </h1>
+
+        <!-- Backend URL -->
+        <div class="form-control mb-6">
+          <label class="label">
+            <span class="label-text font-medium">Backend URL</span>
+          </label>
+          <input
+            type="url"
+            id="backend-url"
+            class="input input-bordered w-full"
+            placeholder="http://localhost:5001"
+          >
+          <label class="label">
+            <span class="label-text-alt text-base-content/60">
+              The URL of your LinkJot server
+            </span>
+          </label>
+        </div>
+
+        <!-- Login Status -->
+        <div class="divider">Account</div>
+
+        <div id="logged-out" class="hidden">
+          <div class="alert alert-warning">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <span>Not logged in</span>
+          </div>
+          <p class="text-sm text-base-content/70 mt-4">
+            Click the extension icon to log in.
+          </p>
+        </div>
+
+        <div id="logged-in" class="hidden">
+          <div class="alert alert-success">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Logged in</span>
+          </div>
+          <button id="logout-btn" class="btn btn-outline btn-error mt-4 w-full">
+            Log Out
+          </button>
+        </div>
+
+        <!-- Save Button -->
+        <div class="card-actions justify-end mt-6">
+          <button id="save-btn" class="btn btn-primary">
+            Save Settings
+          </button>
+        </div>
+
+        <!-- Status Message -->
+        <div id="status-message" class="alert mt-4 hidden"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-sm text-base-content/50 mt-6">
+      LinkJot v1.0.0
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

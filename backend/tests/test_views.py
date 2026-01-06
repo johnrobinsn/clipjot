@@ -439,7 +439,7 @@ class TestExport:
 
         request = MockRequest(cookies={"session": token})
 
-        response = views.export_page(request, db)
+        response = views.export_download(request, db)
 
         assert response.status_code == 200
         assert "application/json" in response.media_type
@@ -458,7 +458,7 @@ class TestExport:
 
         request = MockRequest(cookies={"session": token})
 
-        response = views.export_page(request, db)
+        response = views.export_download(request, db)
 
         assert response.status_code == 200
         import json

@@ -1,0 +1,68 @@
+/* LinkJot Chrome Extension Popup Styles */
+
+body {
+  min-width: 320px;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  min-height: 200px;
+}
+
+/* Tag chips */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background-color: hsl(var(--n));
+  color: hsl(var(--nc));
+  border-radius: 9999px;
+  font-size: 0.75rem;
+}
+
+.tag-chip button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.tag-chip button:hover {
+  opacity: 1;
+}
+
+/* Tag suggestions */
+#tag-suggestions .suggestion-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+#tag-suggestions .suggestion-item:hover,
+#tag-suggestions .suggestion-item.selected {
+  background-color: hsl(var(--b2));
+}
+
+/* Loading state for save button */
+#save-btn.loading {
+  pointer-events: none;
+}
+
+/* Smooth transitions */
+.hidden {
+  display: none !important;
+}
+
+/* Alert styling adjustments */
+.alert {
+  padding: 0.5rem 0.75rem;
+}

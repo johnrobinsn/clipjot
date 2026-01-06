@@ -194,6 +194,7 @@ class LinkJotAuth:
         user_info: dict,
         user_agent: Optional[str] = None,
         ip_address: Optional[str] = None,
+        client_name: str = "web",
     ) -> tuple[str, User]:
         """Handle OAuth callback after successful authentication.
 
@@ -202,6 +203,7 @@ class LinkJotAuth:
             user_info: User information from OAuth provider
             user_agent: Request user agent
             ip_address: Request IP address
+            client_name: Client identifier ('web', 'chrome-extension', 'android')
 
         Returns:
             (session_token, user) tuple
@@ -228,7 +230,7 @@ class LinkJotAuth:
             self.db,
             user.id,
             user_agent=user_agent,
-            client_name="web",
+            client_name=client_name,
             ip_address=ip_address,
         )
 

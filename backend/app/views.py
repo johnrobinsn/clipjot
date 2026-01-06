@@ -165,6 +165,32 @@ def oauth_callback_handler(request, db, provider: str, user_info: dict):
     return set_session_cookie(response, token)
 
 
+def oauth_extension_callback(request, db, provider: str, user_info: dict, redirect_uri: str):
+    """Handle OAuth callback for Chrome extension.
+
+    Creates session with client_name='chrome-extension' and redirects back
+    to the extension with the session token in the URL.
+    """
+    auth_handler = auth.LinkJotAuth(lambda: db)
+
+    try:
+        token, user = auth_handler.handle_oauth_callback(
+            provider=provider,
+            user_info=user_info,
+            user_agent=request.headers.get("user-agent"),
+            ip_address=request.client.host if request.client else None,
+            client_name="chrome-extension",
+        )
+    except PermissionError as e:
+        # User is suspended - redirect back with error
+        separator = "&" if "?" in redirect_uri else "?"
+        return RedirectResponse(f"{redirect_uri}{separator}error={str(e)}", status_code=303)
+
+    # Redirect back to extension with token in URL
+    separator = "&" if "?" in redirect_uri else "?"
+    return RedirectResponse(f"{redirect_uri}{separator}token={token}", status_code=303)
+
+
 def logout(request, db):
     """Log out current user.
 
@@ -320,7 +346,11 @@ async def bookmark_add(request, db):
     bookmark = database.create_bookmark(db, bookmark)
 
     # Parse tags and resolve/create them
-    tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
+    # Handle both comma-separated string and list of tag names
+    if isinstance(tag_names_raw, list):
+        tag_names = [name.strip() for name in tag_names_raw if name.strip()]
+    else:
+        tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
     if tag_names:
         tag_ids = []
         for name in tag_names:
@@ -381,13 +411,17 @@ async def bookmark_edit(request, db, bookmark_id: int):
     bookmark = database.update_bookmark(db, bookmark)
 
     # Parse tags and resolve/create them
-    tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
+    # Handle both comma-separated string and list of tag names
+    if isinstance(tag_names_raw, list):
+        tag_names = [name.strip() for name in tag_names_raw if name.strip()]
+    else:
+        tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
     tag_ids = []
     for name in tag_names:
         tag = database.get_tag_by_name(db, user.id, name)
         if not tag:
-            # Create new tag with default color
-            tag = database.create_tag(db, user.id, name, "#6b7280")
+            # Create new tag
+            tag = database.create_tag(db, user.id, name)
         tag_ids.append(tag.id)
     database.set_bookmark_tags(db, bookmark.id, tag_ids)
 

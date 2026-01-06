@@ -129,12 +129,17 @@ def logout(request):
 # =============================================================================
 
 @rt("/auth/google")
-def auth_google(request):
+def auth_google(request, redirect_uri: str = None):
+    """Start Google OAuth. If redirect_uri is provided (extension flow), encode it in state."""
     if not google_client:
         return Response("Google OAuth not configured", status_code=503)
-    # Redirect to Google OAuth
-    redirect_uri = f"{config.BASE_URL}/auth_redirect/google"
-    login_url = google_client.login_link(redirect_uri)
+    oauth_redirect = f"{config.BASE_URL}/auth_redirect/google"
+    # If redirect_uri provided, this is extension flow - encode in state
+    state = None
+    if redirect_uri:
+        import base64
+        state = base64.urlsafe_b64encode(f"ext:{redirect_uri}".encode()).decode()
+    login_url = google_client.login_link(oauth_redirect, state=state)
     return RedirectResponse(login_url, status_code=303)
 
 
@@ -146,19 +151,37 @@ def auth_redirect_google(request, code: str = None, state: str = None):
         return RedirectResponse("/login", status_code=303)
 
     try:
-        redirect_uri = f"{config.BASE_URL}/auth_redirect/google"
-        user_info = google_client.retr_info(code, redirect_uri)
+        oauth_redirect = f"{config.BASE_URL}/auth_redirect/google"
+        user_info = google_client.retr_info(code, oauth_redirect)
+
+        # Check if this is extension flow (state starts with "ext:")
+        if state:
+            import base64
+            try:
+                decoded = base64.urlsafe_b64decode(state.encode()).decode()
+                if decoded.startswith("ext:"):
+                    extension_redirect = decoded[4:]  # Remove "ext:" prefix
+                    return views.oauth_extension_callback(request, get_db(), "google", user_info, extension_redirect)
+            except Exception:
+                pass  # Invalid state, fall through to web flow
+
         return views.oauth_callback_handler(request, get_db(), "google", user_info)
     except Exception as e:
         return Response(f"OAuth error: {e}", status_code=400)
 
 
 @rt("/auth/github")
-def auth_github(request):
+def auth_github(request, redirect_uri: str = None):
+    """Start GitHub OAuth. If redirect_uri is provided (extension flow), encode it in state."""
     if not github_client:
         return Response("GitHub OAuth not configured", status_code=503)
-    redirect_uri = f"{config.BASE_URL}/auth_redirect/github"
-    login_url = github_client.login_link(redirect_uri)
+    oauth_redirect = f"{config.BASE_URL}/auth_redirect/github"
+    # If redirect_uri provided, this is extension flow - encode in state
+    state = None
+    if redirect_uri:
+        import base64
+        state = base64.urlsafe_b64encode(f"ext:{redirect_uri}".encode()).decode()
+    login_url = github_client.login_link(oauth_redirect, state=state)
     return RedirectResponse(login_url, status_code=303)
 
 
@@ -170,8 +193,20 @@ def auth_redirect_github(request, code: str = None, state: str = None):
         return RedirectResponse("/login", status_code=303)
 
     try:
-        redirect_uri = f"{config.BASE_URL}/auth_redirect/github"
-        user_info = github_client.retr_info(code, redirect_uri)
+        oauth_redirect = f"{config.BASE_URL}/auth_redirect/github"
+        user_info = github_client.retr_info(code, oauth_redirect)
+
+        # Check if this is extension flow (state starts with "ext:")
+        if state:
+            import base64
+            try:
+                decoded = base64.urlsafe_b64decode(state.encode()).decode()
+                if decoded.startswith("ext:"):
+                    extension_redirect = decoded[4:]  # Remove "ext:" prefix
+                    return views.oauth_extension_callback(request, get_db(), "github", user_info, extension_redirect)
+            except Exception:
+                pass  # Invalid state, fall through to web flow
+
         return views.oauth_callback_handler(request, get_db(), "github", user_info)
     except Exception as e:
         return Response(f"OAuth error: {e}", status_code=400)
