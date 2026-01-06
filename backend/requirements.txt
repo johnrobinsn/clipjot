@@ -1,4 +1,4 @@
-# LinkJot Backend Dependencies
+# ClipJot Backend Dependencies
 
 # Web framework
 python-fasthtml>=0.4.0

@@ -1,4 +1,4 @@
-# LinkJot Dependencies
+# ClipJot Dependencies
 # Install with: pip install -r requirements.txt
 
 # Backend dependencies (also in backend/requirements.txt)

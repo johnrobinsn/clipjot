@@ -1,4 +1,4 @@
-"""JSON API endpoints for LinkJot.
+"""JSON API endpoints for ClipJot.
 
 All endpoints use POST with JSON body and require API token authentication.
 """

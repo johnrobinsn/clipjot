@@ -1,4 +1,4 @@
-# LinkJot Specification
+# ClipJot Specification
 
 A bookmark management system with multiple clients for capturing bookmarks and a backend for storing, searching, and managing them.
 
@@ -24,7 +24,7 @@ A bookmark management system with multiple clients for capturing bookmarks and a
 
 ## Overview
 
-LinkJot is a self-hostable bookmark management system that allows users to save, organize, and search bookmarks from multiple platforms. The system consists of:
+ClipJot is a self-hostable bookmark management system that allows users to save, organize, and search bookmarks from multiple platforms. The system consists of:
 
 - **Backend**: FastHTML-based web application with API, database, and admin UI
 - **Chrome Extension**: Browser extension for capturing web pages
@@ -47,7 +47,7 @@ LinkJot is a self-hostable bookmark management system that allows users to save,
 ### Directory Structure
 
 ```
-linkjot/
+clipjot/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
@@ -110,8 +110,8 @@ GITHUB_CLIENT_SECRET=...
 
 # Application
 SECRET_KEY=...                    # For session signing
-DATABASE_PATH=./linkjot.db        # SQLite database location
-BASE_URL=https://linkjot.example.com
+DATABASE_PATH=./clipjot.db        # SQLite database location
+BASE_URL=https://clipjot.example.com
 
 # Rate limiting
 RATE_LIMIT_REQUESTS=100           # Requests per window
@@ -120,27 +120,27 @@ RATE_LIMIT_WINDOW=60              # Window in seconds
 
 ### CLI Reference
 
-The `linkjot` CLI provides administrative commands for database management, user operations, and maintenance tasks. All commands support `--help` for usage details.
+The `clipjot` CLI provides administrative commands for database management, user operations, and maintenance tasks. All commands support `--help` for usage details.
 
 ```bash
-linkjot --help               # Show all commands
-linkjot --version            # Show version
+clipjot --help               # Show all commands
+clipjot --version            # Show version
 ```
 
 #### Database Commands
 
 ```bash
-linkjot db init
+clipjot db init
 ```
 Initialize database schema. Creates all tables, indexes, triggers, and FTS virtual tables. Safe to run on existing database (no-op if already initialized).
 
 ```bash
-linkjot db migrate
+clipjot db migrate
 ```
 Run pending database migrations. Applies any schema changes for version upgrades.
 
 ```bash
-linkjot db backup <path>
+clipjot db backup <path>
 ```
 Create a backup of the database to the specified path. Uses SQLite's backup API for safe hot backups.
 
@@ -149,13 +149,13 @@ Create a backup of the database to the specified path. Uses SQLite's backup API 
 
 **Example:**
 ```bash
-linkjot db backup /backups/linkjot-2024-01-15.db
+clipjot db backup /backups/clipjot-2024-01-15.db
 ```
 
 #### User Commands
 
 ```bash
-linkjot user list [--format FORMAT]
+clipjot user list [--format FORMAT]
 ```
 List all users with summary statistics.
 
@@ -165,14 +165,14 @@ List all users with summary statistics.
 **Output columns:** ID, Email, Provider, Created, Bookmarks, Tags, Status
 
 ```bash
-linkjot user info <email>
+clipjot user info <email>
 ```
 Show detailed information for a specific user.
 
 **Output:** Email, provider, created date, bookmark count, tag count, session count, token count, premium status, admin status, suspension status.
 
 ```bash
-linkjot user export <email> [--output PATH]
+clipjot user export <email> [--output PATH]
 ```
 Export a user's bookmarks as JSON. For admin data portability requests.
 
@@ -181,11 +181,11 @@ Export a user's bookmarks as JSON. For admin data portability requests.
 
 **Example:**
 ```bash
-linkjot user export user@example.com --output /tmp/export.json
+clipjot user export user@example.com --output /tmp/export.json
 ```
 
 ```bash
-linkjot user delete <email> [--force]
+clipjot user delete <email> [--force]
 ```
 Permanently delete a user and all their data (bookmarks, tags, sessions, tokens).
 
@@ -193,7 +193,7 @@ Permanently delete a user and all their data (bookmarks, tags, sessions, tokens)
 - `--force` - Skip confirmation prompt
 
 ```bash
-linkjot user suspend <email> --reason <reason>
+clipjot user suspend <email> --reason <reason>
 ```
 Suspend a user account. Terminates all active sessions and blocks login.
 
@@ -202,40 +202,40 @@ Suspend a user account. Terminates all active sessions and blocks login.
 
 **Example:**
 ```bash
-linkjot user suspend spammer@example.com --reason "ToS violation: spam"
+clipjot user suspend spammer@example.com --reason "ToS violation: spam"
 ```
 
 ```bash
-linkjot user unsuspend <email>
+clipjot user unsuspend <email>
 ```
 Remove suspension from a user account, allowing login again.
 
 #### Admin Commands
 
 ```bash
-linkjot admin init <email>
+clipjot admin init <email>
 ```
 Bootstrap the first admin user. Only works when no admin users exist. Use this for initial setup.
 
 ```bash
-linkjot admin grant <email>
+clipjot admin grant <email>
 ```
 Grant admin privileges to an existing user.
 
 ```bash
-linkjot admin revoke <email>
+clipjot admin revoke <email>
 ```
 Revoke admin privileges from a user. Cannot revoke the last admin.
 
 ```bash
-linkjot admin list
+clipjot admin list
 ```
 List all admin users.
 
 #### Maintenance Commands
 
 ```bash
-linkjot cleanup sessions [--dry-run]
+clipjot cleanup sessions [--dry-run]
 ```
 Remove expired sessions from the database.
 
@@ -243,7 +243,7 @@ Remove expired sessions from the database.
 - `--dry-run` - Show what would be deleted without deleting
 
 ```bash
-linkjot cleanup tokens [--dry-run]
+clipjot cleanup tokens [--dry-run]
 ```
 Remove expired API tokens from the database.
 
@@ -251,7 +251,7 @@ Remove expired API tokens from the database.
 - `--dry-run` - Show what would be deleted without deleting
 
 ```bash
-linkjot stats
+clipjot stats
 ```
 Display database statistics.
 
@@ -267,7 +267,7 @@ Display database statistics.
 #### Token Commands
 
 ```bash
-linkjot token create <email> --name <name> --scope <scope> [--expires <days>]
+clipjot token create <email> --name <name> --scope <scope> [--expires <days>]
 ```
 Create an API token for a user (for automated/service accounts).
 
@@ -280,16 +280,16 @@ Create an API token for a user (for automated/service accounts).
 
 **Example:**
 ```bash
-linkjot token create service@example.com --name "CI Pipeline" --scope write --expires 90
+clipjot token create service@example.com --name "CI Pipeline" --scope write --expires 90
 ```
 
 ```bash
-linkjot token list <email>
+clipjot token list <email>
 ```
 List all API tokens for a user (shows names and expiry, not token values).
 
 ```bash
-linkjot token revoke <email> --name <name>
+clipjot token revoke <email> --name <name>
 ```
 Revoke a specific API token by name.
 
@@ -750,20 +750,20 @@ Each provider login creates a **separate user account**. No automatic linking by
 
 5. If prompted, configure the OAuth consent screen:
    - User Type: External (or Internal for Google Workspace)
-   - App name: LinkJot
+   - App name: ClipJot
    - User support email: your email
-   - Authorized domains: your domain (e.g., `linkjot.example.com`)
+   - Authorized domains: your domain (e.g., `clipjot.example.com`)
    - Developer contact: your email
 
 6. For the OAuth client:
    - Application type: **Web application**
-   - Name: LinkJot Web
+   - Name: ClipJot Web
    - Authorized JavaScript origins:
      - `http://localhost:5001` (development)
-     - `https://linkjot.example.com` (production)
+     - `https://clipjot.example.com` (production)
    - Authorized redirect URIs:
      - `http://localhost:5001/auth_redirect/google` (development)
-     - `https://linkjot.example.com/auth_redirect/google` (production)
+     - `https://clipjot.example.com/auth_redirect/google` (production)
 
 7. Copy the **Client ID** and **Client Secret** to your `.env` file:
    ```
@@ -778,7 +778,7 @@ Each provider login creates a **separate user account**. No automatic linking by
 2. Click **OAuth Apps > New OAuth App**
 
 3. Fill in the application details:
-   - Application name: LinkJot
+   - Application name: ClipJot
    - Homepage URL: `http://localhost:5001` (or your production URL)
    - Application description: Bookmark management application
    - Authorization callback URL: `http://localhost:5001/auth_redirect/github`
@@ -982,7 +982,7 @@ See [CLI Reference](#cli-reference) for admin command-line operations.
 - Logout button
 
 **Context menu**:
-- "Save to LinkJot" on link right-click
+- "Save to ClipJot" on link right-click
 - Opens popup pre-filled with link URL
 
 ### Android Client
@@ -1100,8 +1100,8 @@ def test_user(client):
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/linkjot.git
-cd linkjot/backend
+git clone https://github.com/your-org/clipjot.git
+cd clipjot/backend
 
 # Create virtual environment
 python3.12 -m venv venv
@@ -1121,20 +1121,20 @@ python -m app.cli db init
 python -m app.main
 ```
 
-**systemd service** (`/etc/systemd/system/linkjot.service`):
+**systemd service** (`/etc/systemd/system/clipjot.service`):
 
 ```ini
 [Unit]
-Description=LinkJot Bookmark Manager
+Description=ClipJot Bookmark Manager
 After=network.target
 
 [Service]
 Type=simple
-User=linkjot
-WorkingDirectory=/opt/linkjot/backend
-Environment=PATH=/opt/linkjot/backend/venv/bin
-EnvironmentFile=/opt/linkjot/backend/.env
-ExecStart=/opt/linkjot/backend/venv/bin/python -m app.main
+User=clipjot
+WorkingDirectory=/opt/clipjot/backend
+Environment=PATH=/opt/clipjot/backend/venv/bin
+EnvironmentFile=/opt/clipjot/backend/.env
+ExecStart=/opt/clipjot/backend/venv/bin/python -m app.main
 Restart=always
 RestartSec=5
 
@@ -1145,8 +1145,8 @@ WantedBy=multi-user.target
 **Enable and start**:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable linkjot
-sudo systemctl start linkjot
+sudo systemctl enable clipjot
+sudo systemctl start clipjot
 ```
 
 **Reverse proxy** (nginx example):
@@ -1154,10 +1154,10 @@ sudo systemctl start linkjot
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name linkjot.example.com;
+    server_name clipjot.example.com;
 
-    ssl_certificate /etc/letsencrypt/live/linkjot.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/linkjot.example.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/clipjot.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/clipjot.example.com/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:8000;
@@ -1175,10 +1175,10 @@ SQLite file backup strategy:
 
 ```bash
 # Create backup (while app is running - SQLite handles this safely)
-sqlite3 /opt/linkjot/backend/linkjot.db ".backup '/backups/linkjot-$(date +%Y%m%d).db'"
+sqlite3 /opt/clipjot/backend/clipjot.db ".backup '/backups/clipjot-$(date +%Y%m%d).db'"
 
 # Cron job (daily at 2 AM)
-0 2 * * * /usr/bin/sqlite3 /opt/linkjot/backend/linkjot.db ".backup '/backups/linkjot-$(date +\%Y\%m\%d).db'"
+0 2 * * * /usr/bin/sqlite3 /opt/clipjot/backend/clipjot.db ".backup '/backups/clipjot-$(date +\%Y\%m\%d).db'"
 ```
 
 Backup retention: Keep last 7 daily, 4 weekly, 12 monthly.

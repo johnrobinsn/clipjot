@@ -1,4 +1,4 @@
-"""Admin UI views for LinkJot.
+"""Admin UI views for ClipJot.
 
 Admin-only routes for user management and system statistics.
 Privacy constraint: Admins can see counts but NOT user content.
@@ -165,7 +165,7 @@ def admin_dashboard(request, db):
         ]
     )
 
-    return page_layout(content, title="Admin Dashboard - LinkJot", user=user)
+    return page_layout(content, title="Admin Dashboard - ClipJot", user=user)
 
 
 # =============================================================================
@@ -310,7 +310,7 @@ def admin_users(request, db):
         ]
     )
 
-    return page_layout(content, title="User Management - LinkJot", user=user)
+    return page_layout(content, title="User Management - ClipJot", user=user)
 
 
 def admin_user_detail(request, db, user_id: int):
@@ -508,7 +508,7 @@ def admin_user_detail(request, db, user_id: int):
         ]
     )
 
-    return page_layout(content, title=f"User: {target_user.email} - LinkJot", user=admin_user)
+    return page_layout(content, title=f"User: {target_user.email} - ClipJot", user=admin_user)
 
 
 # =============================================================================

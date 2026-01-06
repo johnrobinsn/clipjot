@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linkjot"
+name = "clipjot"
 version = "0.1.0"
-description = "LinkJot bookmark management backend"
+description = "ClipJot bookmark management backend"
 requires-python = ">=3.11"
 dependencies = [
     "python-fasthtml>=0.4.0",
@@ -22,7 +22,7 @@ dev = [
 ]
 
 [project.scripts]
-linkjot = "app.cli:cli"
+clipjot = "app.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]

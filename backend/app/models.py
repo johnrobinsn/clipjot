@@ -1,4 +1,4 @@
-"""Database models for LinkJot.
+"""Database models for ClipJot.
 
 Dataclass definitions used by FastLite for table creation and CRUD operations.
 """

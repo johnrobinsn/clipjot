@@ -1,5 +1,5 @@
 /**
- * LinkJot Chrome Extension - Background Service Worker
+ * ClipJot Chrome Extension - Background Service Worker
  *
  * Handles:
  * - Context menu registration
@@ -13,21 +13,21 @@ const DEFAULT_BACKEND_URL = 'http://localhost:5001';
 chrome.runtime.onInstalled.addListener(() => {
   // Create context menu for links
   chrome.contextMenus.create({
-    id: 'save-link-to-linkjot',
-    title: 'Save to LinkJot',
+    id: 'save-link-to-clipjot',
+    title: 'Save to ClipJot',
     contexts: ['link'],
   });
 
   // Create context menu for page
   chrome.contextMenus.create({
-    id: 'save-page-to-linkjot',
-    title: 'Save page to LinkJot',
+    id: 'save-page-to-clipjot',
+    title: 'Save page to ClipJot',
     contexts: ['page'],
   });
 
   // Create context menu for extension icon to open web UI
   chrome.contextMenus.create({
-    id: 'open-linkjot-web',
+    id: 'open-clipjot-web',
     title: 'View Links...',
     contexts: ['action'],
   });
@@ -36,7 +36,7 @@ chrome.runtime.onInstalled.addListener(() => {
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   // Handle "View Links..." - open web UI
-  if (info.menuItemId === 'open-linkjot-web') {
+  if (info.menuItemId === 'open-clipjot-web') {
     const storage = await chrome.storage.local.get(['backendUrl']);
     const backendUrl = storage.backendUrl || DEFAULT_BACKEND_URL;
     chrome.tabs.create({ url: backendUrl });
@@ -45,7 +45,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   let url, title;
 
-  if (info.menuItemId === 'save-link-to-linkjot') {
+  if (info.menuItemId === 'save-link-to-clipjot') {
     url = info.linkUrl;
     // Try to get link text by injecting a script to find the link element
     try {
@@ -68,7 +68,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       // Script injection may fail on some pages (chrome://, etc.)
       title = info.linkText || url;
     }
-  } else if (info.menuItemId === 'save-page-to-linkjot') {
+  } else if (info.menuItemId === 'save-page-to-clipjot') {
     url = tab.url;
     title = tab.title;
   }

@@ -1,14 +1,11 @@
 /**
- * LinkJot Chrome Extension - Options Page Script
+ * ClipJot Chrome Extension - Options Page Script
  */
 
 const DEFAULT_BACKEND_URL = 'http://localhost:5001';
 
 // DOM Elements
 const backendUrlInput = document.getElementById('backend-url');
-const loggedOutEl = document.getElementById('logged-out');
-const loggedInEl = document.getElementById('logged-in');
-const logoutBtn = document.getElementById('logout-btn');
 const saveBtn = document.getElementById('save-btn');
 const statusMessage = document.getElementById('status-message');
 
@@ -17,25 +14,8 @@ const statusMessage = document.getElementById('status-message');
  */
 async function init() {
   // Load current settings
-  const storage = await chrome.storage.local.get(['backendUrl', 'sessionToken']);
-
+  const storage = await chrome.storage.local.get(['backendUrl']);
   backendUrlInput.value = storage.backendUrl || DEFAULT_BACKEND_URL;
-
-  // Update login status
-  updateLoginStatus(!!storage.sessionToken);
-}
-
-/**
- * Update the login status display
- */
-function updateLoginStatus(isLoggedIn) {
-  if (isLoggedIn) {
-    loggedInEl.classList.remove('hidden');
-    loggedOutEl.classList.add('hidden');
-  } else {
-    loggedInEl.classList.add('hidden');
-    loggedOutEl.classList.remove('hidden');
-  }
 }
 
 /**
@@ -44,7 +24,7 @@ function updateLoginStatus(isLoggedIn) {
 async function saveSettings() {
   const backendUrl = backendUrlInput.value.trim() || DEFAULT_BACKEND_URL;
 
-  // Validate URL
+  // Validate URL format
   try {
     new URL(backendUrl);
   } catch {
@@ -55,18 +35,45 @@ async function saveSettings() {
   // Remove trailing slash
   const normalizedUrl = backendUrl.replace(/\/+$/, '');
 
+  // Test connection to backend by calling the tags API
+  // An unauthenticated request should return 401 with ClipJot's error format
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Testing...';
+
+  try {
+    const response = await fetch(`${normalizedUrl}/api/v1/tags/list`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+
+    // We expect either:
+    // - 401 with JSON error (unauthenticated but it's ClipJot)
+    // - 200 if somehow authenticated
+    const data = await response.json();
+
+    // Check for ClipJot's error format (has "code" field) or success (has "tags" field)
+    if (!data.code && !data.tags) {
+      throw new Error('Server responded but does not appear to be ClipJot');
+    }
+  } catch (error) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Settings';
+    if (error.message.includes('ClipJot')) {
+      showStatus(error.message, 'error');
+    } else if (error.name === 'TypeError') {
+      showStatus('Cannot connect to server - check the URL', 'error');
+    } else {
+      showStatus(`Connection failed: ${error.message}`, 'error');
+    }
+    return;
+  }
+
   await chrome.storage.local.set({ backendUrl: normalizedUrl });
 
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save Settings';
   showStatus('Settings saved!', 'success');
-}
-
-/**
- * Log out the user
- */
-async function logout() {
-  await chrome.storage.local.remove('sessionToken');
-  updateLoginStatus(false);
-  showStatus('Logged out successfully', 'info');
 }
 
 /**
@@ -100,7 +107,6 @@ function showStatus(message, type = 'info') {
 
 // Event Listeners
 saveBtn.addEventListener('click', saveSettings);
-logoutBtn.addEventListener('click', logout);
 
 // Save on Enter key in URL input
 backendUrlInput.addEventListener('keydown', (e) => {

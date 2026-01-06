@@ -48,6 +48,23 @@ class TestApiAuthentication:
 
         assert error is not None
 
+    def test_error_response_format(self, db):
+        """Test that error responses include 'code' field.
+
+        The Chrome extension relies on this format to detect a ClipJot backend.
+        Error responses must have: {"error": "...", "code": "..."}
+        """
+        request = MockRequest(headers={"Authorization": "Bearer invalid-token"})
+
+        token, user, error = api.get_api_auth(request, db)
+
+        assert error is not None
+        assert error.status_code == 401
+        body = json.loads(error.body)
+        assert "error" in body, "Error response must have 'error' field"
+        assert "code" in body, "Error response must have 'code' field (extension depends on this)"
+        assert body["code"] == "INVALID_TOKEN"
+
     def test_valid_token(self, db, test_token):
         """Test request with valid token."""
         plaintext, token_obj = test_token
@@ -192,7 +209,11 @@ class TestTagApi:
     """Test tag API endpoints."""
 
     def test_list_tags(self, db, test_token, test_tag):
-        """Test listing tags via API."""
+        """Test listing tags via API.
+
+        Note: The response must include a 'tags' field - the Chrome extension
+        uses this to verify it's connected to a ClipJot backend.
+        """
         plaintext, _ = test_token
         request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
         auth.clear_rate_limit_store()
@@ -201,6 +222,7 @@ class TestTagApi:
 
         assert response.status_code == 200
         body = json.loads(response.body)
+        assert "tags" in body, "Response must have 'tags' field (extension depends on this)"
         assert len(body["tags"]) == 1
         assert body["tags"][0]["name"] == "test-tag"
 

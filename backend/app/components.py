@@ -1,4 +1,4 @@
-"""Reusable FastHTML/FT components for LinkJot UI.
+"""Reusable FastHTML/FT components for ClipJot UI.
 
 These components provide consistent styling using DaisyUI classes.
 """
@@ -16,7 +16,7 @@ from .models import Bookmark, Tag, User
 # Page Layout Components
 # =============================================================================
 
-def page_head(title: str = "LinkJot"):
+def page_head(title: str = "ClipJot"):
     """Generate page head with CSS/JS dependencies."""
     return (
         Title(title),
@@ -43,7 +43,7 @@ def page_head(title: str = "LinkJot"):
     )
 
 
-def page_layout(content, title: str = "LinkJot", user: Optional[User] = None, flash: Optional[str] = None):
+def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, flash: Optional[str] = None):
     """Wrap content in full page layout with navbar."""
     main_children = [content]
     if flash:
@@ -81,7 +81,7 @@ def navbar(user: Optional[User] = None):
 
     return Nav(
         Div(
-            A("LinkJot", href="/", cls="btn btn-ghost text-xl"),
+            A("ClipJot", href="/", cls="btn btn-ghost text-xl"),
             cls="flex-1",
         ),
         Div(

@@ -1,4 +1,4 @@
-"""Pytest fixtures for LinkJot tests."""
+"""Pytest fixtures for ClipJot tests."""
 
 import os
 import sys

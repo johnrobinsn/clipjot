@@ -1,4 +1,4 @@
-"""Authentication handlers for LinkJot.
+"""Authentication handlers for ClipJot.
 
 Implements OAuth authentication with Google and GitHub using FastHTML's OAuth support.
 """
@@ -174,8 +174,8 @@ def get_or_create_oauth_user(db, provider: str, provider_user_id: str, email: st
     return user
 
 
-class LinkJotAuth:
-    """OAuth authentication handler for LinkJot.
+class ClipJotAuth:
+    """OAuth authentication handler for ClipJot.
 
     Handles Google and GitHub OAuth flows.
     """

@@ -1,8 +1,8 @@
-# LinkJot API Documentation
+# ClipJot API Documentation
 
 ## Overview
 
-The LinkJot API provides programmatic access to manage your bookmarks and tags. All endpoints use JSON for request and response bodies.
+The ClipJot API provides programmatic access to manage your bookmarks and tags. All endpoints use JSON for request and response bodies.
 
 **Base URL:** `https://your-domain.com/api/v1`
 
@@ -12,7 +12,7 @@ All API endpoints require authentication using a Bearer token.
 
 ### Getting an API Token
 
-1. Log into LinkJot web UI
+1. Log into ClipJot web UI
 2. Go to **Settings → API Tokens**
 3. Click **+ New Token**
 4. Choose a name, scope (`read` or `write`), and expiration

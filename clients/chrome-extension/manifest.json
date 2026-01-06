@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LinkJot",
+  "name": "ClipJot",
   "version": "1.0.0",
-  "description": "Save bookmarks to LinkJot - your personal bookmark manager",
+  "description": "Save bookmarks to ClipJot - your personal bookmark manager",
   "permissions": [
     "activeTab",
     "contextMenus",

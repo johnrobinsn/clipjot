@@ -1,4 +1,4 @@
-"""LinkJot FastHTML Application Entry Point.
+"""ClipJot FastHTML Application Entry Point.
 
 This module creates and configures the FastHTML application,
 registers all routes, and sets up OAuth authentication.

@@ -1,4 +1,4 @@
-"""Configuration management for LinkJot.
+"""Configuration management for ClipJot.
 
 Loads configuration from environment variables with .env file support.
 """
@@ -32,7 +32,7 @@ def _get_int(key: str, default: int) -> int:
 
 # Application settings
 SECRET_KEY: str = _get_env("SECRET_KEY", required=True)
-DATABASE_PATH: str = _get_env("DATABASE_PATH", "./linkjot.db")
+DATABASE_PATH: str = _get_env("DATABASE_PATH", "./clipjot.db")
 BASE_URL: str = _get_env("BASE_URL", "http://localhost:5001")
 
 # Google OAuth

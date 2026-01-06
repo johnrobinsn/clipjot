@@ -1,6 +1,6 @@
-# LinkJot Chrome Extension
+# ClipJot Chrome Extension
 
-A Chrome extension for saving bookmarks to LinkJot.
+A Chrome extension for saving bookmarks to ClipJot.
 
 ## Features
 
@@ -24,27 +24,27 @@ A Chrome extension for saving bookmarks to LinkJot.
 
 1. Click the extension icon in the toolbar
 2. Click "Settings" (gear icon)
-3. Enter your LinkJot server URL (default: `http://localhost:5001`)
+3. Enter your ClipJot server URL (default: `http://localhost:5001`)
 4. Click "Save Settings"
 
 ## Usage
 
 ### Save Current Page
 1. Navigate to any page you want to save
-2. Click the LinkJot icon in the toolbar
+2. Click the ClipJot icon in the toolbar
 3. (Optional) Edit the title, add tags, or add a comment
 4. Click "Save Bookmark"
 
 ### Save a Link
 1. Right-click any link on a page
-2. Select "Save to LinkJot"
+2. Select "Save to ClipJot"
 3. The popup will open with the link pre-filled
 4. Add tags and comments as desired
 5. Click "Save Bookmark"
 
 ## Authentication
 
-The extension uses OAuth via your LinkJot server:
+The extension uses OAuth via your ClipJot server:
 
 1. Click the extension icon
 2. Click "Sign in with Google" or "Sign in with GitHub"
@@ -58,9 +58,9 @@ Your session is stored securely in Chrome's local storage.
 The extension requires these permissions:
 
 - `activeTab` - Access the current tab's URL and title
-- `contextMenus` - Add "Save to LinkJot" to right-click menu
+- `contextMenus` - Add "Save to ClipJot" to right-click menu
 - `storage` - Store your session and settings
-- `host_permissions (*://*/*)` - Communicate with your LinkJot server
+- `host_permissions (*://*/*)` - Communicate with your ClipJot server
 
 ## Development
 
@@ -102,6 +102,6 @@ For publishing to the Chrome Web Store:
 1. Update the version in `manifest.json`
 2. Zip the extension directory:
    ```bash
-   zip -r linkjot-extension.zip chrome-extension/
+   zip -r clipjot-extension.zip chrome-extension/
    ```
 3. Upload to the Chrome Web Store Developer Dashboard

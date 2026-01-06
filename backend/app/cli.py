@@ -1,6 +1,6 @@
-"""LinkJot CLI - Administrative command-line interface.
+"""ClipJot CLI - Administrative command-line interface.
 
-Usage: linkjot <command> [options]
+Usage: clipjot <command> [options]
 
 Commands for database management, user administration, and maintenance.
 """
@@ -22,9 +22,9 @@ from .models import now_iso, future_iso
 # =============================================================================
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="linkjot")
+@click.version_option(version="0.1.0", prog_name="clipjot")
 def cli():
-    """LinkJot administration CLI."""
+    """ClipJot administration CLI."""
     pass
 
 
@@ -340,7 +340,7 @@ def admin_init(email):
     # Check if any admins exist
     admins = list(db.t.user(where="is_admin = 1", limit=1))
     if admins:
-        click.echo("Error: Admin users already exist. Use 'linkjot admin grant' instead.", err=True)
+        click.echo("Error: Admin users already exist. Use 'clipjot admin grant' instead.", err=True)
         sys.exit(5)
 
     user = database.get_user_by_email(db, email)
@@ -489,7 +489,7 @@ def stats():
     except Exception:
         db_size_str = "Unknown"
 
-    click.echo("LinkJot Statistics")
+    click.echo("ClipJot Statistics")
     click.echo("=" * 40)
     click.echo(f"Users:")
     click.echo(f"  Total: {total_users}")

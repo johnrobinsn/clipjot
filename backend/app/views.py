@@ -1,4 +1,4 @@
-"""Web UI views for LinkJot.
+"""Web UI views for ClipJot.
 
 Handles all HTML routes for the web interface.
 """
@@ -110,7 +110,7 @@ def login_page(request, db):
     content = Div(
         Div(
             Div(
-                H2("Welcome to LinkJot", cls="card-title mb-6"),
+                H2("Welcome to ClipJot", cls="card-title mb-6"),
                 P("Sign in to manage your links", cls="mb-6 text-base-content/70"),
                 *providers,
                 cls="card-body items-center text-center",
@@ -120,7 +120,7 @@ def login_page(request, db):
         cls="flex items-center justify-center min-h-[60vh]",
     )
 
-    return page_layout(content, title="Login - LinkJot")
+    return page_layout(content, title="Login - ClipJot")
 
 
 def health_check(request, db):
@@ -143,7 +143,7 @@ def oauth_callback_handler(request, db, provider: str, user_info: dict):
 
     Called by OAuth client callbacks.
     """
-    auth_handler = auth.LinkJotAuth(lambda: db)
+    auth_handler = auth.ClipJotAuth(lambda: db)
 
     try:
         token, user = auth_handler.handle_oauth_callback(
@@ -158,7 +158,7 @@ def oauth_callback_handler(request, db, provider: str, user_info: dict):
             P(str(e)),
             cls="alert alert-error",
         )
-        return page_layout(content, title="Access Denied - LinkJot")
+        return page_layout(content, title="Access Denied - ClipJot")
 
     # Create response with session cookie
     response = RedirectResponse("/", status_code=303)
@@ -171,7 +171,7 @@ def oauth_extension_callback(request, db, provider: str, user_info: dict, redire
     Creates session with client_name='chrome-extension' and redirects back
     to the extension with the session token in the URL.
     """
-    auth_handler = auth.LinkJotAuth(lambda: db)
+    auth_handler = auth.ClipJotAuth(lambda: db)
 
     try:
         token, user = auth_handler.handle_oauth_callback(
@@ -291,7 +291,7 @@ def bookmark_index(request, db):
         modal_container(),
     )
 
-    return page_layout(content, title="My Links - LinkJot", user=user)
+    return page_layout(content, title="My Links - ClipJot", user=user)
 
 
 def bookmark_add_form(request, db):
@@ -723,7 +723,7 @@ def settings_page(request, db):
         settings_nav("settings"),
     )
 
-    return page_layout(content, title="Settings - LinkJot", user=user)
+    return page_layout(content, title="Settings - ClipJot", user=user)
 
 
 def settings_tags(request, db):
@@ -770,7 +770,7 @@ def settings_tags(request, db):
         modal_container(),
     )
 
-    return page_layout(content, title="Manage Tags - LinkJot", user=user)
+    return page_layout(content, title="Manage Tags - ClipJot", user=user)
 
 
 def settings_tag_add_form(request, db):
@@ -920,7 +920,7 @@ def settings_tokens(request, db):
         modal_container(),
     )
 
-    return page_layout(content, title="API Tokens - LinkJot", user=user)
+    return page_layout(content, title="API Tokens - ClipJot", user=user)
 
 
 def settings_token_create_form(request, db):
@@ -1124,7 +1124,7 @@ def settings_sessions(request, db):
         settings_nav("sessions"),
     )
 
-    return page_layout(content, title="Sessions - LinkJot", user=user)
+    return page_layout(content, title="Sessions - ClipJot", user=user)
 
 
 def settings_session_revoke(request, db, session_id: str):
@@ -1198,7 +1198,7 @@ def export_page(request, db):
         settings_nav("export"),
     )
 
-    return page_layout(content, title="Export Data - LinkJot", user=user)
+    return page_layout(content, title="Export Data - ClipJot", user=user)
 
 
 def export_download(request, db):
@@ -1241,6 +1241,6 @@ def export_download(request, db):
         json.dumps(export_data, indent=2),
         media_type="application/json",
         headers={
-            "Content-Disposition": f"attachment; filename=linkjot-export-{now_iso()[:10]}.json"
+            "Content-Disposition": f"attachment; filename=clipjot-export-{now_iso()[:10]}.json"
         }
     )

@@ -1,4 +1,4 @@
-"""Database setup and query functions for LinkJot.
+"""Database setup and query functions for ClipJot.
 
 Uses FastLite for SQLite operations with dataclass models.
 """

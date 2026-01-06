@@ -1,1 +1,1 @@
-"""LinkJot backend tests."""
+"""ClipJot backend tests."""

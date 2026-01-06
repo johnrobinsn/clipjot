@@ -43,7 +43,7 @@ class TestPublicRoutes:
         response = app_client.get("/login")
 
         assert response.status_code == 200
-        assert "LinkJot" in response.text
+        assert "ClipJot" in response.text
 
     def test_unauthenticated_redirects_to_login(self, app_client):
         """Test that unauthenticated requests to / redirect to login."""

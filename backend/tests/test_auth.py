@@ -347,12 +347,12 @@ class TestOAuthUserCreation:
         assert cred.user_id == user.id
 
 
-class TestLinkJotAuthHandler:
-    """Test LinkJotAuth OAuth handler."""
+class TestClipJotAuthHandler:
+    """Test ClipJotAuth OAuth handler."""
 
     def test_github_callback(self, db):
         """Test handling GitHub OAuth callback."""
-        handler = auth.LinkJotAuth(lambda: db)
+        handler = auth.ClipJotAuth(lambda: db)
 
         token, user = handler.handle_oauth_callback(
             provider="github",
@@ -371,7 +371,7 @@ class TestLinkJotAuthHandler:
 
     def test_google_callback(self, db):
         """Test handling Google OAuth callback."""
-        handler = auth.LinkJotAuth(lambda: db)
+        handler = auth.ClipJotAuth(lambda: db)
 
         token, user = handler.handle_oauth_callback(
             provider="google",
@@ -388,7 +388,7 @@ class TestLinkJotAuthHandler:
 
     def test_github_without_email(self, db):
         """Test GitHub user without public email."""
-        handler = auth.LinkJotAuth(lambda: db)
+        handler = auth.ClipJotAuth(lambda: db)
 
         token, user = handler.handle_oauth_callback(
             provider="github",
@@ -411,7 +411,7 @@ class TestLinkJotAuthHandler:
         user.is_suspended = True
         database.update_user(db, user)
 
-        handler = auth.LinkJotAuth(lambda: db)
+        handler = auth.ClipJotAuth(lambda: db)
 
         with pytest.raises(PermissionError):
             handler.handle_oauth_callback(

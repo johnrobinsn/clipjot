@@ -1,5 +1,5 @@
 /**
- * LinkJot Chrome Extension - Popup Script
+ * ClipJot Chrome Extension - Popup Script
  */
 
 // Default backend URL
