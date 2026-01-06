@@ -210,14 +210,13 @@ class TestTagApi:
         request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
         auth.clear_rate_limit_store()
 
-        data = {"name": "new-tag", "color": "#ff0000"}
+        data = {"name": "new-tag"}
 
         response = api.api_tags_create(request, db, data)
 
         assert response.status_code == 201
         body = json.loads(response.body)
         assert body["name"] == "new-tag"
-        assert body["color"] == "#ff0000"
 
     def test_create_duplicate_tag(self, db, test_token, test_tag):
         """Test that creating duplicate tag fails."""

@@ -170,7 +170,7 @@ def api_bookmarks_add(request, db, data: dict) -> Response:
         "url": bookmark.url,
         "title": bookmark.title,
         "comment": bookmark.comment,
-        "tags": [{"id": t.id, "name": t.name, "color": t.color} for t in tags],
+        "tags": [{"id": t.id, "name": t.name} for t in tags],
         "client_name": bookmark.client_name,
         "created_at": bookmark.created_at,
     }
@@ -238,7 +238,7 @@ def api_bookmarks_edit(request, db, data: dict) -> Response:
         "url": bookmark.url,
         "title": bookmark.title,
         "comment": bookmark.comment,
-        "tags": [{"id": t.id, "name": t.name, "color": t.color} for t in tags],
+        "tags": [{"id": t.id, "name": t.name} for t in tags],
         "client_name": bookmark.client_name,
         "created_at": bookmark.created_at,
         "updated_at": bookmark.updated_at,
@@ -330,7 +330,7 @@ def api_bookmarks_search(request, db, data: dict) -> Response:
             "url": b.url,
             "title": b.title,
             "comment": b.comment,
-            "tags": [{"id": t.id, "name": t.name, "color": t.color} for t in tags],
+            "tags": [{"id": t.id, "name": t.name} for t in tags],
             "client_name": b.client_name,
             "created_at": b.created_at,
         })
@@ -397,7 +397,7 @@ def api_bookmarks_list(request, db, data: dict) -> Response:
             "url": b.url,
             "title": b.title,
             "comment": b.comment,
-            "tags": [{"id": t.id, "name": t.name, "color": t.color} for t in tags],
+            "tags": [{"id": t.id, "name": t.name} for t in tags],
             "client_name": b.client_name,
             "created_at": b.created_at,
         })
@@ -440,7 +440,6 @@ def api_tags_create(request, db, data: dict) -> Response:
 
     Body:
         name: str (required)
-        color: str (optional, default #6b7280)
     """
     token, user, error = get_api_auth(request, db)
     if error:
@@ -464,13 +463,11 @@ def api_tags_create(request, db, data: dict) -> Response:
     if existing:
         return validation_error("Tag with this name already exists")
 
-    color = data.get("color", "#6b7280").strip()
-    tag = database.create_tag(db, user.id, name, color)
+    tag = database.create_tag(db, user.id, name)
 
     return json_response({
         "id": tag.id,
         "name": tag.name,
-        "color": tag.color,
         "created_at": tag.created_at,
     }, 201)
 
@@ -484,7 +481,6 @@ def api_tags_update(request, db, data: dict) -> Response:
     Body:
         id: int (required)
         name: str (optional)
-        color: str (optional)
     """
     token, user, error = get_api_auth(request, db)
     if error:
@@ -511,15 +507,11 @@ def api_tags_update(request, db, data: dict) -> Response:
                 return validation_error("Tag with this name already exists")
             tag.name = new_name
 
-    if "color" in data:
-        tag.color = data["color"].strip()
-
     tag = database.update_tag(db, tag)
 
     return json_response({
         "id": tag.id,
         "name": tag.name,
-        "color": tag.color,
         "created_at": tag.created_at,
     })
 
@@ -601,3 +593,121 @@ def api_export(request, db, data: dict) -> Response:
         "exported_at": now_iso(),
         "count": len(bookmarks),
     })
+
+
+# =============================================================================
+# Import API Endpoint
+# =============================================================================
+
+def api_import(request, db, data: dict) -> Response:
+    """Import bookmarks from JSON export format.
+
+    POST /api/v1/import
+    Requires: write scope
+
+    Body:
+        bookmarks: list[dict] (required) - list of bookmark objects
+            Each bookmark: {url, title, comment, tags, client_name}
+        mode: str (optional, default "merge")
+            "merge" - add new bookmarks, skip duplicates by URL
+            "replace" - delete all existing bookmarks first
+    """
+    token, user, error = get_api_auth(request, db)
+    if error:
+        return error
+
+    scope_error = require_scope(token, "write")
+    if scope_error:
+        return scope_error
+
+    bookmarks_data = data.get("bookmarks", [])
+    if not bookmarks_data:
+        return validation_error("bookmarks list is required")
+
+    mode = data.get("mode", "merge")
+    if mode not in ("merge", "replace"):
+        return validation_error("mode must be 'merge' or 'replace'")
+
+    # Get existing URLs for duplicate detection
+    existing_urls = set()
+    if mode == "merge":
+        offset = 0
+        while True:
+            batch = database.get_user_bookmarks(db, user.id, 500, offset)
+            if not batch:
+                break
+            for b in batch:
+                existing_urls.add(b.url)
+            offset += 500
+            if len(batch) < 500:
+                break
+
+    # In replace mode, delete all existing bookmarks
+    if mode == "replace":
+        offset = 0
+        while True:
+            batch = database.get_user_bookmarks(db, user.id, 500, 0)
+            if not batch:
+                break
+            for b in batch:
+                database.delete_bookmark(db, b.id)
+
+    imported = 0
+    skipped = 0
+    errors = []
+
+    for i, bm_data in enumerate(bookmarks_data):
+        url = bm_data.get("url", "").strip()
+        if not url:
+            errors.append(f"Bookmark {i}: missing url")
+            continue
+
+        # Skip duplicates in merge mode
+        if mode == "merge" and url in existing_urls:
+            skipped += 1
+            continue
+
+        # Check bookmark limit
+        allowed, current, max_count = auth.check_bookmark_limit(db, user)
+        if not allowed:
+            errors.append(f"Bookmark limit reached ({current}/{max_count}). Stopped importing.")
+            break
+
+        # Create bookmark
+        bookmark = Bookmark(
+            user_id=user.id,
+            url=url,
+            title=bm_data.get("title", "").strip() or None,
+            comment=bm_data.get("comment", "").strip() or None,
+            client_name=bm_data.get("client_name", "import"),
+        )
+        bookmark = database.create_bookmark(db, bookmark)
+
+        # Handle tags
+        tag_names = bm_data.get("tags", [])
+        tag_ids = []
+        for name in tag_names:
+            if isinstance(name, str):
+                name = name.strip()
+                if not name:
+                    continue
+                tag = database.get_tag_by_name(db, user.id, name)
+                if not tag:
+                    # Check tag limit before creating
+                    allowed, _, _ = auth.check_tag_limit(db, user)
+                    if allowed:
+                        tag = database.create_tag(db, user.id, name)
+                if tag:
+                    tag_ids.append(tag.id)
+
+        if tag_ids:
+            database.set_bookmark_tags(db, bookmark.id, tag_ids)
+
+        imported += 1
+        existing_urls.add(url)  # Track to avoid duplicates within same import
+
+    return json_response({
+        "imported": imported,
+        "skipped": skipped,
+        "errors": errors if errors else None,
+    }, 201 if imported > 0 else 200)

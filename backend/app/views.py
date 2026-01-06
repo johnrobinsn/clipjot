@@ -326,8 +326,8 @@ async def bookmark_add(request, db):
         for name in tag_names:
             tag = database.get_tag_by_name(db, user.id, name)
             if not tag:
-                # Create new tag with default color
-                tag = database.create_tag(db, user.id, name, "#6b7280")
+                # Create new tag
+                tag = database.create_tag(db, user.id, name)
             tag_ids.append(tag.id)
         database.set_bookmark_tags(db, bookmark.id, tag_ids)
 
@@ -755,11 +755,6 @@ def settings_tag_add_form(request, db):
             cls="form-control",
         ),
         Div(
-            Label("Color", cls="label"),
-            Input(type="color", name="color", value="#6b7280", cls="w-20 h-10"),
-            cls="form-control",
-        ),
-        Div(
             Button("Cancel", type="button", cls="btn btn-ghost", onclick="closeModal()"),
             Button("Create Tag", type="submit", cls="btn btn-primary"),
             cls="flex justify-end gap-2",
@@ -785,7 +780,6 @@ async def settings_tag_add(request, db):
 
     form = await request.form()
     name = form.get("name", "").strip()
-    color = form.get("color", "#6b7280").strip()
 
     if not name:
         return Response("Name is required", status_code=400)
@@ -799,7 +793,7 @@ async def settings_tag_add(request, db):
     if database.get_tag_by_name(db, user.id, name):
         return Response("Tag already exists", status_code=400)
 
-    database.create_tag(db, user.id, name, color)
+    database.create_tag(db, user.id, name)
 
     response = Response(status_code=200)
     response.headers["HX-Redirect"] = "/settings/tags"

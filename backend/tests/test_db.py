@@ -136,11 +136,10 @@ class TestTagOperations:
 
     def test_create_tag(self, db, test_user):
         """Test creating a tag."""
-        tag = database.create_tag(db, test_user.id, "new-tag", "#ff0000")
+        tag = database.create_tag(db, test_user.id, "new-tag")
 
         assert tag.id is not None
         assert tag.name == "new-tag"
-        assert tag.color == "#ff0000"
 
     def test_get_tag_by_name(self, db, test_user, test_tag):
         """Test getting tag by name."""

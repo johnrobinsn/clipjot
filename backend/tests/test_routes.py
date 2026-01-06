@@ -177,7 +177,7 @@ class TestSettingsRoutes:
         """Test POST /settings/tags/add creates tag."""
         response = authenticated_client.post(
             "/settings/tags/add",
-            data={"name": "new-tag", "color": "#ff0000"},
+            data={"name": "new-tag"},
         )
 
         assert response.status_code == 200
@@ -187,7 +187,7 @@ class TestSettingsRoutes:
         """Test POST /settings/tags/add fails without name."""
         response = authenticated_client.post(
             "/settings/tags/add",
-            data={"color": "#ff0000"},
+            data={},
         )
 
         assert response.status_code == 400

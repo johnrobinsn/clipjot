@@ -357,7 +357,7 @@ class TestTagManagement:
         token, _ = test_session
         request = MockRequest(
             cookies={"session": token},
-            form_data={"name": "new-tag", "color": "#ff0000"},
+            form_data={"name": "new-tag"},
         )
 
         response = await views.settings_tag_add(request, db)
@@ -367,7 +367,6 @@ class TestTagManagement:
         # Verify tag was created
         tag = database.get_tag_by_name(db, test_user.id, "new-tag")
         assert tag is not None
-        assert tag.color == "#ff0000"
 
     @pytest.mark.asyncio
     async def test_create_duplicate_tag(self, db, test_user, test_session, test_tag):

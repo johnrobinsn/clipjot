@@ -427,6 +427,12 @@ async def api_export(request):
     return api.api_export(request, get_db(), data)
 
 
+@rt("/api/v1/import", methods=["POST"])
+async def api_import(request):
+    data = await parse_json_body(request)
+    return api.api_import(request, get_db(), data)
+
+
 # =============================================================================
 # Run Server
 # =============================================================================

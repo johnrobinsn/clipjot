@@ -63,7 +63,6 @@ class Tag:
     id: Optional[int] = None
     user_id: int = 0
     name: str = ""
-    color: str = "#6b7280"  # Default gray color
     created_at: Optional[str] = None
 
 

@@ -60,10 +60,27 @@ def init_db(db=None):
     db.create(Bookmark, pk='id')
     db.create(BookmarkTag, pk=['bookmark_id', 'tag_id'])
 
+    # Run migrations
+    _run_migrations(db)
+
     # Create indexes for common queries
     _create_indexes(db)
 
     return db
+
+
+def _run_migrations(db):
+    """Run database migrations."""
+    # Migration: Remove color column from tag table (if it exists)
+    try:
+        # Check if color column exists
+        result = db.execute("PRAGMA table_info(tag)").fetchall()
+        columns = [row[1] for row in result]
+        if 'color' in columns:
+            # SQLite 3.35+ supports DROP COLUMN
+            db.execute("ALTER TABLE tag DROP COLUMN color")
+    except Exception:
+        pass  # Column doesn't exist or already removed
 
 
 def _create_indexes(db):
@@ -329,9 +346,9 @@ def get_tag_by_name(db, user_id: int, name: str) -> Optional[Tag]:
     return _dict_to_dataclass(Tag, tags[0])
 
 
-def create_tag(db, user_id: int, name: str, color: str = "#6b7280") -> Tag:
+def create_tag(db, user_id: int, name: str) -> Tag:
     """Create a new tag."""
-    tag = Tag(user_id=user_id, name=name, color=color, created_at=now_iso())
+    tag = Tag(user_id=user_id, name=name, created_at=now_iso())
     result = db.t.tag.insert(tag)
     return _dict_to_dataclass(Tag, result)
 
@@ -357,7 +374,7 @@ def get_tag_bookmark_count(db, tag_id: int) -> int:
 def get_tags_with_counts(db, user_id: int) -> list[dict]:
     """Get all tags for a user with bookmark counts."""
     result = db.execute("""
-        SELECT t.id, t.name, t.color, t.created_at, COUNT(bt.bookmark_id) as bookmark_count
+        SELECT t.id, t.name, t.created_at, COUNT(bt.bookmark_id) as bookmark_count
         FROM tag t
         LEFT JOIN bookmark_tag bt ON t.id = bt.tag_id
         WHERE t.user_id = ?
@@ -365,7 +382,7 @@ def get_tags_with_counts(db, user_id: int) -> list[dict]:
         ORDER BY t.name
     """, [user_id])
     return [
-        {"id": r[0], "name": r[1], "color": r[2], "created_at": r[3], "bookmark_count": r[4]}
+        {"id": r[0], "name": r[1], "created_at": r[2], "bookmark_count": r[3]}
         for r in result.fetchall()
     ]
 
@@ -457,12 +474,12 @@ def delete_bookmark(db, bookmark_id: int):
 def get_bookmark_tags(db, bookmark_id: int) -> list[Tag]:
     """Get all tags for a bookmark."""
     result = db.execute("""
-        SELECT t.id, t.user_id, t.name, t.color, t.created_at FROM tag t
+        SELECT t.id, t.user_id, t.name, t.created_at FROM tag t
         JOIN bookmark_tag bt ON t.id = bt.tag_id
         WHERE bt.bookmark_id = ?
         ORDER BY t.name
     """, [bookmark_id])
-    return [Tag(id=row[0], user_id=row[1], name=row[2], color=row[3], created_at=row[4])
+    return [Tag(id=row[0], user_id=row[1], name=row[2], created_at=row[3])
             for row in result.fetchall()]
 
 

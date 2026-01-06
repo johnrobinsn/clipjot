@@ -95,7 +95,7 @@ def test_tag(db, test_user):
     """Create a test tag."""
     from app import db as database
 
-    tag = database.create_tag(db, test_user.id, "test-tag", "#3b82f6")
+    tag = database.create_tag(db, test_user.id, "test-tag")
     return tag
 
 

@@ -495,10 +495,7 @@ def bookmark_form(bookmark: Optional[Bookmark] = None, tags: list[Tag] = None, a
 # =============================================================================
 
 def tag_chip(tag: Tag, removable: bool = False, bookmark_id: Optional[int] = None):
-    """Display a tag as a colored chip."""
-    # Determine text color based on background brightness
-    bg_color = tag.color or "#6b7280"
-
+    """Display a tag as a chip."""
     children = [tag.name]
     if removable and bookmark_id:
         children.append(
@@ -512,30 +509,18 @@ def tag_chip(tag: Tag, removable: bool = False, bookmark_id: Optional[int] = Non
 
     return Span(
         *children,
-        cls="badge gap-1",
-        style=f"background-color: {bg_color}; color: white; padding: 0.25rem 0.625rem; height: auto;",
+        cls="badge badge-neutral gap-1",
+        style="padding: 0.25rem 0.625rem; height: auto;",
     )
 
 
 def tag_list_item(tag: dict):
     """Tag item in settings list (with count)."""
     return Tr(
-        Td(
-            Div(
-                Span(cls="w-4 h-4 rounded", style=f"background-color: {tag['color']};"),
-                Span(tag["name"], cls="font-medium"),
-                cls="flex items-center gap-2",
-            )
-        ),
+        Td(Span(tag["name"], cls="font-medium")),
         Td(Span(f"{tag['bookmark_count']} bookmarks", cls="text-sm text-base-content/70")),
         Td(
             Div(
-                Button(
-                    "Edit",
-                    cls="btn btn-xs btn-ghost",
-                    hx_get=f"/settings/tags/{tag['id']}/edit",
-                    hx_target="#modal-container",
-                ),
                 Button(
                     "Delete",
                     cls="btn btn-xs btn-ghost text-error",
