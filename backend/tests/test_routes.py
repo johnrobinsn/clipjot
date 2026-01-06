@@ -103,7 +103,7 @@ class TestBookmarkRoutes:
         response = authenticated_client.get("/")
 
         assert response.status_code == 200
-        assert "My Bookmarks" in response.text
+        assert "My Links" in response.text
 
     def test_add_bookmark_form(self, authenticated_client):
         """Test GET /bookmarks/add returns form modal."""
@@ -221,9 +221,16 @@ class TestSessionRoutes:
 class TestExportRoute:
     """Test export functionality."""
 
-    def test_export_json(self, authenticated_client, test_bookmark):
-        """Test /export returns JSON download."""
+    def test_export_page(self, authenticated_client, test_bookmark):
+        """Test /export page loads."""
         response = authenticated_client.get("/export")
+
+        assert response.status_code == 200
+        assert "Export Data" in response.text
+
+    def test_export_download_json(self, authenticated_client, test_bookmark):
+        """Test /export/download returns JSON download."""
+        response = authenticated_client.get("/export/download")
 
         assert response.status_code == 200
         assert "application/json" in response.headers.get("content-type", "")
@@ -298,9 +305,10 @@ class TestHTTPMethods:
         response = authenticated_client.get("/logout", follow_redirects=False)
         # FastHTML might return different codes, but POST should work
 
-        # POST should work
+        # POST should work - returns 200 with HX-Redirect header for HTMX
         response = authenticated_client.post("/logout", follow_redirects=False)
-        assert response.status_code == 303
+        assert response.status_code == 200
+        assert response.headers.get("HX-Redirect") == "/login"
 
     def test_bookmark_delete_requires_delete(self, authenticated_client, test_bookmark):
         """Test /bookmarks/{id} DELETE method requirement."""

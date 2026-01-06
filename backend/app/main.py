@@ -211,6 +211,26 @@ async def bookmark_bulk_delete(request):
     return await views.bookmark_bulk_delete(request, get_db())
 
 
+@rt("/bookmarks/bulk/add-tag", methods=["POST"])
+async def bookmark_bulk_add_tag_form(request):
+    return await views.bookmark_bulk_add_tag_form(request, get_db())
+
+
+@rt("/bookmarks/bulk/add-tag/apply", methods=["POST"])
+async def bookmark_bulk_add_tag(request):
+    return await views.bookmark_bulk_add_tag(request, get_db())
+
+
+@rt("/bookmarks/bulk/remove-tag", methods=["POST"])
+async def bookmark_bulk_remove_tag_form(request):
+    return await views.bookmark_bulk_remove_tag_form(request, get_db())
+
+
+@rt("/bookmarks/bulk/remove-tag/apply", methods=["POST"])
+async def bookmark_bulk_remove_tag(request):
+    return await views.bookmark_bulk_remove_tag(request, get_db())
+
+
 @rt("/bookmarks/{bookmark_id}", methods=["DELETE"])
 def bookmark_delete(request, bookmark_id: int):
     return views.bookmark_delete(request, get_db(), bookmark_id)
@@ -250,6 +270,21 @@ def settings_tokens(request):
     return views.settings_tokens(request, get_db())
 
 
+@rt("/settings/tokens/create", methods=["GET"])
+def settings_token_create_form(request):
+    return views.settings_token_create_form(request, get_db())
+
+
+@rt("/settings/tokens/create", methods=["POST"])
+async def settings_token_create(request):
+    return await views.settings_token_create(request, get_db())
+
+
+@rt("/settings/tokens/{token_id}", methods=["DELETE"])
+def settings_token_delete(request, token_id: int):
+    return views.settings_token_delete(request, get_db(), token_id)
+
+
 @rt("/settings/sessions")
 def settings_sessions(request):
     return views.settings_sessions(request, get_db())
@@ -268,6 +303,11 @@ async def settings_sessions_revoke_all(request):
 @rt("/export")
 def export_page(request):
     return views.export_page(request, get_db())
+
+
+@rt("/export/download")
+def export_download(request):
+    return views.export_download(request, get_db())
 
 
 # =============================================================================

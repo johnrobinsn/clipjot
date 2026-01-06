@@ -14,7 +14,7 @@ from .models import Bookmark, Tag, User, now_iso
 from .components import (
     page_layout, bookmark_list, bookmark_form, bookmark_row,
     tag_list_item, tag_chip, pagination, modal, modal_container,
-    bulk_actions_bar, flash_message,
+    bulk_actions_bar, flash_message, settings_nav,
 )
 
 
@@ -111,7 +111,7 @@ def login_page(request, db):
         Div(
             Div(
                 H2("Welcome to LinkJot", cls="card-title mb-6"),
-                P("Sign in to manage your bookmarks", cls="mb-6 text-base-content/70"),
+                P("Sign in to manage your links", cls="mb-6 text-base-content/70"),
                 *providers,
                 cls="card-body items-center text-center",
             ),
@@ -221,15 +221,22 @@ def bookmark_index(request, db):
     search_info_items = []
     if query:
         search_info_items.append(P(f'Showing results for "{query}"', cls="text-sm text-base-content/70"))
-    search_info_items.append(P(f"{total} bookmarks total", cls="text-sm text-base-content/70"))
+    search_info_items.append(P(f"{total} links total", cls="text-sm text-base-content/70"))
 
     # Build bookmark list or empty state
     if bookmark_data:
         bookmark_section = bookmark_list(bookmark_data)
+    elif query:
+        bookmark_section = Div(
+            P("No links found", cls="text-xl mb-4"),
+            P(f'No results for "{query}"', cls="text-base-content/70 mb-4"),
+            A("Back to My Links", href="/", cls="btn btn-outline"),
+            cls="text-center py-12",
+        )
     else:
         bookmark_section = Div(
-            P("No bookmarks yet", cls="text-xl mb-4"),
-            P("Add your first bookmark to get started!", cls="text-base-content/70"),
+            P("No links yet", cls="text-xl mb-4"),
+            P("Add your first link to get started!", cls="text-base-content/70"),
             cls="text-center py-12",
         )
 
@@ -237,9 +244,9 @@ def bookmark_index(request, db):
     content = Div(
         # Header
         Div(
-            H1("My Bookmarks", cls="text-2xl font-bold"),
+            H1("My Links", cls="text-2xl font-bold"),
             Button(
-                "+ Add Bookmark",
+                "+ Add Link",
                 cls="btn btn-primary",
                 hx_get="/bookmarks/add",
                 hx_target="#modal-container",
@@ -258,7 +265,7 @@ def bookmark_index(request, db):
         modal_container(),
     )
 
-    return page_layout(content, title="My Bookmarks - LinkJot", user=user)
+    return page_layout(content, title="My Links - LinkJot", user=user)
 
 
 def bookmark_add_form(request, db):
@@ -274,7 +281,7 @@ def bookmark_add_form(request, db):
     all_tags = database.get_user_tags(db, user.id)
     form = bookmark_form(all_tags=all_tags)
 
-    return modal("Add Bookmark", form)
+    return modal("Add Link", form)
 
 
 async def bookmark_add(request, db):
@@ -292,7 +299,7 @@ async def bookmark_add(request, db):
     url = form.get("url", "").strip()
     title = form.get("title", "").strip()
     comment = form.get("comment", "").strip()
-    tag_ids = form.getlist("tags")
+    tag_names_raw = form.get("tags", "")
 
     if not url:
         return Response("URL is required", status_code=400)
@@ -300,7 +307,7 @@ async def bookmark_add(request, db):
     # Check limit
     allowed, current, max_count = auth.check_bookmark_limit(db, user)
     if not allowed:
-        return Response(f"Bookmark limit reached ({current}/{max_count})", status_code=403)
+        return Response(f"Link limit reached ({current}/{max_count})", status_code=403)
 
     # Create bookmark
     bookmark = Bookmark(
@@ -312,9 +319,17 @@ async def bookmark_add(request, db):
     )
     bookmark = database.create_bookmark(db, bookmark)
 
-    # Set tags
-    if tag_ids:
-        database.set_bookmark_tags(db, bookmark.id, [int(t) for t in tag_ids])
+    # Parse tags and resolve/create them
+    tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
+    if tag_names:
+        tag_ids = []
+        for name in tag_names:
+            tag = database.get_tag_by_name(db, user.id, name)
+            if not tag:
+                # Create new tag with default color
+                tag = database.create_tag(db, user.id, name, "#6b7280")
+            tag_ids.append(tag.id)
+        database.set_bookmark_tags(db, bookmark.id, tag_ids)
 
     # Return redirect with HX-Redirect header for HTMX
     response = Response(status_code=200)
@@ -340,7 +355,7 @@ def bookmark_edit_form(request, db, bookmark_id: int):
     all_tags = database.get_user_tags(db, user.id)
     form = bookmark_form(bookmark=bookmark, tags=tags, all_tags=all_tags)
 
-    return modal("Edit Bookmark", form)
+    return modal("Edit Link", form)
 
 
 async def bookmark_edit(request, db, bookmark_id: int):
@@ -361,16 +376,25 @@ async def bookmark_edit(request, db, bookmark_id: int):
     form = await request.form()
     bookmark.title = form.get("title", "").strip() or None
     bookmark.comment = form.get("comment", "").strip() or None
-    tag_ids = form.getlist("tags")
+    tag_names_raw = form.get("tags", "")
 
     bookmark = database.update_bookmark(db, bookmark)
 
-    # Update tags
-    database.set_bookmark_tags(db, bookmark.id, [int(t) for t in tag_ids])
+    # Parse tags and resolve/create them
+    tag_names = [name.strip() for name in tag_names_raw.split(",") if name.strip()]
+    tag_ids = []
+    for name in tag_names:
+        tag = database.get_tag_by_name(db, user.id, name)
+        if not tag:
+            # Create new tag with default color
+            tag = database.create_tag(db, user.id, name, "#6b7280")
+        tag_ids.append(tag.id)
+    database.set_bookmark_tags(db, bookmark.id, tag_ids)
 
-    # Return updated row
-    tags = database.get_bookmark_tags(db, bookmark.id)
-    return bookmark_row(bookmark, tags)
+    # Redirect back to list
+    response = Response(status_code=200)
+    response.headers["HX-Redirect"] = "/"
+    return response
 
 
 def bookmark_delete(request, db, bookmark_id: int):
@@ -410,6 +434,188 @@ async def bookmark_bulk_delete(request, db):
         bookmark = database.get_bookmark_by_id(db, int(id_str))
         if bookmark and bookmark.user_id == user.id:
             database.delete_bookmark(db, bookmark.id)
+
+    response = Response(status_code=200)
+    response.headers["HX-Redirect"] = "/"
+    return response
+
+
+async def bookmark_bulk_add_tag_form(request, db):
+    """Show modal to add tag to selected bookmarks.
+
+    POST /bookmarks/bulk/add-tag (form display)
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    selected_ids = form.getlist("selected")
+
+    if not selected_ids:
+        return Response("No links selected", status_code=400)
+
+    tags = database.get_user_tags(db, user.id)
+
+    if not tags:
+        content = Div(
+            P("You don't have any tags yet. Create tags in Settings first.", cls="text-warning"),
+            Div(
+                Button("Close", type="button", cls="btn btn-ghost", onclick="closeModal()"),
+                cls="flex justify-end mt-4",
+            ),
+        )
+        return modal("Add Tag", content)
+
+    form_content = Form(
+        # Hidden inputs for selected bookmark IDs
+        *[Input(type="hidden", name="selected", value=id) for id in selected_ids],
+        # Tag dropdown
+        Div(
+            Label("Select Tag", cls="label"),
+            Select(
+                *[Option(t.name, value=str(t.id)) for t in tags],
+                name="tag_id",
+                cls="select select-bordered w-full",
+            ),
+            cls="form-control",
+        ),
+        P(f"Adding to {len(selected_ids)} selected link(s)", cls="text-sm text-base-content/70 mt-2"),
+        # Buttons
+        Div(
+            Button("Cancel", type="button", cls="btn btn-ghost", onclick="closeModal()"),
+            Button("Add Tag", type="submit", cls="btn btn-primary"),
+            cls="flex justify-end gap-2 mt-4",
+        ),
+        action="/bookmarks/bulk/add-tag/apply",
+        method="post",
+        hx_post="/bookmarks/bulk/add-tag/apply",
+    )
+
+    return modal("Add Tag to Selected", form_content)
+
+
+async def bookmark_bulk_add_tag(request, db):
+    """Add tag to selected bookmarks.
+
+    POST /bookmarks/bulk/add-tag/apply
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    selected_ids = form.getlist("selected")
+    tag_id = form.get("tag_id")
+
+    if not selected_ids or not tag_id:
+        return Response("Missing required fields", status_code=400)
+
+    tag_id = int(tag_id)
+
+    # Verify tag belongs to user
+    tag = database.get_tag_by_id(db, tag_id)
+    if not tag or tag.user_id != user.id:
+        return Response("Tag not found", status_code=404)
+
+    # Add tag to each selected bookmark
+    for id_str in selected_ids:
+        bookmark = database.get_bookmark_by_id(db, int(id_str))
+        if bookmark and bookmark.user_id == user.id:
+            database.add_bookmark_tag(db, bookmark.id, tag_id)
+
+    response = Response(status_code=200)
+    response.headers["HX-Redirect"] = "/"
+    return response
+
+
+async def bookmark_bulk_remove_tag_form(request, db):
+    """Show modal to remove tag from selected bookmarks.
+
+    POST /bookmarks/bulk/remove-tag (form display)
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    selected_ids = form.getlist("selected")
+
+    if not selected_ids:
+        return Response("No links selected", status_code=400)
+
+    tags = database.get_user_tags(db, user.id)
+
+    if not tags:
+        content = Div(
+            P("You don't have any tags.", cls="text-warning"),
+            Div(
+                Button("Close", type="button", cls="btn btn-ghost", onclick="closeModal()"),
+                cls="flex justify-end mt-4",
+            ),
+        )
+        return modal("Remove Tag", content)
+
+    form_content = Form(
+        # Hidden inputs for selected bookmark IDs
+        *[Input(type="hidden", name="selected", value=id) for id in selected_ids],
+        # Tag dropdown
+        Div(
+            Label("Select Tag to Remove", cls="label"),
+            Select(
+                *[Option(t.name, value=str(t.id)) for t in tags],
+                name="tag_id",
+                cls="select select-bordered w-full",
+            ),
+            cls="form-control",
+        ),
+        P(f"Removing from {len(selected_ids)} selected link(s)", cls="text-sm text-base-content/70 mt-2"),
+        # Buttons
+        Div(
+            Button("Cancel", type="button", cls="btn btn-ghost", onclick="closeModal()"),
+            Button("Remove Tag", type="submit", cls="btn btn-error"),
+            cls="flex justify-end gap-2 mt-4",
+        ),
+        action="/bookmarks/bulk/remove-tag/apply",
+        method="post",
+        hx_post="/bookmarks/bulk/remove-tag/apply",
+    )
+
+    return modal("Remove Tag from Selected", form_content)
+
+
+async def bookmark_bulk_remove_tag(request, db):
+    """Remove tag from selected bookmarks.
+
+    POST /bookmarks/bulk/remove-tag/apply
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    selected_ids = form.getlist("selected")
+    tag_id = form.get("tag_id")
+
+    if not selected_ids or not tag_id:
+        return Response("Missing required fields", status_code=400)
+
+    tag_id = int(tag_id)
+
+    # Verify tag belongs to user
+    tag = database.get_tag_by_id(db, tag_id)
+    if not tag or tag.user_id != user.id:
+        return Response("Tag not found", status_code=404)
+
+    # Remove tag from each selected bookmark
+    for id_str in selected_ids:
+        bookmark = database.get_bookmark_by_id(db, int(id_str))
+        if bookmark and bookmark.user_id == user.id:
+            database.remove_bookmark_tag(db, bookmark.id, tag_id)
 
     response = Response(status_code=200)
     response.headers["HX-Redirect"] = "/"
@@ -479,14 +685,8 @@ def settings_page(request, db):
             ),
             cls="card bg-base-100 shadow-xl mb-6",
         ),
-        # Links to other settings
-        Div(
-            A("Manage Tags", href="/settings/tags", cls="btn btn-outline"),
-            A("API Tokens", href="/settings/tokens", cls="btn btn-outline"),
-            A("Sessions", href="/settings/sessions", cls="btn btn-outline"),
-            A("Export Data", href="/export", cls="btn btn-outline"),
-            cls="flex flex-wrap gap-4",
-        ),
+        # Navigation to other settings pages
+        settings_nav("settings"),
     )
 
     return page_layout(content, title="Settings - LinkJot", user=user)
@@ -518,7 +718,7 @@ def settings_tags(request, db):
             cls="table w-full",
         )
     else:
-        tag_section = P("No tags yet. Create one to organize your bookmarks!")
+        tag_section = P("No tags yet. Create one to organize your links!")
 
     content = Div(
         Div(
@@ -532,6 +732,7 @@ def settings_tags(request, db):
             cls="flex justify-between items-center mb-6",
         ),
         tag_section,
+        settings_nav("tags"),
         modal_container(),
     )
 
@@ -687,10 +888,145 @@ def settings_tokens(request, db):
             cls="flex justify-between items-center mb-6",
         ),
         token_section,
+        settings_nav("tokens"),
         modal_container(),
     )
 
     return page_layout(content, title="API Tokens - LinkJot", user=user)
+
+
+def settings_token_create_form(request, db):
+    """Show create token form modal.
+
+    GET /settings/tokens/create
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+
+    form = Form(
+        Div(
+            Label("Token Name", cls="label"),
+            Input(
+                type="text",
+                name="name",
+                required=True,
+                cls="input input-bordered",
+                placeholder="e.g., CLI Tool, Browser Extension",
+            ),
+            cls="form-control",
+        ),
+        Div(
+            Label("Scope", cls="label"),
+            Select(
+                Option("Read only", value="read"),
+                Option("Read & Write", value="write"),
+                name="scope",
+                cls="select select-bordered",
+            ),
+            cls="form-control",
+        ),
+        Div(
+            Label("Expires In", cls="label"),
+            Select(
+                Option("30 days", value="30"),
+                Option("90 days", value="90"),
+                Option("1 year", value="365"),
+                Option("Never", value="3650"),
+                name="expires_days",
+                cls="select select-bordered",
+            ),
+            cls="form-control",
+        ),
+        Div(
+            Button("Cancel", type="button", cls="btn btn-ghost", onclick="closeModal()"),
+            Button("Create Token", type="submit", cls="btn btn-primary"),
+            cls="flex justify-end gap-2 mt-4",
+        ),
+        cls="space-y-4",
+        action="/settings/tokens/create",
+        method="post",
+        hx_post="/settings/tokens/create",
+        hx_target="#modal-container",
+    )
+
+    return modal("Create API Token", form)
+
+
+async def settings_token_create(request, db):
+    """Create a new API token.
+
+    POST /settings/tokens/create
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    name = form.get("name", "").strip()
+    scope = form.get("scope", "read")
+    expires_days = int(form.get("expires_days", 365))
+
+    if not name:
+        return Response("Token name is required", status_code=400)
+
+    # Create token
+    plaintext, token = auth.create_api_token(db, user.id, name, scope, expires_days)
+
+    # Show the token once (it won't be shown again)
+    content = Div(
+        Div(
+            P("Your new API token has been created. Copy it now - it won't be shown again!",
+              cls="text-warning mb-4"),
+            Div(
+                Input(
+                    type="text",
+                    value=plaintext,
+                    readonly=True,
+                    cls="input input-bordered font-mono w-full",
+                    id="token-value",
+                ),
+                Button(
+                    "Copy",
+                    type="button",
+                    cls="btn btn-primary",
+                    onclick="navigator.clipboard.writeText(document.getElementById('token-value').value); this.textContent='Copied!'",
+                ),
+                cls="flex gap-2",
+            ),
+            cls="p-4",
+        ),
+        Div(
+            Button(
+                "Done",
+                cls="btn btn-ghost",
+                onclick="window.location.href='/settings/tokens'",
+            ),
+            cls="flex justify-end p-4",
+        ),
+    )
+
+    return modal("API Token Created", content)
+
+
+def settings_token_delete(request, db, token_id: int):
+    """Revoke an API token.
+
+    DELETE /settings/tokens/{id}
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    token = database.get_token_by_id(db, token_id)
+    if not token or token.user_id != user.id:
+        return Response("Not found", status_code=404)
+
+    database.delete_token(db, token_id)
+
+    return Response("")
 
 
 def settings_sessions(request, db):
@@ -757,6 +1093,7 @@ def settings_sessions(request, db):
             Tbody(*session_rows),
             cls="table w-full",
         ),
+        settings_nav("sessions"),
     )
 
     return page_layout(content, title="Sessions - LinkJot", user=user)
@@ -803,9 +1140,43 @@ def settings_sessions_revoke_all(request, db):
 
 
 def export_page(request, db):
-    """Export bookmarks as JSON download.
+    """Export page with download options.
 
     GET /export
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    stats = database.get_user_stats(db, user.id)
+
+    content = Div(
+        H1("Export Data", cls="text-2xl font-bold mb-6"),
+        Div(
+            Div(
+                H2("Export Links", cls="card-title"),
+                P(f"You have {stats['bookmark_count']} links to export.", cls="mb-4"),
+                P("Download your links as a JSON file that can be imported later or used with other tools.", cls="text-base-content/70 mb-4"),
+                A(
+                    "Download JSON Export",
+                    href="/export/download",
+                    cls="btn btn-primary",
+                ),
+                cls="card-body",
+            ),
+            cls="card bg-base-100 shadow-xl mb-6",
+        ),
+        settings_nav("export"),
+    )
+
+    return page_layout(content, title="Export Data - LinkJot", user=user)
+
+
+def export_download(request, db):
+    """Download bookmarks as JSON file.
+
+    GET /export/download
     """
     result = require_auth(request, db)
     if isinstance(result, Response):

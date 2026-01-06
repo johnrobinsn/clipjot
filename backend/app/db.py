@@ -269,6 +269,20 @@ def update_token_last_used(db, token_id: int):
     )
 
 
+def get_token_by_id(db, token_id: int) -> Optional[ApiToken]:
+    """Get a token by its ID."""
+    try:
+        result = db.t.api_token[token_id]
+        if not result:
+            return None
+        # Result may already be an ApiToken or a dict-like object
+        if isinstance(result, ApiToken):
+            return result
+        return ApiToken(**result)
+    except (KeyError, IndexError):
+        return None
+
+
 def delete_token(db, token_id: int):
     """Delete an API token."""
     try:

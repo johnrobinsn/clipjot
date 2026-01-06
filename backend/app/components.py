@@ -3,6 +3,8 @@
 These components provide consistent styling using DaisyUI classes.
 """
 
+import json
+
 from fasthtml.common import *
 from typing import Optional
 from urllib.parse import urlparse
@@ -68,7 +70,7 @@ def navbar(user: Optional[User] = None):
         Input(
             type="search",
             name="q",
-            placeholder="Search bookmarks...",
+            placeholder="Search links...",
             cls="input input-bordered w-48 md:w-64",
             id="search-input",
         ),
@@ -94,12 +96,12 @@ def navbar(user: Optional[User] = None):
 def user_menu(user: User):
     """User dropdown menu."""
     menu_items = [
-        Li(A("My Bookmarks", href="/")),
+        Li(A("My Links", href="/")),
         Li(A("Settings", href="/settings")),
-        Li(A("Tags", href="/settings/tags")),
+        Li(A("Manage Tags", href="/settings/tags")),
         Li(A("API Tokens", href="/settings/tokens")),
         Li(A("Sessions", href="/settings/sessions")),
-        Li(A("Export", href="/export")),
+        Li(A("Export Data", href="/export")),
         Li(cls="divider"),
     ]
     if user.is_admin:
@@ -128,6 +130,32 @@ def user_menu(user: User):
 def login_button():
     """Login button for unauthenticated users."""
     return A("Login", href="/login", cls="btn btn-primary")
+
+
+def settings_nav(current: str = None):
+    """Navigation links for settings pages.
+
+    Args:
+        current: The current page identifier to highlight (e.g., 'links', 'settings', 'tags', 'tokens', 'sessions', 'export')
+    """
+    links = [
+        ("links", "My Links", "/"),
+        ("settings", "Settings", "/settings"),
+        ("tags", "Manage Tags", "/settings/tags"),
+        ("tokens", "API Tokens", "/settings/tokens"),
+        ("sessions", "Sessions", "/settings/sessions"),
+        ("export", "Export Data", "/export"),
+    ]
+
+    buttons = []
+    for key, label, href in links:
+        cls = "btn btn-primary" if key == current else "btn btn-outline"
+        buttons.append(A(label, href=href, cls=cls))
+
+    return Div(
+        *buttons,
+        cls="flex flex-wrap gap-4 mt-8 pt-6 border-t border-base-300",
+    )
 
 
 # =============================================================================
@@ -214,7 +242,7 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
                     "Delete",
                     cls="btn btn-xs btn-ghost text-error",
                     hx_delete=f"/bookmarks/{bookmark.id}",
-                    hx_confirm="Delete this bookmark?",
+                    hx_confirm="Delete this link?",
                     hx_target=f"#bookmark-{bookmark.id}",
                     hx_swap="outerHTML",
                 ),
@@ -245,7 +273,7 @@ def bookmark_list(bookmarks: list[tuple[Bookmark, list[Tag]]], selected_ids: set
                         onclick="toggleAllBookmarks(this)",
                     )
                 ),
-                Th("Bookmark"),
+                Th("Link"),
                 Th("Tags"),
                 Th("Added"),
                 Th("Actions"),
@@ -260,22 +288,124 @@ def bookmark_form(bookmark: Optional[Bookmark] = None, tags: list[Tag] = None, a
     """Form for adding/editing a bookmark."""
     is_edit = bookmark is not None
     action = f"/bookmarks/{bookmark.id}" if is_edit else "/bookmarks/add"
-    tag_ids = {t.id for t in (tags or [])}
 
-    tag_checkboxes = [
-        Label(
-            Input(
-                type="checkbox",
-                name="tags",
-                value=str(t.id),
-                checked=t.id in tag_ids,
-                cls="checkbox checkbox-sm",
-            ),
-            tag_chip(t),
-            cls="cursor-pointer flex items-center gap-1",
-        )
-        for t in (all_tags or [])
-    ]
+    # Build comma-separated tag names for existing tags
+    existing_tag_names = ", ".join(t.name for t in (tags or []))
+    # Build list of all available tag names for autocomplete
+    available_tags = [t.name for t in (all_tags or [])]
+
+    # Autocomplete JS with keyboard navigation
+    tag_autocomplete_js = """
+    (function() {
+        const input = document.getElementById('tag-input');
+        const suggestions = document.getElementById('tag-suggestions');
+        const availableTags = window.availableTags || [];
+        let selectedIndex = -1;
+        let currentMatches = [];
+
+        function getCurrentWord() {
+            const value = input.value;
+            const lastComma = value.lastIndexOf(',');
+            return value.substring(lastComma + 1).trim().toLowerCase();
+        }
+
+        function getExistingTags() {
+            return input.value.split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+        }
+
+        function updateHighlight() {
+            const items = suggestions.querySelectorAll('.suggestion-item');
+            items.forEach((item, i) => {
+                if (i === selectedIndex) {
+                    item.classList.add('bg-primary', 'text-primary-content');
+                    item.classList.remove('hover:bg-base-200');
+                } else {
+                    item.classList.remove('bg-primary', 'text-primary-content');
+                    item.classList.add('hover:bg-base-200');
+                }
+            });
+        }
+
+        function showSuggestions() {
+            const currentWord = getCurrentWord();
+            const existingTags = getExistingTags();
+
+            if (currentWord.length === 0) {
+                suggestions.classList.add('hidden');
+                currentMatches = [];
+                selectedIndex = -1;
+                return;
+            }
+
+            currentMatches = availableTags.filter(t =>
+                t.toLowerCase().includes(currentWord) &&
+                !existingTags.includes(t.toLowerCase())
+            ).slice(0, 8);
+
+            if (currentMatches.length > 0) {
+                suggestions.innerHTML = currentMatches.map((t, i) =>
+                    '<div class="suggestion-item px-3 py-2 hover:bg-base-200 cursor-pointer" data-index="' + i + '" onclick="selectTag(\\'' + t.replace(/'/g, "\\\\'") + '\\')">' + t + '</div>'
+                ).join('');
+                suggestions.classList.remove('hidden');
+                selectedIndex = -1;
+            } else {
+                suggestions.classList.add('hidden');
+                currentMatches = [];
+                selectedIndex = -1;
+            }
+        }
+
+        input.addEventListener('input', showSuggestions);
+
+        input.addEventListener('keydown', function(e) {
+            if (suggestions.classList.contains('hidden') || currentMatches.length === 0) {
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % currentMatches.length;
+                updateHighlight();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = selectedIndex <= 0 ? currentMatches.length - 1 : selectedIndex - 1;
+                updateHighlight();
+            } else if (e.key === 'Enter') {
+                if (selectedIndex >= 0 && selectedIndex < currentMatches.length) {
+                    e.preventDefault();
+                    selectTag(currentMatches[selectedIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                suggestions.classList.add('hidden');
+                selectedIndex = -1;
+            }
+        });
+
+        input.addEventListener('blur', function() {
+            setTimeout(() => {
+                suggestions.classList.add('hidden');
+                selectedIndex = -1;
+            }, 150);
+        });
+
+        input.addEventListener('focus', function() {
+            if (getCurrentWord().length > 0) {
+                showSuggestions();
+            }
+        });
+    })();
+
+    function selectTag(tag) {
+        const input = document.getElementById('tag-input');
+        const suggestions = document.getElementById('tag-suggestions');
+        const value = input.value;
+        const lastComma = value.lastIndexOf(',');
+        const prefix = lastComma >= 0 ? value.substring(0, lastComma + 1) + ' ' : '';
+        input.value = prefix + tag + ', ';
+        suggestions.classList.add('hidden');
+        input.focus();
+    }
+    """
 
     return Form(
         # URL (read-only on edit)
@@ -306,10 +436,27 @@ def bookmark_form(bookmark: Optional[Bookmark] = None, tags: list[Tag] = None, a
             ),
             cls="form-control",
         ),
-        # Tags
+        # Tags with autocomplete
         Div(
-            Label("Tags", cls="label"),
-            Div(*tag_checkboxes, cls="flex flex-wrap gap-2"),
+            Label("Tags", cls="label", for_="tag-input"),
+            Div(
+                Input(
+                    type="text",
+                    name="tags",
+                    id="tag-input",
+                    value=existing_tag_names,
+                    cls="input input-bordered w-full",
+                    placeholder="Enter tags separated by commas",
+                    autocomplete="off",
+                ),
+                Div(
+                    id="tag-suggestions",
+                    cls="hidden absolute z-50 w-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-lg max-h-48 overflow-y-auto",
+                ),
+                cls="relative",
+            ),
+            Script(f"window.availableTags = {json.dumps(available_tags)};"),
+            Script(tag_autocomplete_js),
             cls="form-control",
         ),
         # Comment
@@ -329,7 +476,7 @@ def bookmark_form(bookmark: Optional[Bookmark] = None, tags: list[Tag] = None, a
         Div(
             Button("Cancel", type="button", cls="btn btn-ghost", onclick="closeModal()"),
             Button(
-                "Save" if is_edit else "Add Bookmark",
+                "Save" if is_edit else "Add Link",
                 type="submit",
                 cls="btn btn-primary",
             ),
@@ -366,7 +513,7 @@ def tag_chip(tag: Tag, removable: bool = False, bookmark_id: Optional[int] = Non
     return Span(
         *children,
         cls="badge gap-1",
-        style=f"background-color: {bg_color}; color: white;",
+        style=f"background-color: {bg_color}; color: white; padding: 0.25rem 0.625rem; height: auto;",
     )
 
 
@@ -485,18 +632,20 @@ def bulk_actions_bar():
             cls="btn btn-sm btn-error mr-2",
             hx_delete="/bookmarks/bulk",
             hx_include="[name='selected']:checked",
-            hx_confirm="Delete selected bookmarks?",
+            hx_confirm="Delete selected links?",
         ),
         Button(
             "Add Tag",
             cls="btn btn-sm btn-ghost mr-2",
-            hx_get="/bookmarks/bulk/add-tag",
+            hx_post="/bookmarks/bulk/add-tag",
+            hx_include="[name='selected']:checked",
             hx_target="#modal-container",
         ),
         Button(
             "Remove Tag",
             cls="btn btn-sm btn-ghost",
-            hx_get="/bookmarks/bulk/remove-tag",
+            hx_post="/bookmarks/bulk/remove-tag",
+            hx_include="[name='selected']:checked",
             hx_target="#modal-container",
         ),
         cls="bg-base-100 p-3 rounded-lg shadow mb-4 hidden",
