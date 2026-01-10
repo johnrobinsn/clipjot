@@ -22,6 +22,8 @@ def page_head(title: str = "ClipJot"):
         Title(title),
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
+        # Favicon
+        Link(rel="icon", type="image/png", href="/static/favicon.png"),
         # DaisyUI + Tailwind CSS
         Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css"),
         Script(src="https://cdn.tailwindcss.com"),
@@ -67,13 +69,26 @@ def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, fl
 def navbar(user: Optional[User] = None):
     """Navigation bar component."""
     search_form = Form(
-        Input(
-            type="search",
-            name="q",
-            placeholder="Search links...",
-            cls="input input-bordered w-48 md:w-64",
-            id="search-input",
+        Div(
+            Input(
+                type="search",
+                name="q",
+                placeholder="Search...",
+                cls="input input-bordered w-48 md:w-64 pr-10",
+                id="search-input",
+            ),
+            Kbd("/", cls="kbd kbd-sm absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none", id="search-hint"),
+            cls="relative",
         ),
+        Script("""
+            const si = document.getElementById('search-input');
+            const hint = document.getElementById('search-hint');
+            function updateHint() { hint.style.display = si.value ? 'none' : ''; }
+            si.addEventListener('input', updateHint);
+            si.addEventListener('focus', () => hint.style.display = 'none');
+            si.addEventListener('blur', updateHint);
+            updateHint();
+        """),
         cls="form-control" if user else "hidden",
         action="/",
         method="get",
@@ -81,7 +96,12 @@ def navbar(user: Optional[User] = None):
 
     return Nav(
         Div(
-            A("ClipJot", href="/", cls="btn btn-ghost text-xl"),
+            A(
+                Img(src="/static/favicon.png", alt="ClipJot", cls="w-6 h-6"),
+                "ClipJot",
+                href="/",
+                cls="btn btn-ghost text-xl gap-2",
+            ),
             cls="flex-1",
         ),
         Div(
@@ -207,12 +227,20 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
         ),
         # Title & URL
         Td(
-            A(
-                bookmark.title or bookmark.url,
-                href=bookmark.url,
-                target="_blank",
-                cls="link link-primary font-medium truncate block",
-                title=bookmark.url,
+            Div(
+                A(
+                    bookmark.title or bookmark.url,
+                    href=bookmark.url,
+                    target="_blank",
+                    cls="link link-primary font-medium",
+                    title=bookmark.url,
+                ),
+                Span(
+                    "\U0001F4DD",  # Memo/note icon
+                    cls="ml-1 cursor-help",
+                    title=bookmark.comment,
+                ) if bookmark.comment else None,
+                cls="flex items-center",
             ),
             Span(domain, cls="text-xs text-base-content/60"),
             cls="max-w-md",
@@ -280,7 +308,7 @@ def bookmark_list(bookmarks: list[tuple[Bookmark, list[Tag]]], selected_ids: set
             )
         ),
         Tbody(*rows, id="bookmark-list"),
-        cls="table table-zebra w-full",
+        cls="table table-zebra table-sm w-full",
     )
 
 
@@ -573,10 +601,10 @@ def pagination(page: int, total: int, per_page: int, base_url: str = "/"):
 
     children = []
     if page > 1:
-        children.append(A("Prev", href=f"{base_url}?page={page-1}", cls="btn btn-sm"))
+        children.append(A("Prev", href=f"{base_url}?page={page-1}", cls="btn btn-sm", id="page-prev"))
     children.extend([page_link(p) for p in pages])
     if page < total_pages:
-        children.append(A("Next", href=f"{base_url}?page={page+1}", cls="btn btn-sm"))
+        children.append(A("Next", href=f"{base_url}?page={page+1}", cls="btn btn-sm", id="page-next"))
 
     return Div(*children, cls="flex justify-center gap-1 mt-6")
 
@@ -601,6 +629,16 @@ def modal(title: str, content, id: str = "modal"):
         Div(cls="modal-backdrop", onclick="closeModal()"),
         cls="modal modal-open",
         id=id,
+    )
+
+
+def keyboard_help_hint():
+    """Hint about keyboard shortcuts at bottom of page."""
+    return Div(
+        Span("Press "),
+        Kbd("?", cls="kbd kbd-sm"),
+        Span(" for keyboard shortcuts"),
+        cls="text-center text-sm text-base-content/50 mt-8 mb-4",
     )
 
 
@@ -645,17 +683,25 @@ def bulk_actions_bar():
 def keyboard_shortcuts_script():
     """JavaScript for vim-style keyboard navigation."""
     return Script("""
+        // Focus search field if #search hash is present
+        if (window.location.hash === '#search') {
+            document.getElementById('search-input')?.focus();
+            history.replaceState(null, '', window.location.pathname);
+        }
+
         let currentIndex = -1;
         const rows = () => document.querySelectorAll('#bookmark-list tr');
 
         function selectRow(index) {
             const r = rows();
             if (currentIndex >= 0 && currentIndex < r.length) {
-                r[currentIndex].classList.remove('bg-base-300');
+                r[currentIndex].style.outline = '';
+                r[currentIndex].style.outlineOffset = '';
             }
             currentIndex = Math.max(0, Math.min(index, r.length - 1));
             if (currentIndex >= 0 && currentIndex < r.length) {
-                r[currentIndex].classList.add('bg-base-300');
+                r[currentIndex].style.outline = '2px solid oklch(var(--p))';
+                r[currentIndex].style.outlineOffset = '-2px';
                 r[currentIndex].scrollIntoView({block: 'nearest'});
             }
         }
@@ -691,6 +737,35 @@ def keyboard_shortcuts_script():
             if (modal) modal.remove();
         }
 
+        function showKeyboardHelp() {
+            const shortcuts = [
+                ['/', 'Focus search / Clear search'],
+                ['j / k', 'Navigate down / up'],
+                ['n / p', 'Next / Previous page'],
+                ['Enter', 'Open selected link'],
+                ['o', 'Open in new tab'],
+                ['x', 'Toggle checkbox'],
+                ['G', 'Go to last row'],
+                ['Escape', 'Close modal / Clear selection'],
+                ['?', 'Show this help'],
+            ];
+            const rows = shortcuts.map(([key, desc]) =>
+                `<tr><td><kbd class="kbd kbd-sm">${key}</kbd></td><td class="pl-4">${desc}</td></tr>`
+            ).join('');
+            const modal = document.createElement('div');
+            modal.className = 'modal modal-open';
+            modal.id = 'keyboard-help';
+            modal.innerHTML = `
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg mb-4">Keyboard Shortcuts</h3>
+                    <table class="table table-sm"><tbody>${rows}</tbody></table>
+                    <div class="modal-action"><button class="btn" onclick="closeModal()">Close</button></div>
+                </div>
+                <div class="modal-backdrop" onclick="closeModal()"></div>
+            `;
+            document.body.appendChild(modal);
+        }
+
         document.addEventListener('keydown', (e) => {
             // Skip if in input/textarea
             if (e.target.matches('input, textarea, select')) return;
@@ -698,7 +773,15 @@ def keyboard_shortcuts_script():
             switch(e.key) {
                 case '/':
                     e.preventDefault();
-                    document.getElementById('search-input')?.focus();
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        // If there's a search query active, clear and go to full list with focus
+                        if (window.location.search.includes('q=')) {
+                            window.location.href = '/#search';
+                        } else {
+                            searchInput.focus();
+                        }
+                    }
                     break;
                 case 'j':
                     selectRow(currentIndex + 1);
@@ -724,6 +807,14 @@ def keyboard_shortcuts_script():
                     if (e.shiftKey) selectRow(rows().length - 1);
                     // gg handled by double-tap
                     break;
+                case 'n':
+                    const nextPage = document.getElementById('page-next');
+                    if (nextPage) window.location.href = nextPage.href;
+                    break;
+                case 'p':
+                    const prevPage = document.getElementById('page-prev');
+                    if (prevPage) window.location.href = prevPage.href;
+                    break;
                 case 'G':
                     selectRow(rows().length - 1);
                     break;
@@ -733,7 +824,7 @@ def keyboard_shortcuts_script():
                     updateBulkBar();
                     break;
                 case '?':
-                    // Show help modal
+                    showKeyboardHelp();
                     break;
             }
         });

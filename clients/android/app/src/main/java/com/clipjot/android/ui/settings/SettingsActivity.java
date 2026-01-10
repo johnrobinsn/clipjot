@@ -15,6 +15,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import com.clipjot.android.R;
 import com.clipjot.android.data.api.ApiClient;
 import com.clipjot.android.data.api.ClipJotApi;
+import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
@@ -265,8 +266,30 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        // Disable logout button to prevent double-clicks
+        logoutButton.setEnabled(false);
+
+        // Call the logout API to revoke the session on the server
+        ClipJotApi api = ApiClient.getApi(this);
+        api.logout(Collections.emptyMap()).enqueue(new Callback<LogoutResponse>() {
+            @Override
+            public void onResponse(Call<LogoutResponse> call, Response<LogoutResponse> response) {
+                // Clear local session regardless of API response
+                completeLogout();
+            }
+
+            @Override
+            public void onFailure(Call<LogoutResponse> call, Throwable t) {
+                // Even if the API call fails, we still want to clear local session
+                completeLogout();
+            }
+        });
+    }
+
+    private void completeLogout() {
         tokenManager.clearToken();
         settingsManager.clearUserData();
+        logoutButton.setEnabled(true);
         updateAccountSection();
         Toast.makeText(this, R.string.logged_out, Toast.LENGTH_SHORT).show();
     }

@@ -2,6 +2,7 @@ package com.clipjot.android.data.api;
 
 import com.clipjot.android.data.api.model.BookmarkRequest;
 import com.clipjot.android.data.api.model.BookmarkResponse;
+import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
 
 import java.util.Map;
@@ -29,4 +30,11 @@ public interface ClipJotApi {
      */
     @POST("api/v1/tags/list")
     Call<TagsResponse> listTags(@Body Map<String, Object> body);
+
+    /**
+     * Logout and revoke the current session.
+     * Only works with session tokens.
+     */
+    @POST("api/v1/logout")
+    Call<LogoutResponse> logout(@Body Map<String, Object> body);
 }

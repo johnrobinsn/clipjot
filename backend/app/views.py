@@ -14,7 +14,7 @@ from .models import Bookmark, Tag, User, now_iso
 from .components import (
     page_layout, bookmark_list, bookmark_form, bookmark_row,
     tag_list_item, tag_chip, pagination, modal, modal_container,
-    bulk_actions_bar, flash_message, settings_nav,
+    bulk_actions_bar, flash_message, settings_nav, keyboard_help_hint,
 )
 
 
@@ -293,6 +293,8 @@ def bookmark_index(request, db):
         bookmark_section,
         # Pagination
         pagination(page, total, per_page, f"/?q={query}" if query else "/"),
+        # Keyboard help hint
+        keyboard_help_hint(),
         # Modal container
         modal_container(),
     )

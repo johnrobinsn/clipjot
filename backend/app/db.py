@@ -196,9 +196,9 @@ def get_session(db, session_id: str) -> Optional[Session]:
 
 
 def get_user_sessions(db, user_id: int) -> list[Session]:
-    """Get all active sessions for a user."""
+    """Get all active sessions for a user, ordered by most recent activity first."""
     now = now_iso()
-    sessions = list(db.t.session(where=f"user_id = {user_id} AND expires_at > '{now}'"))
+    sessions = list(db.t.session(where=f"user_id = {user_id} AND expires_at > '{now}'", order_by="last_activity_at DESC"))
     return [_dict_to_dataclass(Session, s) for s in sessions]
 
 
@@ -414,7 +414,7 @@ def get_user_bookmarks(db, user_id: int, limit: int = 50, offset: int = 0) -> li
 def search_bookmarks(db, user_id: int, query: str, limit: int = 50, offset: int = 0) -> list[Bookmark]:
     """Search bookmarks using LIKE with wildcards.
 
-    Searches in title, url, and comment fields.
+    Searches in title, url, comment, and tag name fields.
     """
     if not query or not query.strip():
         return get_user_bookmarks(db, user_id, limit, offset)
@@ -423,14 +423,20 @@ def search_bookmarks(db, user_id: int, query: str, limit: int = 50, offset: int 
     safe_query = query.replace("'", "''").replace("%", "\\%").replace("_", "\\_")
     pattern = f"%{safe_query}%"
 
+    lower_pattern = pattern.lower()
     result = db.execute("""
-        SELECT id, user_id, url, title, comment, client_name, created_at, updated_at
-        FROM bookmark
-        WHERE user_id = ?
-        AND (title LIKE ? ESCAPE '\\' OR url LIKE ? ESCAPE '\\' OR comment LIKE ? ESCAPE '\\')
-        ORDER BY created_at DESC
+        SELECT DISTINCT b.id, b.user_id, b.url, b.title, b.comment, b.client_name, b.created_at, b.updated_at
+        FROM bookmark b
+        LEFT JOIN bookmark_tag bt ON b.id = bt.bookmark_id
+        LEFT JOIN tag t ON bt.tag_id = t.id
+        WHERE b.user_id = ?
+        AND (LOWER(b.title) LIKE ? ESCAPE '\\'
+             OR LOWER(b.url) LIKE ? ESCAPE '\\'
+             OR LOWER(b.comment) LIKE ? ESCAPE '\\'
+             OR LOWER(t.name) LIKE ? ESCAPE '\\')
+        ORDER BY b.created_at DESC
         LIMIT ? OFFSET ?
-    """, [user_id, pattern, pattern, pattern, limit, offset])
+    """, [user_id, lower_pattern, lower_pattern, lower_pattern, lower_pattern, limit, offset])
 
     # Convert to Bookmark objects
     return [Bookmark(id=row[0], user_id=row[1], url=row[2], title=row[3],

@@ -30,10 +30,22 @@ def _get_int(key: str, default: int) -> int:
     return int(value)
 
 
+def _get_path(key: str, default: str | None = None) -> str | None:
+    """Get path environment variable, resolving relative paths from project root."""
+    value = os.getenv(key, default)
+    if value is None:
+        return None
+    path = Path(value)
+    if not path.is_absolute():
+        path = _project_root / path
+    return str(path.resolve())
+
+
 # Application settings
 SECRET_KEY: str = _get_env("SECRET_KEY", required=True)
 DATABASE_PATH: str = _get_env("DATABASE_PATH", "./clipjot.db")
 BASE_URL: str = _get_env("BASE_URL", "http://localhost:5001")
+PORT: int = _get_int("PORT", 5001)  # Main server port (HTTPS when SSL configured, HTTP otherwise)
 
 # Google OAuth
 GOOGLE_CLIENT_ID: str | None = _get_env("GOOGLE_CLIENT_ID")
@@ -53,6 +65,16 @@ SESSION_MAX_AGE: int = _get_int("SESSION_MAX_AGE", 2592000)  # 30 days
 # Free tier limits
 FREE_TIER_MAX_BOOKMARKS: int = _get_int("FREE_TIER_MAX_BOOKMARKS", 1000)
 FREE_TIER_MAX_TAGS: int = _get_int("FREE_TIER_MAX_TAGS", 50)
+
+# SSL/HTTPS settings (optional)
+SSL_CERT_FILE: str | None = _get_path("SSL_CERT_FILE")
+SSL_KEY_FILE: str | None = _get_path("SSL_KEY_FILE")
+SSL_REDIRECT_PORT: int = _get_int("SSL_REDIRECT_PORT", 5000)  # HTTP port for redirect to HTTPS
+
+
+def has_ssl_config() -> bool:
+    """Check if SSL certificates are configured."""
+    return bool(SSL_CERT_FILE and SSL_KEY_FILE)
 
 
 def has_google_oauth() -> bool:

@@ -5,9 +5,14 @@ registers all routes, and sets up OAuth authentication.
 """
 
 import json
+from pathlib import Path
 from fasthtml.common import *
+from starlette.responses import FileResponse
 
 from . import config
+
+# Static files directory
+_static_dir = Path(__file__).parent.parent / "static"
 from . import db as database
 from . import views
 from . import admin
@@ -22,6 +27,8 @@ from . import api
 app = FastHTML(
     secret_key=config.SECRET_KEY,
     hdrs=[
+        # Favicon
+        Link(rel="icon", type="image/png", href="/static/favicon.png"),
         # DaisyUI + Tailwind CSS
         Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css"),
         Script(src="https://cdn.tailwindcss.com"),
@@ -37,6 +44,16 @@ rt = app.route
 # Database getter for dependency injection
 def get_db():
     return database.get_db()
+
+
+# Static file serving
+@rt("/static/{filename:path}")
+async def static_file(filename: str):
+    """Serve static files."""
+    file_path = _static_dir / filename
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(file_path)
+    return Response("Not found", status_code=404)
 
 
 # =============================================================================
@@ -402,6 +419,12 @@ async def parse_json_body(request):
         return {}
 
 
+@rt("/api/v1/logout", methods=["POST"])
+async def api_logout(request):
+    data = await parse_json_body(request)
+    return api.api_logout(request, get_db(), data)
+
+
 @rt("/api/v1/bookmarks/add", methods=["POST"])
 async def api_bookmarks_add(request):
     data = await parse_json_body(request)
@@ -472,15 +495,72 @@ async def api_import(request):
 # Run Server
 # =============================================================================
 
+# Simple ASGI app that redirects HTTP to HTTPS
+async def https_redirect_app(scope, receive, send):
+    """Redirect all HTTP requests to HTTPS."""
+    if scope["type"] == "http":
+        host = None
+        for header_name, header_value in scope.get("headers", []):
+            if header_name == b"host":
+                host = header_value.decode("utf-8").split(":")[0]  # Remove port if present
+                break
+
+        path = scope.get("path", "/")
+        query_string = scope.get("query_string", b"")
+
+        # Build HTTPS URL using configured port
+        redirect_url = f"https://{host}:{config.PORT}{path}"
+        if query_string:
+            redirect_url += f"?{query_string.decode('utf-8')}"
+
+        await send({
+            "type": "http.response.start",
+            "status": 301,
+            "headers": [
+                [b"location", redirect_url.encode("utf-8")],
+                [b"content-type", b"text/html"],
+            ],
+        })
+        await send({
+            "type": "http.response.body",
+            "body": f'<html><body>Redirecting to <a href="{redirect_url}">{redirect_url}</a></body></html>'.encode("utf-8"),
+        })
+
+
 def main():
     """Run the development server."""
     import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=5001,
-        reload=True,
-    )
+    import threading
+
+    main_port = config.PORT
+
+    uvicorn_kwargs = {
+        "host": "0.0.0.0",
+        "port": main_port,
+        "reload": True,
+    }
+
+    # Add SSL configuration if certificates are specified
+    if config.has_ssl_config():
+        uvicorn_kwargs["ssl_certfile"] = config.SSL_CERT_FILE
+        uvicorn_kwargs["ssl_keyfile"] = config.SSL_KEY_FILE
+
+        # Start HTTP redirect server in a separate thread
+        http_port = config.SSL_REDIRECT_PORT
+
+        def run_redirect_server():
+            uvicorn.run(
+                "app.main:https_redirect_app",
+                host="0.0.0.0",
+                port=http_port,
+                log_level="info",
+            )
+
+        redirect_thread = threading.Thread(target=run_redirect_server, daemon=True)
+        redirect_thread.start()
+        print(f"HTTP redirect server running on port {http_port} -> HTTPS port {main_port}")
+
+    uvicorn.run("app.main:app", **uvicorn_kwargs)
 
 
 if __name__ == "__main__":

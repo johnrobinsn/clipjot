@@ -27,6 +27,7 @@ const tagsContainer = document.getElementById('tags-container');
 const tagSuggestions = document.getElementById('tag-suggestions');
 const commentInput = document.getElementById('bookmark-comment');
 const saveBtn = document.getElementById('save-btn');
+const logoutBtn = document.getElementById('logout-btn');
 const formError = document.getElementById('form-error');
 const formSuccess = document.getElementById('form-success');
 const loginError = document.getElementById('login-error');
@@ -355,11 +356,45 @@ function openOptions() {
   chrome.runtime.openOptionsPage();
 }
 
+/**
+ * Handle logout - revoke session on server then clear local storage
+ */
+async function handleLogout() {
+  logoutBtn.disabled = true;
+
+  try {
+    // Call the logout API to revoke the session on the server
+    await fetch(`${backendUrl}/api/v1/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+  } catch (error) {
+    // Even if the API call fails, we still want to clear local session
+    console.error('Logout API error (continuing with local logout):', error);
+  }
+
+  // Clear local session regardless of API result
+  await chrome.storage.local.remove('sessionToken');
+  sessionToken = null;
+
+  // Reset state
+  selectedTags = [];
+  userTags = [];
+
+  logoutBtn.disabled = false;
+  showLoginView();
+}
+
 // Event Listeners
 loginGoogleBtn.addEventListener('click', () => handleLogin('google'));
 loginGithubBtn.addEventListener('click', () => handleLogin('github'));
 openOptionsBtn.addEventListener('click', openOptions);
 settingsBtn.addEventListener('click', openOptions);
+logoutBtn.addEventListener('click', handleLogout);
 bookmarkForm.addEventListener('submit', saveBookmark);
 
 tagInput.addEventListener('input', (e) => {

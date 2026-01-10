@@ -117,6 +117,41 @@ def require_scope(token: auth.ApiToken, scope: str) -> Optional[Response]:
 
 
 # =============================================================================
+# Auth API Endpoints
+# =============================================================================
+
+def api_logout(request, db, data: dict) -> Response:
+    """Log out and revoke the current session.
+
+    POST /api/v1/logout
+    Requires: valid session token (Bearer auth)
+
+    This endpoint only works with session tokens, not API tokens.
+    It revokes the session used to make the request.
+    """
+    # Get Authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return invalid_token_error()
+
+    token_str = auth_header[7:]  # Remove "Bearer " prefix
+    if not token_str:
+        return invalid_token_error()
+
+    # Validate it's a session token (not an API token)
+    session_result = auth.validate_session(db, token_str)
+    if not session_result:
+        return invalid_token_error()
+
+    session, user = session_result
+
+    # Revoke the session
+    database.delete_session(db, token_str)
+
+    return json_response({"logged_out": True, "message": "Session revoked successfully"})
+
+
+# =============================================================================
 # Bookmark API Endpoints
 # =============================================================================
 
