@@ -50,3 +50,13 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Android/Gradle
+.gradle/
+local.properties
+*.iml
+.idea/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
