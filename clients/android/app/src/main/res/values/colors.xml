@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors - matching Chrome extension -->
+    <color name="primary">#6366f1</color>
+    <color name="primary_dark">#4f46e5</color>
+    <color name="primary_light">#818cf8</color>
+
+    <!-- Secondary colors -->
+    <color name="secondary">#10b981</color>
+    <color name="secondary_dark">#059669</color>
+
+    <!-- Status colors -->
+    <color name="success">#10b981</color>
+    <color name="error">#ef4444</color>
+    <color name="warning">#f59e0b</color>
+
+    <!-- Background colors -->
+    <color name="background_light">#ffffff</color>
+    <color name="background_dark">#1f2937</color>
+    <color name="surface_light">#f9fafb</color>
+    <color name="surface_dark">#111827</color>
+
+    <!-- Text colors -->
+    <color name="text_primary_light">#111827</color>
+    <color name="text_primary_dark">#f9fafb</color>
+    <color name="text_secondary_light">#6b7280</color>
+    <color name="text_secondary_dark">#9ca3af</color>
+</resources>

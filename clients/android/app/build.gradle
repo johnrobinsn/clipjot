@@ -1,0 +1,76 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.clipjot.android'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.clipjot.android"
+        minSdk 29
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
+            // Production backend URL
+            buildConfigField "String", "DEFAULT_BACKEND_URL", "\"https://clipjot.net\""
+        }
+        debug {
+            minifyEnabled false
+            // Development backend URL
+            buildConfigField "String", "DEFAULT_BACKEND_URL", "\"http://localhost:5001\""
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // AndroidX Core
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+
+    // Material Design
+    implementation 'com.google.android.material:material:1.11.0'
+
+    // Security - Encrypted SharedPreferences
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+
+    // Networking
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+    // Chrome Custom Tabs (for OAuth)
+    implementation 'androidx.browser:browser:1.7.0'
+
+    // FlexboxLayout for tag chips
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

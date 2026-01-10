@@ -166,11 +166,17 @@ def oauth_callback_handler(request, db, provider: str, user_info: dict):
 
 
 def oauth_extension_callback(request, db, provider: str, user_info: dict, redirect_uri: str):
-    """Handle OAuth callback for Chrome extension.
+    """Handle OAuth callback for external clients (Chrome extension, Android app).
 
-    Creates session with client_name='chrome-extension' and redirects back
-    to the extension with the session token in the URL.
+    Creates session with appropriate client_name and redirects back
+    to the client with the session token in the URL.
     """
+    # Determine client type from redirect_uri scheme
+    if redirect_uri.startswith("clipjot://"):
+        client_name = "android"
+    else:
+        client_name = "chrome-extension"
+
     auth_handler = auth.ClipJotAuth(lambda: db)
 
     try:
@@ -179,7 +185,7 @@ def oauth_extension_callback(request, db, provider: str, user_info: dict, redire
             user_info=user_info,
             user_agent=request.headers.get("user-agent"),
             ip_address=request.client.host if request.client else None,
-            client_name="chrome-extension",
+            client_name=client_name,
         )
     except PermissionError as e:
         # User is suspended - redirect back with error

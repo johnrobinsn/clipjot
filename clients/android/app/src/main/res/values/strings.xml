@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ClipJot</string>
+    <string name="app_website">https://clipjot.net</string>
+    <string name="app_description">ClipJot is your personal bookmark manager. Save links from any app on your device by using the share button — just look for ClipJot in the share sheet.\n\nOrganize your bookmarks with tags, add notes, and access your collection from anywhere. Whether you\'re saving articles to read later, collecting recipes, or bookmarking resources for work, ClipJot keeps everything in one place.</string>
+
+    <!-- Login -->
+    <string name="login_subtitle">Sign in to save bookmarks</string>
+    <string name="login_google">Sign in with Google</string>
+    <string name="login_github">Sign in with GitHub</string>
+    <string name="login_success">Signed in successfully</string>
+    <string name="login_error">Login failed: %1$s</string>
+
+    <!-- Bookmark Form -->
+    <string name="save_link">Save Link</string>
+    <string name="url">URL</string>
+    <string name="title">Title</string>
+    <string name="tags">Tags</string>
+    <string name="add_tag">Add tag…</string>
+    <string name="all_tags">All Tags</string>
+    <string name="no_tags_yet">No tags yet. Type to create one.</string>
+    <string name="comment">Comment</string>
+    <string name="save">Save</string>
+    <string name="expand">Expand</string>
+    <string name="bookmark_saved">Bookmark saved!</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="backend_url_title">Backend URL</string>
+    <string name="backend_url_hint">https://your-server.com</string>
+    <string name="test_connection">Test</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="connection_success">Connection successful!</string>
+
+    <!-- Account -->
+    <string name="account_title">Account</string>
+    <string name="account_logged_in">Logged in</string>
+    <string name="logout">Log out</string>
+    <string name="logout_title">Log out?</string>
+    <string name="logout_confirm">Are you sure you want to log out?</string>
+    <string name="logged_out">Logged out</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset_defaults">Reset to Defaults</string>
+    <string name="reset_defaults_title">Reset settings?</string>
+    <string name="reset_defaults_confirm">This will reset all settings to their default values and log you out.</string>
+    <string name="reset_defaults_done">Settings reset to defaults</string>
+
+    <!-- Warnings -->
+    <string name="warning_http_insecure">Warning: Using HTTP is insecure. Use HTTPS for production.</string>
+
+    <!-- Errors -->
+    <string name="error_oauth_failed">Failed to start login</string>
+    <string name="error_invalid_callback">Invalid login callback</string>
+    <string name="error_session_expired">Session expired. Please log in again.</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_url_required">URL is required</string>
+    <string name="error_invalid_url">Invalid URL format</string>
+    <string name="error_server_response">Server error: %1$d</string>
+    <string name="error_connection_failed">Could not connect to server</string>
+</resources>

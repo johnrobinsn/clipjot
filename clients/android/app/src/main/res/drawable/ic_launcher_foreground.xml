@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Bookmark icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,24L34,24c-2.2,0 -4,1.8 -4,4v52l24,-10l24,10V28c0,-2.2 -1.8,-4 -4,-4H54z"/>
+</vector>
