@@ -72,6 +72,16 @@
     <string name="link_updated">Link updated</string>
     <string name="loading_more">Loading more…</string>
 
+    <!-- Sharing Settings -->
+    <string name="sharing_settings_title">Sharing</string>
+
+    <!-- Quick Save -->
+    <string name="quick_save_title">Add Shared Links Without Editing</string>
+    <string name="quick_save_summary">Save links immediately without showing the edit form</string>
+    <string name="quick_save_saving">Saving link…</string>
+    <string name="quick_save_success">Link saved!</string>
+    <string name="quick_save_error">Failed to save link</string>
+
     <!-- Errors -->
     <string name="error_oauth_failed">Failed to start login</string>
     <string name="error_invalid_callback">Invalid login callback</string>

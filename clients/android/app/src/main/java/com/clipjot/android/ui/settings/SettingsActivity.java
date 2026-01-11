@@ -23,6 +23,7 @@ import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
 import com.clipjot.android.util.UrlValidator;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -54,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
     private View accountSection;
     private View loginSection;
     private TextView accountEmail;
+    private MaterialSwitch quickSaveSwitch;
 
     private SettingsManager settingsManager;
     private TokenManager tokenManager;
@@ -89,6 +91,7 @@ public class SettingsActivity extends AppCompatActivity {
         accountSection = findViewById(R.id.accountSection);
         loginSection = findViewById(R.id.loginSection);
         accountEmail = findViewById(R.id.accountEmail);
+        quickSaveSwitch = findViewById(R.id.quickSaveSwitch);
     }
 
     private void setupUI() {
@@ -103,6 +106,12 @@ public class SettingsActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(v -> confirmLogout());
         googleLoginButton.setOnClickListener(v -> startOAuth("google"));
         githubLoginButton.setOnClickListener(v -> startOAuth("github"));
+
+        // Setup quick save toggle
+        quickSaveSwitch.setChecked(settingsManager.isQuickSaveEnabled());
+        quickSaveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            settingsManager.setQuickSaveEnabled(isChecked);
+        });
 
         // Update account section visibility
         updateAccountSection();

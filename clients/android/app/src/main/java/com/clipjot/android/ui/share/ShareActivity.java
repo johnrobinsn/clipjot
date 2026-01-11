@@ -78,8 +78,29 @@ public class ShareActivity extends AppCompatActivity {
         // Clear any pending bookmark since we're handling it now
         settingsManager.clearPendingBookmark();
 
-        BookmarkBottomSheet bottomSheet = BookmarkBottomSheet.newInstance(url, title);
-        bottomSheet.setOnDismissListener(() -> finish());
-        bottomSheet.show(getSupportFragmentManager(), "bookmark_sheet");
+        if (settingsManager.isQuickSaveEnabled()) {
+            // Quick save mode - save immediately without editing
+            QuickSaveBottomSheet quickSave = QuickSaveBottomSheet.newInstance(url, title);
+            quickSave.setOnQuickSaveListener(new QuickSaveBottomSheet.OnQuickSaveListener() {
+                @Override
+                public void onDismiss() {
+                    finish();
+                }
+
+                @Override
+                public void onEditRequested(String editUrl, String editTitle) {
+                    // User wants to edit after failed save - show full form
+                    BookmarkBottomSheet editSheet = BookmarkBottomSheet.newInstance(editUrl, editTitle);
+                    editSheet.setOnDismissListener(() -> finish());
+                    editSheet.show(getSupportFragmentManager(), "bookmark_sheet");
+                }
+            });
+            quickSave.show(getSupportFragmentManager(), "quick_save_sheet");
+        } else {
+            // Normal mode - show edit form
+            BookmarkBottomSheet bottomSheet = BookmarkBottomSheet.newInstance(url, title);
+            bottomSheet.setOnDismissListener(() -> finish());
+            bottomSheet.show(getSupportFragmentManager(), "bookmark_sheet");
+        }
     }
 }

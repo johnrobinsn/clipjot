@@ -16,6 +16,7 @@ public class SettingsManager {
     private static final String KEY_PENDING_TITLE = "pending_bookmark_title";
     private static final String KEY_USER_EMAIL = "user_email";
     private static final String KEY_PANEL_EXPANDED = "panel_expanded";
+    private static final String KEY_QUICK_SAVE_ENABLED = "quick_save_enabled";
 
     private final SharedPreferences prefs;
 
@@ -121,12 +122,28 @@ public class SettingsManager {
     }
 
     /**
+     * Check if quick save mode is enabled (default: false).
+     * When enabled, shared links are saved immediately without showing the edit form.
+     */
+    public boolean isQuickSaveEnabled() {
+        return prefs.getBoolean(KEY_QUICK_SAVE_ENABLED, false);
+    }
+
+    /**
+     * Set quick save mode enabled state.
+     */
+    public void setQuickSaveEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_QUICK_SAVE_ENABLED, enabled).apply();
+    }
+
+    /**
      * Reset all settings to defaults (keeps user logged in).
      */
     public void resetToDefaults() {
         prefs.edit()
                 .remove(KEY_BACKEND_URL)
                 .remove(KEY_PANEL_EXPANDED)
+                .remove(KEY_QUICK_SAVE_ENABLED)
                 .apply();
     }
 }
