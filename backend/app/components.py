@@ -223,7 +223,8 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
                 name="selected",
                 value=str(bookmark.id),
                 checked=selected,
-            )
+            ),
+            cls="w-8 px-1",
         ),
         # Title & URL
         Td(
@@ -232,50 +233,44 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
                     bookmark.title or bookmark.url,
                     href=bookmark.url,
                     target="_blank",
-                    cls="link link-primary font-medium",
+                    cls="link link-primary font-medium break-all",
                     title=bookmark.url,
                 ),
-                Span(
+                Button(
                     "\U0001F4DD",  # Memo/note icon
-                    cls="ml-1 cursor-help",
+                    cls="ml-1 flex-shrink-0 hover:scale-110 transition-transform",
                     title=bookmark.comment,
+                    hx_get=f"/bookmarks/{bookmark.id}/edit",
+                    hx_target="#modal-container",
                 ) if bookmark.comment else None,
-                cls="flex items-center",
+                cls="flex items-start",
             ),
-            Span(domain, cls="text-xs text-base-content/60"),
-            cls="max-w-md",
+            Span(domain, cls="text-xs text-base-content/60 break-all"),
+            cls="px-1",
         ),
-        # Tags
+        # Tags (hidden on mobile)
         Td(
             Div(*tag_elements, cls="flex flex-wrap gap-1"),
+            cls="hidden md:table-cell px-1",
         ),
-        # Date
+        # Date (hidden on mobile)
         Td(
             Span(
                 format_date(bookmark.created_at),
                 cls="text-sm text-base-content/70",
                 title=bookmark.created_at,
-            )
+            ),
+            cls="hidden md:table-cell px-1",
         ),
         # Actions
         Td(
-            Div(
-                Button(
-                    "Edit",
-                    cls="btn btn-xs btn-ghost",
-                    hx_get=f"/bookmarks/{bookmark.id}/edit",
-                    hx_target="#modal-container",
-                ),
-                Button(
-                    "Delete",
-                    cls="btn btn-xs btn-ghost text-error",
-                    hx_delete=f"/bookmarks/{bookmark.id}",
-                    hx_confirm="Delete this link?",
-                    hx_target=f"#bookmark-{bookmark.id}",
-                    hx_swap="outerHTML",
-                ),
-                cls="flex gap-1",
+            Button(
+                "Edit",
+                cls="btn btn-xs btn-ghost",
+                hx_get=f"/bookmarks/{bookmark.id}/edit",
+                hx_target="#modal-container",
             ),
+            cls="w-12 px-1",
         ),
         cls="hover",
         id=f"bookmark-{bookmark.id}",
@@ -299,12 +294,13 @@ def bookmark_list(bookmarks: list[tuple[Bookmark, list[Tag]]], selected_ids: set
                         cls="checkbox checkbox-sm",
                         id="select-all",
                         onclick="toggleAllBookmarks(this)",
-                    )
+                    ),
+                    cls="w-8 px-1",
                 ),
-                Th("Link"),
-                Th("Tags"),
-                Th("Added"),
-                Th("Actions"),
+                Th("Link", cls="px-1"),
+                Th("Tags", cls="hidden md:table-cell px-1"),
+                Th("Added", cls="hidden md:table-cell px-1"),
+                Th("", cls="w-12 px-1"),  # Actions column, no header text
             )
         ),
         Tbody(*rows, id="bookmark-list"),

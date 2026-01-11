@@ -6,40 +6,76 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Logo/Title -->
-    <TextView
-        android:id="@+id/appTitle"
-        android:layout_width="wrap_content"
+    <!-- App Header (Icon + Title) -->
+    <LinearLayout
+        android:id="@+id/appHeader"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/loginSubtitle"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toTopOf="@+id/appDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintWidth_max="320dp">
 
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_launcher_foreground"
+            android:background="@drawable/ic_launcher_background"
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/app_name"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineLarge"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- App Description -->
+    <TextView
+        android:id="@+id/appDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="start"
+        android:text="@string/app_description"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textColor="?android:textColorSecondary"
+        android:lineSpacingMultiplier="1.2"
+        app:layout_constraintBottom_toTopOf="@+id/loginSubtitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appHeader"
+        app:layout_constraintWidth_max="320dp" />
+
+    <!-- Login Subtitle -->
     <TextView
         android:id="@+id/loginSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="32dp"
         android:text="@string/login_subtitle"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         app:layout_constraintBottom_toTopOf="@+id/googleLoginButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/appDescription" />
 
     <!-- Login Buttons -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/googleLoginButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:text="@string/login_google"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         app:icon="@drawable/ic_google"
         app:iconGravity="textStart"
         app:layout_constraintBottom_toTopOf="@+id/githubLoginButton"

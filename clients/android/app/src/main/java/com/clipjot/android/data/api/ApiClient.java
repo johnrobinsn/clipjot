@@ -20,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class ApiClient {
 
-    private static final String DEFAULT_BACKEND_URL = "http://localhost:5001";
+    private static final String DEFAULT_BACKEND_URL = "https://clipjot.net";
     private static ClipJotApi api;
     private static String currentBaseUrl;
     private static final Gson gson = new Gson();

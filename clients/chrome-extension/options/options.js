@@ -2,7 +2,7 @@
  * ClipJot Chrome Extension - Options Page Script
  */
 
-const DEFAULT_BACKEND_URL = 'http://localhost:5001';
+const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 
 // DOM Elements
 const backendUrlInput = document.getElementById('backend-url');
@@ -113,6 +113,15 @@ backendUrlInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     saveSettings();
   }
+});
+
+// Reset to defaults
+document.getElementById('reset-defaults').addEventListener('click', async (e) => {
+  e.preventDefault();
+  backendUrlInput.value = DEFAULT_BACKEND_URL;
+  await chrome.storage.local.set({ backendUrl: DEFAULT_BACKEND_URL });
+  await chrome.storage.local.remove('sessionToken');
+  showStatus('Reset to defaults', 'success');
 });
 
 // Initialize

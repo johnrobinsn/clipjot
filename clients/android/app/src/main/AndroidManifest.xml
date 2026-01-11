@@ -46,20 +46,28 @@
             </intent-filter>
         </activity>
 
-        <!-- Settings Activity (also serves as launcher) -->
+        <!-- Settings Activity -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="true"
-            android:theme="@style/Theme.ClipJot">
-            <!-- Launcher icon -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:theme="@style/Theme.ClipJot"
+            android:parentActivityName=".ui.links.MyLinksActivity">
             <!-- App preferences from system settings -->
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- My Links Activity (Main launcher) -->
+        <activity
+            android:name=".ui.links.MyLinksActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ClipJot.NoActionBar">
+            <!-- Launcher icon -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
