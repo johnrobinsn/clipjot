@@ -228,10 +228,16 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
     private void setupSelectionBar() {
         MaterialButton cancelButton = findViewById(R.id.cancelSelectionButton);
+        MaterialButton selectAllButton = findViewById(R.id.selectAllButton);
         MaterialButton deleteButton = findViewById(R.id.deleteSelectedButton);
 
         cancelButton.setOnClickListener(v -> exitSelectionMode());
+        selectAllButton.setOnClickListener(v -> selectAll());
         deleteButton.setOnClickListener(v -> confirmDeleteSelected());
+    }
+
+    private void selectAll() {
+        adapter.selectAll();
     }
 
     private void loadBookmarks(boolean refresh) {

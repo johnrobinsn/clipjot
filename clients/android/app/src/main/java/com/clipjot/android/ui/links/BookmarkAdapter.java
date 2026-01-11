@@ -110,6 +110,17 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         setSelectionMode(false);
     }
 
+    public void selectAll() {
+        selectedIds.clear();
+        for (BookmarkResponse bookmark : bookmarks) {
+            selectedIds.add(bookmark.getId());
+        }
+        notifyDataSetChanged();
+        if (listener != null) {
+            listener.onSelectionChanged(new HashSet<>(selectedIds));
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

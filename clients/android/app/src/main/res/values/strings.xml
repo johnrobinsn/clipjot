@@ -66,6 +66,7 @@
     <string name="delete_selected_title">Delete selected links?</string>
     <string name="delete_selected_confirm">Delete %1$d selected link(s)? This action cannot be undone.</string>
     <string name="selected_count">%1$d selected</string>
+    <string name="select_all">Select All</string>
     <string name="link_deleted">Link deleted</string>
     <string name="links_deleted">%1$d links deleted</string>
     <string name="link_updated">Link updated</string>
