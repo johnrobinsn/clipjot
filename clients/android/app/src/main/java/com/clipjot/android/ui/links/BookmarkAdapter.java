@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.clipjot.android.R;
@@ -45,9 +46,63 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         this.listener = listener;
     }
 
-    public void setBookmarks(List<BookmarkResponse> bookmarks) {
-        this.bookmarks = new ArrayList<>(bookmarks);
+    public void setBookmarks(List<BookmarkResponse> newBookmarks) {
+        this.bookmarks = new ArrayList<>(newBookmarks);
         notifyDataSetChanged();
+    }
+
+    /**
+     * Updates bookmarks using DiffUtil for smooth animations without flashing.
+     */
+    public void updateBookmarks(List<BookmarkResponse> newBookmarks) {
+        List<BookmarkResponse> oldBookmarks = this.bookmarks;
+        List<BookmarkResponse> newList = new ArrayList<>(newBookmarks);
+
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldBookmarks.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldPos, int newPos) {
+                return oldBookmarks.get(oldPos).getId() == newList.get(newPos).getId();
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldPos, int newPos) {
+                BookmarkResponse oldItem = oldBookmarks.get(oldPos);
+                BookmarkResponse newItem = newList.get(newPos);
+                // Compare relevant fields
+                return oldItem.getId() == newItem.getId()
+                        && equals(oldItem.getTitle(), newItem.getTitle())
+                        && equals(oldItem.getUrl(), newItem.getUrl())
+                        && equals(oldItem.getComment(), newItem.getComment())
+                        && tagsEqual(oldItem.getTags(), newItem.getTags());
+            }
+
+            private boolean equals(String a, String b) {
+                return (a == null && b == null) || (a != null && a.equals(b));
+            }
+
+            private boolean tagsEqual(List<Tag> a, List<Tag> b) {
+                if (a == null && b == null) return true;
+                if (a == null || b == null) return false;
+                if (a.size() != b.size()) return false;
+                for (int i = 0; i < a.size(); i++) {
+                    if (a.get(i).getId() != b.get(i).getId()) return false;
+                }
+                return true;
+            }
+        });
+
+        this.bookmarks = newList;
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public void addBookmarks(List<BookmarkResponse> newBookmarks) {

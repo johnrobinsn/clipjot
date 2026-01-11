@@ -113,7 +113,44 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         if (!tokenManager.hasToken()) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+            return;
         }
+        // Silently refresh if we already have data
+        if (adapter.getItemCount() > 0) {
+            silentRefresh();
+        }
+    }
+
+    /**
+     * Refreshes bookmarks in the background without showing loading indicators.
+     * Uses DiffUtil to smoothly update only changed items.
+     */
+    private void silentRefresh() {
+        BookmarkSearchRequest request = new BookmarkSearchRequest(currentQuery, 1, PAGE_SIZE);
+
+        ClipJotApi api = ApiClient.getApi(this);
+        api.searchBookmarks(request).enqueue(new Callback<BookmarkSearchResponse>() {
+            @Override
+            public void onResponse(Call<BookmarkSearchResponse> call, Response<BookmarkSearchResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    BookmarkSearchResponse body = response.body();
+                    List<BookmarkResponse> bookmarks = body.getBookmarks();
+                    hasMore = body.isHasMore();
+                    currentPage = 1;
+
+                    if (bookmarks != null) {
+                        adapter.updateBookmarks(bookmarks);
+                    }
+                    updateEmptyState();
+                }
+                // Silently ignore errors - user can pull to refresh if needed
+            }
+
+            @Override
+            public void onFailure(Call<BookmarkSearchResponse> call, Throwable t) {
+                // Silently ignore - user can pull to refresh if needed
+            }
+        });
     }
 
     private void bindViews() {
