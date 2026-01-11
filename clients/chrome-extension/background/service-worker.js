@@ -7,7 +7,7 @@
  * - Message passing between popup and background
  */
 
-const DEFAULT_BACKEND_URL = 'http://localhost:5001';
+const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 
 // Create context menu on install
 chrome.runtime.onInstalled.addListener(() => {

@@ -3,7 +3,7 @@
  */
 
 // Default backend URL
-const DEFAULT_BACKEND_URL = 'http://localhost:5001';
+const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 
 // State
 let backendUrl = DEFAULT_BACKEND_URL;
