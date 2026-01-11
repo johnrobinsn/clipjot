@@ -1,5 +1,6 @@
 package com.clipjot.android.ui.links;
 
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -218,10 +219,15 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         }
 
         void bind(BookmarkResponse bookmark) {
-            // Title
+            // Title - strip URL scheme in portrait mode when showing URL as title
             String title = bookmark.getTitle();
             if (title == null || title.isEmpty()) {
-                title = bookmark.getUrl();
+                String url = bookmark.getUrl();
+                if (isPortrait() && url != null) {
+                    title = stripUrlScheme(url);
+                } else {
+                    title = url;
+                }
             }
             titleText.setText(title);
 
@@ -319,6 +325,21 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
                     return host;
                 }
             } catch (Exception ignored) {
+            }
+            return url;
+        }
+
+        private boolean isPortrait() {
+            int orientation = itemView.getContext().getResources().getConfiguration().orientation;
+            return orientation == Configuration.ORIENTATION_PORTRAIT;
+        }
+
+        private String stripUrlScheme(String url) {
+            if (url == null) return null;
+            if (url.startsWith("https://")) {
+                return url.substring(8);
+            } else if (url.startsWith("http://")) {
+                return url.substring(7);
             }
             return url;
         }
