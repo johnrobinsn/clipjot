@@ -727,6 +727,44 @@ def settings_page(request, db):
             ),
             cls="card bg-base-100 shadow-xl mb-6",
         ),
+        # Display preferences card
+        Div(
+            Div(
+                H2("Display Preferences", cls="card-title"),
+                Div(
+                    Div(
+                        Span("Hide URL scheme on mobile", cls="label-text"),
+                        P("Strip https:// from URLs when shown as titles on narrow screens", cls="text-xs text-base-content/60 mt-1"),
+                        cls="flex-1",
+                    ),
+                    Input(
+                        type="checkbox",
+                        cls="toggle toggle-primary",
+                        id="strip-url-scheme-toggle",
+                        checked=True,
+                    ),
+                    cls="flex items-center gap-4",
+                ),
+                Script("""
+                    (function() {
+                        const toggle = document.getElementById('strip-url-scheme-toggle');
+                        // Initialize from localStorage
+                        toggle.checked = localStorage.getItem('stripUrlScheme') !== 'false';
+                        // Save on change
+                        toggle.addEventListener('change', function() {
+                            localStorage.setItem('stripUrlScheme', this.checked);
+                            if (this.checked) {
+                                document.body.classList.add('strip-url-scheme');
+                            } else {
+                                document.body.classList.remove('strip-url-scheme');
+                            }
+                        });
+                    })();
+                """),
+                cls="card-body",
+            ),
+            cls="card bg-base-100 shadow-xl mb-6",
+        ),
         # Navigation to other settings pages
         settings_nav("settings"),
     )

@@ -42,6 +42,22 @@ def page_head(title: str = "ClipJot"):
                 document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
             });
         """),
+        # URL scheme stripping for mobile
+        Style("""
+            @media (max-width: 768px) {
+                body.strip-url-scheme .url-full { display: none !important; }
+                body.strip-url-scheme .url-stripped { display: inline !important; }
+            }
+        """),
+        Script("""
+            // Strip URL scheme setting (default: enabled)
+            document.addEventListener('DOMContentLoaded', function() {
+                const enabled = localStorage.getItem('stripUrlScheme') !== 'false';
+                if (enabled) {
+                    document.body.classList.add('strip-url-scheme');
+                }
+            });
+        """),
     )
 
 
@@ -206,6 +222,16 @@ def flash_message(message: str, type: str = "info"):
 # Bookmark Components
 # =============================================================================
 
+def strip_url_scheme(url: str) -> str:
+    """Strip http:// or https:// from URL for display."""
+    if url:
+        if url.startswith("https://"):
+            return url[8:]
+        elif url.startswith("http://"):
+            return url[7:]
+    return url
+
+
 def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
     """Single bookmark row in list view."""
     domain = urlparse(bookmark.url).netloc if bookmark.url else ""
@@ -213,6 +239,14 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
     tag_elements = [tag_chip(t) for t in tags[:5]]
     if len(tags) > 5:
         tag_elements.append(Span(f"+{len(tags) - 5}", cls="badge badge-sm"))
+
+    # If no title, use URL (with scheme stripped for mobile via CSS/JS)
+    if bookmark.title:
+        display_title = bookmark.title
+        is_url_as_title = False
+    else:
+        display_title = bookmark.url
+        is_url_as_title = True
 
     return Tr(
         # Checkbox
@@ -230,7 +264,9 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
         Td(
             Div(
                 A(
-                    bookmark.title or bookmark.url,
+                    # Show full URL, but include stripped version for mobile
+                    Span(display_title, cls="url-full") if is_url_as_title else display_title,
+                    Span(strip_url_scheme(bookmark.url), cls="url-stripped hidden") if is_url_as_title else None,
                     href=bookmark.url,
                     target="_blank",
                     cls="link link-primary font-medium break-all",
