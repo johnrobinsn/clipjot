@@ -40,8 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_website"
-            android:textColor="@color/design_default_color_primary"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?attr/colorPrimary"
+            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground"
@@ -112,30 +112,13 @@
             android:indeterminate="true"
             android:visibility="gone" />
 
-        <!-- Buttons -->
-        <LinearLayout
+        <!-- Save Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/testConnectionButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="@string/test_connection"
-                style="@style/Widget.Material3.Button.OutlinedButton" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/saveButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="@string/save" />
-        </LinearLayout>
+            android:layout_marginTop="16dp"
+            android:text="@string/save" />
 
         <!-- Reset to Defaults -->
         <com.google.android.material.button.MaterialButton

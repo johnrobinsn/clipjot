@@ -96,13 +96,14 @@ public class SettingsManager {
 
     /**
      * Clear all user data (logout).
+     * Uses commit() for synchronous write to ensure data is cleared immediately.
      */
     public void clearUserData() {
         prefs.edit()
                 .remove(KEY_USER_EMAIL)
                 .remove(KEY_PENDING_URL)
                 .remove(KEY_PENDING_TITLE)
-                .apply();
+                .commit();
     }
 
     /**

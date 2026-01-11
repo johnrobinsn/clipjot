@@ -27,7 +27,7 @@ android {
         debug {
             minifyEnabled false
             // Development backend URL
-            buildConfigField "String", "DEFAULT_BACKEND_URL", "\"http://localhost:5001\""
+            buildConfigField "String", "DEFAULT_BACKEND_URL", "\"https://clipjot.net\""
         }
     }
 

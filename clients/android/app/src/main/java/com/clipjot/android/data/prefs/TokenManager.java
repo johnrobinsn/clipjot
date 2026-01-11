@@ -61,8 +61,9 @@ public class TokenManager {
 
     /**
      * Clear the stored token (logout).
+     * Uses commit() for synchronous write to ensure token is cleared immediately.
      */
     public void clearToken() {
-        prefs.edit().remove(KEY_TOKEN).apply();
+        prefs.edit().remove(KEY_TOKEN).commit();
     }
 }

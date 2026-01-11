@@ -41,7 +41,6 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String CALLBACK_URI = "clipjot://oauth/callback";
 
     private TextInputEditText backendUrlInput;
-    private MaterialButton testConnectionButton;
     private MaterialButton saveButton;
     private MaterialButton resetDefaultsButton;
     private MaterialButton logoutButton;
@@ -83,7 +82,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void bindViews() {
         backendUrlInput = findViewById(R.id.backendUrlInput);
-        testConnectionButton = findViewById(R.id.testConnectionButton);
         saveButton = findViewById(R.id.saveButton);
         resetDefaultsButton = findViewById(R.id.resetDefaultsButton);
         logoutButton = findViewById(R.id.logoutButton);
@@ -105,7 +103,6 @@ public class SettingsActivity extends AppCompatActivity {
         updateHttpWarning(currentUrl);
 
         // Setup buttons
-        testConnectionButton.setOnClickListener(v -> testConnection());
         saveButton.setOnClickListener(v -> saveSettings());
         resetDefaultsButton.setOnClickListener(v -> confirmResetDefaults());
         logoutButton.setOnClickListener(v -> confirmLogout());
@@ -156,7 +153,10 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    private void testConnection() {
+    private void saveSettings() {
+        // Clear any previous status message
+        hideConnectionStatus();
+
         String url = backendUrlInput.getText() != null ?
                 backendUrlInput.getText().toString().trim() : "";
 
@@ -172,11 +172,13 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         setLoading(true);
-        hideConnectionStatus();
         updateHttpWarning(normalizedUrl);
 
-        // Temporarily set URL for testing
+        // Remember if user was logged in before testing
+        boolean wasLoggedIn = tokenManager.hasToken();
         String originalUrl = settingsManager.getBackendUrl();
+
+        // Set URL for testing
         settingsManager.setBackendUrl(normalizedUrl);
         ApiClient.resetClient();
 
@@ -188,7 +190,16 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() || response.code() == 401) {
                     // 401 is expected if not logged in - server is reachable
-                    showConnectionStatus(getString(R.string.connection_success), true);
+                    // URL is already saved, just update UI
+                    backendUrlInput.setText(normalizedUrl);
+
+                    // Always log out user when saving URL
+                    if (wasLoggedIn) {
+                        tokenManager.clearToken();
+                        settingsManager.clearUserData();
+                    }
+                    showConnectionStatus(getString(R.string.settings_saved), true);
+                    updateAccountSection();
                 } else {
                     // Restore original URL
                     settingsManager.setBackendUrl(originalUrl);
@@ -206,29 +217,6 @@ public class SettingsActivity extends AppCompatActivity {
                 showConnectionStatus(getString(R.string.error_connection_failed), false);
             }
         });
-    }
-
-    private void saveSettings() {
-        String url = backendUrlInput.getText() != null ?
-                backendUrlInput.getText().toString().trim() : "";
-
-        if (url.isEmpty()) {
-            Toast.makeText(this, R.string.error_url_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String normalizedUrl = UrlValidator.normalizeBackendUrl(url);
-        if (normalizedUrl == null || !UrlValidator.isValidUrl(normalizedUrl)) {
-            Toast.makeText(this, R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        settingsManager.setBackendUrl(normalizedUrl);
-        ApiClient.resetClient();
-
-        Toast.makeText(this, R.string.settings_saved, Toast.LENGTH_SHORT).show();
-        backendUrlInput.setText(normalizedUrl);
-        updateHttpWarning(normalizedUrl);
     }
 
     private void confirmResetDefaults() {
@@ -296,7 +284,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setLoading(boolean loading) {
         progressIndicator.setVisibility(loading ? View.VISIBLE : View.GONE);
-        testConnectionButton.setEnabled(!loading);
         saveButton.setEnabled(!loading);
         backendUrlInput.setEnabled(!loading);
     }
