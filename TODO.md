@@ -13,10 +13,11 @@
 
 -[X] Add support for certs
 -[X] Deal with a large number of URLs
+-[ ] Make ClipJot WebUI more mobile friendly
 
 ## Ready to Ship
 -[ ] Mindful usage
--[ ] Analytics Config
+-[ ] Analytics Config in WebUI
 -[ ] Cursor like API for synchronizing links to some processing client.
 -[ ] Review for consistency (icons, fonts, styles, other branding... ) Pull together a style guide
 -[ ] Versioning and Release Process
@@ -33,6 +34,7 @@
 -[ ] validate streaming api and augmenting metadata.
 -[ ] Consider upper bounds on all input form elements.
 -[ ] Research IOS sharing mechanism
+-[ ] Test self hosting it
 
 ## Futures
 -[ ] Full text search

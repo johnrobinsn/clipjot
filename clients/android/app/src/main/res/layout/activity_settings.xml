@@ -11,60 +11,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- App Header -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_launcher_foreground"
-                android:background="@drawable/ic_launcher_background"
-                android:contentDescription="@string/app_name" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/app_name"
-                android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium" />
-        </LinearLayout>
-
-        <!-- Website Link -->
-        <TextView
-            android:id="@+id/websiteLink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_website"
-            android:textColor="?attr/colorPrimary"
-            android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            android:paddingVertical="4dp" />
-
-        <!-- App Description -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="24dp"
-            android:text="@string/app_description"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?android:textColorSecondary"
-            android:lineSpacingMultiplier="1.2" />
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="16dp"
-            android:background="?android:attr/listDivider" />
-
         <!-- Backend URL Section -->
         <TextView
             android:layout_width="match_parent"

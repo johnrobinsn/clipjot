@@ -15,6 +15,21 @@
         <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
+    <!-- NoActionBar theme for activities with custom toolbar -->
+    <style name="Theme.ClipJot.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/primary_dark</item>
+    </style>
+
     <!-- Transparent theme for ShareActivity -->
     <style name="Theme.ClipJot.Transparent" parent="Theme.ClipJot">
         <item name="android:windowBackground">@android:color/transparent</item>

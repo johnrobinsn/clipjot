@@ -44,7 +44,7 @@ public class OAuthCallbackActivity extends AppCompatActivity {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
-                    // Just show success
+                    // Just save token and finish - LoginActivity.onResume() will navigate to MyLinksActivity
                     Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
                 }
 

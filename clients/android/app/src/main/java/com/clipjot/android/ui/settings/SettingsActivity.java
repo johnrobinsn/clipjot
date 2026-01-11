@@ -1,5 +1,6 @@
 package com.clipjot.android.ui.settings;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import com.clipjot.android.R;
 import com.clipjot.android.data.api.ApiClient;
 import com.clipjot.android.data.api.ClipJotApi;
+import com.clipjot.android.ui.auth.LoginActivity;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
 import com.clipjot.android.data.prefs.SettingsManager;
@@ -49,7 +51,6 @@ public class SettingsActivity extends AppCompatActivity {
     private LinearProgressIndicator progressIndicator;
     private TextView connectionStatus;
     private TextView httpWarning;
-    private TextView websiteLink;
     private View accountSection;
     private View loginSection;
     private TextView accountEmail;
@@ -62,15 +63,10 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Configure action bar - hide when launched from drawer, show when from panel
-        boolean showBackArrow = getIntent().getBooleanExtra(EXTRA_SHOW_BACK_ARROW, false);
+        // Always show back arrow and title
         if (getSupportActionBar() != null) {
-            if (showBackArrow) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setTitle(R.string.settings_title);
-            } else {
-                getSupportActionBar().hide();
-            }
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.settings_title);
         }
 
         settingsManager = new SettingsManager(this);
@@ -90,7 +86,6 @@ public class SettingsActivity extends AppCompatActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         connectionStatus = findViewById(R.id.connectionStatus);
         httpWarning = findViewById(R.id.httpWarning);
-        websiteLink = findViewById(R.id.websiteLink);
         accountSection = findViewById(R.id.accountSection);
         loginSection = findViewById(R.id.loginSection);
         accountEmail = findViewById(R.id.accountEmail);
@@ -108,7 +103,6 @@ public class SettingsActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(v -> confirmLogout());
         googleLoginButton.setOnClickListener(v -> startOAuth("google"));
         githubLoginButton.setOnClickListener(v -> startOAuth("github"));
-        websiteLink.setOnClickListener(v -> openWebsite());
 
         // Update account section visibility
         updateAccountSection();
@@ -127,13 +121,6 @@ public class SettingsActivity extends AppCompatActivity {
                 accountEmail.setText(R.string.account_logged_in);
             }
         }
-    }
-
-    private void openWebsite() {
-        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
-                .setShowTitle(true)
-                .build();
-        customTabsIntent.launchUrl(this, Uri.parse(getString(R.string.app_website)));
     }
 
     private void startOAuth(String provider) {
@@ -190,16 +177,15 @@ public class SettingsActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() || response.code() == 401) {
                     // 401 is expected if not logged in - server is reachable
-                    // URL is already saved, just update UI
-                    backendUrlInput.setText(normalizedUrl);
+                    // URL is already saved
+                    Toast.makeText(SettingsActivity.this, R.string.settings_saved, Toast.LENGTH_SHORT).show();
 
-                    // Always log out user when saving URL
+                    // Log out user and redirect to login when saving URL
                     if (wasLoggedIn) {
                         tokenManager.clearToken();
                         settingsManager.clearUserData();
+                        navigateToLogin();
                     }
-                    showConnectionStatus(getString(R.string.settings_saved), true);
-                    updateAccountSection();
                 } else {
                     // Restore original URL
                     settingsManager.setBackendUrl(originalUrl);
@@ -234,14 +220,10 @@ public class SettingsActivity extends AppCompatActivity {
         settingsManager.clearUserData();
         ApiClient.resetClient();
 
-        // Update UI
-        String defaultUrl = settingsManager.getBackendUrl();
-        backendUrlInput.setText(defaultUrl);
-        updateHttpWarning(defaultUrl);
-        hideConnectionStatus();
-        updateAccountSection();
-
         Toast.makeText(this, R.string.reset_defaults_done, Toast.LENGTH_SHORT).show();
+
+        // Redirect to login screen
+        navigateToLogin();
     }
 
     private void confirmLogout() {
@@ -277,9 +259,15 @@ public class SettingsActivity extends AppCompatActivity {
     private void completeLogout() {
         tokenManager.clearToken();
         settingsManager.clearUserData();
-        logoutButton.setEnabled(true);
-        updateAccountSection();
         Toast.makeText(this, R.string.logged_out, Toast.LENGTH_SHORT).show();
+        navigateToLogin();
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void setLoading(boolean loading) {

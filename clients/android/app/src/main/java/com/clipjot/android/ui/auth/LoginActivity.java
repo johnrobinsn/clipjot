@@ -12,6 +12,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import com.clipjot.android.R;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
+import com.clipjot.android.ui.links.MyLinksActivity;
 import com.clipjot.android.ui.settings.SettingsActivity;
 import com.google.android.material.button.MaterialButton;
 
@@ -38,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Check if already logged in
         if (tokenManager.hasToken()) {
-            finish();
+            navigateToMyLinks();
             return;
         }
 
@@ -80,9 +81,16 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Check if we got logged in while away
+        // Check if we got logged in while away (e.g., after OAuth callback)
         if (tokenManager.hasToken()) {
-            finish();
+            navigateToMyLinks();
         }
+    }
+
+    private void navigateToMyLinks() {
+        Intent intent = new Intent(this, MyLinksActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

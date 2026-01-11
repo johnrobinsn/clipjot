@@ -48,6 +48,29 @@
     <!-- Warnings -->
     <string name="warning_http_insecure">Warning: Using HTTP is insecure. Use HTTPS for production.</string>
 
+    <!-- My Links -->
+    <string name="my_links_title">My Links</string>
+    <string name="my_links">My Links</string>
+    <string name="search_links">Search links…</string>
+    <string name="no_links_yet">No links yet</string>
+    <string name="no_links_subtitle">Save your first link by sharing from any app</string>
+    <string name="no_search_results">No results found</string>
+    <string name="no_search_results_subtitle">Try a different search term</string>
+    <string name="error_loading_links">Could not load links</string>
+    <string name="retry">Retry</string>
+    <string name="edit_link">Edit Link</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="delete_link_title">Delete link?</string>
+    <string name="delete_link_confirm">This action cannot be undone.</string>
+    <string name="delete_selected_title">Delete selected links?</string>
+    <string name="delete_selected_confirm">Delete %1$d selected link(s)? This action cannot be undone.</string>
+    <string name="selected_count">%1$d selected</string>
+    <string name="link_deleted">Link deleted</string>
+    <string name="links_deleted">%1$d links deleted</string>
+    <string name="link_updated">Link updated</string>
+    <string name="loading_more">Loading more…</string>
+
     <!-- Errors -->
     <string name="error_oauth_failed">Failed to start login</string>
     <string name="error_invalid_callback">Invalid login callback</string>
