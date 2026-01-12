@@ -20,6 +20,9 @@
     <color name="surface_light">#f9fafb</color>
     <color name="surface_dark">#111827</color>
 
+    <!-- Link colors -->
+    <color name="link_blue">#2563eb</color>
+
     <!-- Text colors -->
     <color name="text_primary_light">#111827</color>
     <color name="text_primary_dark">#f9fafb</color>

@@ -32,6 +32,10 @@
     <string name="settings_saved">Settings saved</string>
     <string name="connection_success">Connection successful!</string>
 
+    <!-- Menu -->
+    <string name="about">About</string>
+    <string name="version_format">Version %1$s</string>
+
     <!-- Account -->
     <string name="account_title">Account</string>
     <string name="account_logged_in">Logged in</string>

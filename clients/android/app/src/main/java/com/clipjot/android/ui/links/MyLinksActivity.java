@@ -30,6 +30,8 @@ import com.clipjot.android.data.api.model.BookmarkResponse;
 import com.clipjot.android.data.api.model.BookmarkSearchRequest;
 import com.clipjot.android.data.api.model.BookmarkSearchResponse;
 import com.clipjot.android.data.api.model.DeleteResponse;
+import com.clipjot.android.data.api.model.LogoutResponse;
+import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -72,6 +74,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
     private BookmarkAdapter adapter;
     private TokenManager tokenManager;
+    private SettingsManager settingsManager;
 
     private String currentQuery = "";
     private int currentPage = 1;
@@ -86,6 +89,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         super.onCreate(savedInstanceState);
 
         tokenManager = new TokenManager(this);
+        settingsManager = new SettingsManager(this);
 
         // Check if logged in, redirect to login if not
         if (!tokenManager.hasToken()) {
@@ -186,11 +190,81 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
+        } else if (id == R.id.action_logout) {
+            confirmLogout();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showAboutDialog() {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_about, null);
+
+        // Set version text
+        TextView versionText = dialogView.findViewById(R.id.versionText);
+        try {
+            String versionName = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0).versionName;
+            versionText.setText(getString(R.string.version_format, versionName));
+        } catch (Exception e) {
+            versionText.setVisibility(View.GONE);
+        }
+
+        // Set up website link
+        TextView websiteLink = dialogView.findViewById(R.id.websiteLink);
+        websiteLink.setOnClickListener(v -> {
+            try {
+                Intent intent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.app_website)));
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void confirmLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.logout_title)
+                .setMessage(R.string.logout_confirm)
+                .setPositiveButton(R.string.logout, (dialog, which) -> logout())
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void logout() {
+        ClipJotApi api = ApiClient.getApi(this);
+        api.logout(Collections.emptyMap()).enqueue(new Callback<LogoutResponse>() {
+            @Override
+            public void onResponse(Call<LogoutResponse> call, Response<LogoutResponse> response) {
+                completeLogout();
+            }
+
+            @Override
+            public void onFailure(Call<LogoutResponse> call, Throwable t) {
+                completeLogout();
+            }
+        });
+    }
+
+    private void completeLogout() {
+        tokenManager.clearToken();
+        settingsManager.clearUserData();
+        Toast.makeText(this, R.string.logged_out, Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
     private void setupRecyclerView() {
