@@ -1,5 +1,12 @@
 /* ClipJot Chrome Extension Options Styles */
 
+/* Custom DaisyUI theme colors (OKLCH format for DaisyUI 4) */
+:root, [data-theme="light"], [data-theme="dark"] {
+  --p: 0.5457 0.2118 264.05;  /* #6366f1 indigo */
+  --pf: 0.4958 0.2044 265.75; /* #4f46e5 darker indigo */
+  --pc: 1 0 0;                 /* white */
+}
+
 body {
   padding: 1rem;
 }
@@ -7,4 +14,18 @@ body {
 .container {
   padding-top: 2rem;
   padding-bottom: 2rem;
+}
+
+/* Header brand styling */
+.brand-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
