@@ -295,13 +295,10 @@ async function saveBookmark(e) {
 
     if (response.ok) {
       showSuccess('Bookmark saved!');
-      // Reset form after success
+      // Close popup after brief delay to show success message
       setTimeout(() => {
-        selectedTags = [];
-        renderSelectedTags();
-        commentInput.value = '';
-        hideMessages();
-      }, 1500);
+        window.close();
+      }, 750);
     } else {
       const data = await response.json();
       showError(data.error || 'Failed to save bookmark');
