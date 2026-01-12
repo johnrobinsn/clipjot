@@ -69,11 +69,19 @@ async function saveSettings() {
     return;
   }
 
+  // Check if URL changed - if so, clear session token to force re-login
+  const currentStorage = await chrome.storage.local.get(['backendUrl']);
+  const urlChanged = currentStorage.backendUrl !== normalizedUrl;
+
   await chrome.storage.local.set({ backendUrl: normalizedUrl });
+
+  if (urlChanged) {
+    await chrome.storage.local.remove('sessionToken');
+  }
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Settings';
-  showStatus('Settings saved!', 'success');
+  showStatus(urlChanged ? 'Settings saved! Please log in again.' : 'Settings saved!', 'success');
 }
 
 /**
