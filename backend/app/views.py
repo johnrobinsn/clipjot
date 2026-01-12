@@ -1306,16 +1306,33 @@ def internal_latest_bookmark(request, db):
     """Get the latest bookmark ID for the current user.
 
     Used by the new links banner to detect when new bookmarks are added.
+    Supports both cookie-based session auth (WebUI) and Bearer token auth (Android/extensions).
 
     GET /api/internal/latest-bookmark
     """
-    result = get_current_user(request, db)
-    if not result:
+    user = None
+
+    # First try Bearer token auth (for Android/extensions)
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token_str = auth_header[7:]
+        if token_str:
+            # Try as session token
+            session_result = auth.validate_session(db, token_str)
+            if session_result:
+                _, user = session_result
+
+    # Fall back to cookie-based auth (for WebUI)
+    if not user:
+        result = get_current_user(request, db)
+        if result:
+            user, _ = result
+
+    if not user:
         return Response(
             json.dumps({"id": None}),
             media_type="application/json",
         )
-    user, _ = result
 
     latest = database.get_latest_bookmark_id(db, user.id)
 
