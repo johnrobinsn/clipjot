@@ -450,6 +450,19 @@ def count_user_bookmarks(db, user_id: int) -> int:
     return result.fetchone()[0]
 
 
+def get_latest_bookmark_id(db, user_id: int) -> Optional[int]:
+    """Get the ID of the most recent bookmark for a user.
+
+    Used by the new links detection feature to check for new bookmarks.
+    """
+    result = db.execute(
+        "SELECT id FROM bookmark WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+        [user_id]
+    )
+    row = result.fetchone()
+    return row[0] if row else None
+
+
 def create_bookmark(db, bookmark: Bookmark) -> Bookmark:
     """Create a new bookmark."""
     if not bookmark.created_at:

@@ -66,22 +66,17 @@ async function saveSettings() {
     } else {
       showStatus(`Connection failed: ${error.message}`, 'error');
     }
+    // Don't save URL or clear token on failure - keep old settings
     return;
   }
 
-  // Check if URL changed - if so, clear session token to force re-login
-  const currentStorage = await chrome.storage.local.get(['backendUrl']);
-  const urlChanged = currentStorage.backendUrl !== normalizedUrl;
-
+  // Connection test passed - save URL and clear token to force re-login
   await chrome.storage.local.set({ backendUrl: normalizedUrl });
-
-  if (urlChanged) {
-    await chrome.storage.local.remove('sessionToken');
-  }
+  await chrome.storage.local.remove('sessionToken');
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Settings';
-  showStatus(urlChanged ? 'Settings saved! Please log in again.' : 'Settings saved!', 'success');
+  showStatus('Settings saved! Please log in again.', 'success');
 }
 
 /**

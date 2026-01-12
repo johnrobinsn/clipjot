@@ -15,6 +15,7 @@ from .components import (
     page_layout, bookmark_list, bookmark_form, bookmark_row,
     tag_list_item, tag_chip, pagination, modal, modal_container,
     bulk_actions_bar, flash_message, settings_nav, keyboard_help_hint,
+    new_links_banner,
 )
 
 
@@ -272,8 +273,13 @@ def bookmark_index(request, db):
             cls="text-center py-12",
         )
 
+    # Get latest bookmark ID for new links detection (only on first page, no search)
+    latest_bookmark_id = bookmarks[0].id if bookmarks and page == 1 and not query else None
+
     # Build content
     content = Div(
+        # New links banner (only shown when new links detected via JS polling)
+        new_links_banner(latest_bookmark_id) if latest_bookmark_id else None,
         # Header
         Div(
             H1("My Links", cls="text-2xl font-bold"),
@@ -1289,4 +1295,31 @@ def export_download(request, db):
         headers={
             "Content-Disposition": f"attachment; filename=clipjot-export-{now_iso()[:10]}.json"
         }
+    )
+
+
+# =============================================================================
+# Internal API Routes (for WebUI JavaScript)
+# =============================================================================
+
+def internal_latest_bookmark(request, db):
+    """Get the latest bookmark ID for the current user.
+
+    Used by the new links banner to detect when new bookmarks are added.
+
+    GET /api/internal/latest-bookmark
+    """
+    result = get_current_user(request, db)
+    if not result:
+        return Response(
+            json.dumps({"id": None}),
+            media_type="application/json",
+        )
+    user, _ = result
+
+    latest = database.get_latest_bookmark_id(db, user.id)
+
+    return Response(
+        json.dumps({"id": latest}),
+        media_type="application/json",
     )

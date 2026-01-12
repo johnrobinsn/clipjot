@@ -427,5 +427,20 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// Listen for storage changes (e.g., token cleared from options page)
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    // If session token was removed, show login view
+    if (changes.sessionToken && !changes.sessionToken.newValue) {
+      sessionToken = null;
+      showLoginView();
+    }
+    // If backend URL changed, update our local copy
+    if (changes.backendUrl && changes.backendUrl.newValue) {
+      backendUrl = changes.backendUrl.newValue;
+    }
+  }
+});
+
 // Initialize
 init();

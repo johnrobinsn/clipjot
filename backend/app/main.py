@@ -363,6 +363,15 @@ def export_download(request):
 
 
 # =============================================================================
+# Internal API Routes (for WebUI JavaScript)
+# =============================================================================
+
+@rt("/api/internal/latest-bookmark")
+def internal_latest_bookmark(request):
+    return views.internal_latest_bookmark(request, get_db())
+
+
+# =============================================================================
 # Admin Routes
 # =============================================================================
 

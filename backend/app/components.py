@@ -686,6 +686,53 @@ def keyboard_help_hint():
     )
 
 
+def new_links_banner(latest_bookmark_id: int | None):
+    """Banner that shows when new links are available, with polling script."""
+    return Div(
+        # Hidden banner - shown by JavaScript when new links detected
+        Div(
+            Span("New links available"),
+            Button(
+                "Refresh",
+                cls="btn btn-sm btn-primary ml-2",
+                onclick="window.location.reload()",
+            ),
+            Button(
+                "✕",
+                cls="btn btn-sm btn-ghost ml-1",
+                onclick="this.parentElement.classList.add('hidden')",
+            ),
+            cls="alert alert-info hidden flex-row justify-center items-center mb-4",
+            id="new-links-banner",
+        ),
+        # Polling script
+        Script(f"""
+            (function() {{
+                const latestId = {latest_bookmark_id if latest_bookmark_id else 'null'};
+                if (!latestId) return;  // No bookmarks yet
+
+                const pollInterval = 60000;  // 60 seconds
+
+                async function checkForNewLinks() {{
+                    try {{
+                        const response = await fetch('/api/internal/latest-bookmark');
+                        if (!response.ok) return;
+                        const data = await response.json();
+                        if (data.id && data.id > latestId) {{
+                            document.getElementById('new-links-banner')?.classList.remove('hidden');
+                        }}
+                    }} catch (e) {{
+                        // Silently ignore errors
+                    }}
+                }}
+
+                setInterval(checkForNewLinks, pollInterval);
+            }})();
+        """),
+        id="new-links-checker",
+    )
+
+
 # =============================================================================
 # Bulk Operations
 # =============================================================================
