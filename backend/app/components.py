@@ -232,6 +232,13 @@ def strip_url_scheme(url: str) -> str:
     return url
 
 
+def truncate_text(text: str, max_length: int = 80) -> str:
+    """Truncate text to max_length characters, adding ellipsis if truncated."""
+    if not text or len(text) <= max_length:
+        return text
+    return text[:max_length].rstrip() + "..."
+
+
 def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
     """Single bookmark row in list view."""
     domain = urlparse(bookmark.url).netloc if bookmark.url else ""
@@ -242,11 +249,16 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
 
     # If no title, use URL (with scheme stripped for mobile via CSS/JS)
     if bookmark.title:
-        display_title = bookmark.title
+        full_title = bookmark.title
+        display_title = truncate_text(bookmark.title, 80)
         is_url_as_title = False
     else:
-        display_title = bookmark.url
+        full_title = bookmark.url
+        display_title = truncate_text(bookmark.url, 80)
         is_url_as_title = True
+
+    # Show full title on hover if truncated
+    hover_title = full_title if full_title != display_title else bookmark.url
 
     return Tr(
         # Checkbox
@@ -266,11 +278,11 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
                 A(
                     # Show full URL, but include stripped version for mobile
                     Span(display_title, cls="url-full") if is_url_as_title else display_title,
-                    Span(strip_url_scheme(bookmark.url), cls="url-stripped hidden") if is_url_as_title else None,
+                    Span(truncate_text(strip_url_scheme(bookmark.url), 80), cls="url-stripped hidden") if is_url_as_title else None,
                     href=bookmark.url,
                     target="_blank",
                     cls="link link-primary font-medium break-all",
-                    title=bookmark.url,
+                    title=hover_title,
                 ),
                 Button(
                     "\U0001F4DD",  # Memo/note icon
