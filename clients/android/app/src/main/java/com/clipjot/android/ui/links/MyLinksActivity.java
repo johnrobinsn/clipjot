@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import com.clipjot.android.data.api.model.BookmarkResponse;
 import com.clipjot.android.data.api.model.BookmarkSearchRequest;
 import com.clipjot.android.data.api.model.BookmarkSearchResponse;
 import com.clipjot.android.data.api.model.DeleteResponse;
+import com.clipjot.android.data.api.model.LatestBookmarkResponse;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
@@ -57,6 +59,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private static final int PAGE_SIZE = 30;
     private static final int SEARCH_DEBOUNCE_MS = 300;
     private static final int LOAD_MORE_THRESHOLD = 5;
+    private static final long NEW_LINKS_POLL_INTERVAL_MS = 60000; // 60 seconds
 
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefresh;
@@ -71,6 +74,9 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private TextView selectionCount;
     private TextInputEditText searchInput;
     private TextInputLayout searchLayout;
+    private MaterialCardView newLinksBanner;
+    private MaterialButton refreshButton;
+    private ImageButton dismissBannerButton;
 
     private BookmarkAdapter adapter;
     private TokenManager tokenManager;
@@ -80,9 +86,12 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private int currentPage = 1;
     private boolean hasMore = true;
     private boolean isLoading = false;
+    private Integer latestKnownBookmarkId = null;
 
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
+    private final Handler newLinksHandler = new Handler(Looper.getMainLooper());
+    private Runnable newLinksRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +115,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         setupSearch();
         setupSwipeRefresh();
         setupSelectionBar();
+        setupNewLinksBanner();
 
         loadBookmarks(true);
     }
@@ -123,6 +133,15 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         if (adapter.getItemCount() > 0) {
             silentRefresh();
         }
+        // Start polling for new links
+        startNewLinksPolling();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Stop polling when activity is not visible
+        stopNewLinksPolling();
     }
 
     /**
@@ -171,6 +190,9 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         selectionCount = findViewById(R.id.selectionCount);
         searchInput = findViewById(R.id.searchInput);
         searchLayout = findViewById(R.id.searchLayout);
+        newLinksBanner = findViewById(R.id.newLinksBanner);
+        refreshButton = findViewById(R.id.refreshButton);
+        dismissBannerButton = findViewById(R.id.dismissBannerButton);
     }
 
     private void setupToolbar() {
@@ -347,6 +369,67 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         deleteButton.setOnClickListener(v -> confirmDeleteSelected());
     }
 
+    private void setupNewLinksBanner() {
+        refreshButton.setOnClickListener(v -> {
+            hideNewLinksBanner();
+            loadBookmarks(true);
+        });
+        dismissBannerButton.setOnClickListener(v -> hideNewLinksBanner());
+    }
+
+    private void startNewLinksPolling() {
+        // Only poll on first page with no search query
+        if (currentPage != 1 || !currentQuery.isEmpty() || latestKnownBookmarkId == null) {
+            return;
+        }
+
+        newLinksRunnable = new Runnable() {
+            @Override
+            public void run() {
+                checkForNewLinks();
+                newLinksHandler.postDelayed(this, NEW_LINKS_POLL_INTERVAL_MS);
+            }
+        };
+        newLinksHandler.postDelayed(newLinksRunnable, NEW_LINKS_POLL_INTERVAL_MS);
+    }
+
+    private void stopNewLinksPolling() {
+        if (newLinksRunnable != null) {
+            newLinksHandler.removeCallbacks(newLinksRunnable);
+            newLinksRunnable = null;
+        }
+    }
+
+    private void checkForNewLinks() {
+        if (latestKnownBookmarkId == null) return;
+
+        ClipJotApi api = ApiClient.getApi(this);
+        api.getLatestBookmarkId().enqueue(new Callback<LatestBookmarkResponse>() {
+            @Override
+            public void onResponse(Call<LatestBookmarkResponse> call, Response<LatestBookmarkResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Integer serverId = response.body().getId();
+                    if (serverId != null && serverId > latestKnownBookmarkId) {
+                        showNewLinksBanner();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LatestBookmarkResponse> call, Throwable t) {
+                // Silently ignore errors
+            }
+        });
+    }
+
+    private void showNewLinksBanner() {
+        newLinksBanner.setVisibility(View.VISIBLE);
+    }
+
+    private void hideNewLinksBanner() {
+        newLinksBanner.setVisibility(View.GONE);
+    }
+
     private void selectAll() {
         adapter.selectAll();
     }
@@ -382,6 +465,14 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
                     if (refresh) {
                         adapter.setBookmarks(bookmarks != null ? bookmarks : Collections.emptyList());
+                        // Track latest bookmark ID for new links detection (only on first page, no search)
+                        if (currentQuery.isEmpty() && bookmarks != null && !bookmarks.isEmpty()) {
+                            latestKnownBookmarkId = bookmarks.get(0).getId();
+                            hideNewLinksBanner();
+                            // Restart polling with new ID
+                            stopNewLinksPolling();
+                            startNewLinksPolling();
+                        }
                     } else {
                         adapter.addBookmarks(bookmarks != null ? bookmarks : Collections.emptyList());
                     }

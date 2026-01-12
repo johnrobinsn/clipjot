@@ -75,6 +75,9 @@
     <string name="links_deleted">%1$d links deleted</string>
     <string name="link_updated">Link updated</string>
     <string name="loading_more">Loading more…</string>
+    <string name="new_links_available">New links available</string>
+    <string name="refresh">Refresh</string>
+    <string name="dismiss">Dismiss</string>
 
     <!-- Sharing Settings -->
     <string name="sharing_settings_title">Sharing</string>

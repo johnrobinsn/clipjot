@@ -6,6 +6,7 @@ import com.clipjot.android.data.api.model.BookmarkResponse;
 import com.clipjot.android.data.api.model.BookmarkSearchRequest;
 import com.clipjot.android.data.api.model.BookmarkSearchResponse;
 import com.clipjot.android.data.api.model.DeleteResponse;
+import com.clipjot.android.data.api.model.LatestBookmarkResponse;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 /**
@@ -62,4 +64,11 @@ public interface ClipJotApi {
      */
     @POST("api/v1/bookmarks/delete")
     Call<DeleteResponse> deleteBookmark(@Body Map<String, Integer> body);
+
+    /**
+     * Get the latest bookmark ID for the current user.
+     * Used to detect when new bookmarks have been added.
+     */
+    @GET("api/internal/latest-bookmark")
+    Call<LatestBookmarkResponse> getLatestBookmarkId();
 }
