@@ -65,8 +65,11 @@ def page_head(title: str = "ClipJot"):
         Title(title),
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
-        # Favicon
+        # Favicon and PWA
         Link(rel="icon", type="image/png", href="/static/favicon.png"),
+        Link(rel="apple-touch-icon", href="/static/apple-touch-icon.png"),
+        Link(rel="manifest", href="/static/manifest.json"),
+        Meta(name="theme-color", content="#6366f1"),
         # DaisyUI + Tailwind CSS
         Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css"),
         Script(src="https://cdn.tailwindcss.com"),
