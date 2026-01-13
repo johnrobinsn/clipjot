@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Extension Display Name -->
+    <key>CFBundleDisplayName</key>
+    <string>Save to ClipJot</string>
+
+    <!-- Extension Configuration -->
+    <key>NSExtension</key>
+    <dict>
+        <!-- Share Extension -->
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.share-services</string>
+
+        <!-- Use custom UI (not system share sheet) -->
+        <key>NSExtensionPrincipalClass</key>
+        <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
+
+        <!-- Activation Rules - what content types we accept -->
+        <key>NSExtensionActivationRule</key>
+        <dict>
+            <!-- Accept URLs -->
+            <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+            <integer>1</integer>
+
+            <!-- Accept plain text (might contain URLs) -->
+            <key>NSExtensionActivationSupportsText</key>
+            <true/>
+        </dict>
+    </dict>
+</dict>
+</plist>
