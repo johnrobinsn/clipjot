@@ -2,7 +2,7 @@ import Foundation
 
 /// Bookmark model representing a saved link.
 /// Equivalent to Android's BookmarkResponse.
-struct Bookmark: Identifiable, Codable, Equatable {
+struct Bookmark: Identifiable, Codable, Equatable, Hashable {
     let id: Int
     let url: String
     let title: String?
