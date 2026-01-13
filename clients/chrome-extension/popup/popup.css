@@ -1,5 +1,12 @@
 /* ClipJot Chrome Extension Popup Styles */
 
+/* Custom DaisyUI theme colors (OKLCH format for DaisyUI 4) */
+:root, [data-theme="light"], [data-theme="dark"] {
+  --p: 0.5457 0.2118 264.05;  /* #6366f1 indigo */
+  --pf: 0.4958 0.2044 265.75; /* #4f46e5 darker indigo */
+  --pc: 1 0 0;                 /* white */
+}
+
 body {
   min-width: 320px;
   margin: 0;
@@ -10,14 +17,14 @@ body {
   min-height: 200px;
 }
 
-/* Tag chips */
+/* Tag chips - using primary color */
 .tag-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.125rem 0.5rem;
-  background-color: hsl(var(--n));
-  color: hsl(var(--nc));
+  background-color: oklch(var(--p));
+  color: oklch(var(--pc));
   border-radius: 9999px;
   font-size: 0.75rem;
 }
@@ -49,7 +56,7 @@ body {
 
 #tag-suggestions .suggestion-item:hover,
 #tag-suggestions .suggestion-item.selected {
-  background-color: hsl(var(--b2));
+  background-color: oklch(var(--b2));
 }
 
 /* Loading state for save button */
@@ -65,4 +72,18 @@ body {
 /* Alert styling adjustments */
 .alert {
   padding: 0.5rem 0.75rem;
+}
+
+/* Header brand styling */
+.brand-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

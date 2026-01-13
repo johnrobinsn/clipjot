@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="clipjot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typography - ClipJot Style Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        [data-theme="clipjot"] {
+            --p: 238.7 83.5% 66.7%;
+            --pf: 238.7 83.5% 58.5%;
+            --pc: 0 0% 100%;
+            --s: 160 84.1% 39.4%;
+            --sf: 160 84.1% 31.5%;
+            --sc: 0 0% 100%;
+            --n: 217 33% 17%;
+            --b1: 0 0% 100%;
+            --b2: 220 14% 96%;
+            --b3: 220 13% 91%;
+            --bc: 217 33% 17%;
+        }
+        [data-theme="clipjotdark"] {
+            --p: 238.7 83.5% 74.7%;
+            --pf: 238.7 83.5% 66.7%;
+            --pc: 217 33% 17%;
+            --s: 160 72% 64%;
+            --n: 217 33% 17%;
+            --b1: 217 33% 17%;
+            --b2: 222 47% 11%;
+            --b3: 217 33% 27%;
+            --bc: 217 33% 95%;
+        }
+        .font-inter {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .type-sample {
+            border-left: 3px solid oklch(var(--p));
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200 font-inter" data-theme="clipjot">
+    <div class="navbar bg-primary text-primary-content sticky top-0 z-50">
+        <div class="flex-1">
+            <a href="index.html" class="btn btn-ghost text-xl gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 shrink-0 text-indigo-500"><path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" /></svg>
+                ClipJot Style Guide
+            </a>
+            <span class="text-primary-content/70 ml-2">/ Typography</span>
+        </div>
+        <div class="flex-none">
+            <label class="swap swap-rotate btn btn-ghost btn-circle">
+                <input type="checkbox" id="themeToggle" />
+                <svg class="swap-on fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
+                <svg class="swap-off fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/></svg>
+            </label>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="prose max-w-none mb-8">
+            <h1 class="text-4xl font-bold mb-4">Typography</h1>
+            <p class="text-lg text-base-content/70">
+                Font families, sizes, and text styles for ClipJot.
+            </p>
+        </div>
+
+        <!-- Font Family -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Font Family</h2>
+                <p class="text-base-content/70 mb-4">Inter is the recommended primary font. Falls back to system fonts for optimal performance.</p>
+
+                <div class="mockup-code">
+                    <pre data-prefix=""><code>font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,</code></pre>
+                    <pre data-prefix=""><code>             'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;</code></pre>
+                </div>
+
+                <div class="type-sample mt-6">
+                    <p class="text-2xl font-inter">The quick brown fox jumps over the lazy dog.</p>
+                    <p class="text-sm opacity-60 mt-2">Inter - Regular 400</p>
+                </div>
+                <div class="type-sample">
+                    <p class="text-2xl font-inter font-medium">The quick brown fox jumps over the lazy dog.</p>
+                    <p class="text-sm opacity-60 mt-2">Inter - Medium 500</p>
+                </div>
+                <div class="type-sample">
+                    <p class="text-2xl font-inter font-semibold">The quick brown fox jumps over the lazy dog.</p>
+                    <p class="text-sm opacity-60 mt-2">Inter - Semibold 600</p>
+                </div>
+                <div class="type-sample">
+                    <p class="text-2xl font-inter font-bold">The quick brown fox jumps over the lazy dog.</p>
+                    <p class="text-sm opacity-60 mt-2">Inter - Bold 700</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Type Scale -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Type Scale</h2>
+                <p class="text-base-content/70 mb-4">Consistent sizing using Tailwind CSS text utilities.</p>
+
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Size</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Display</td>
+                                <td class="font-mono text-sm">text-4xl</td>
+                                <td>36px</td>
+                                <td><span class="text-4xl font-bold">ClipJot</span></td>
+                            </tr>
+                            <tr>
+                                <td>Heading 1</td>
+                                <td class="font-mono text-sm">text-3xl</td>
+                                <td>30px</td>
+                                <td><span class="text-3xl font-bold">My Links</span></td>
+                            </tr>
+                            <tr>
+                                <td>Heading 2</td>
+                                <td class="font-mono text-sm">text-2xl</td>
+                                <td>24px</td>
+                                <td><span class="text-2xl font-semibold">Settings</span></td>
+                            </tr>
+                            <tr>
+                                <td>Heading 3</td>
+                                <td class="font-mono text-sm">text-xl</td>
+                                <td>20px</td>
+                                <td><span class="text-xl font-semibold">Account</span></td>
+                            </tr>
+                            <tr>
+                                <td>Heading 4</td>
+                                <td class="font-mono text-sm">text-lg</td>
+                                <td>18px</td>
+                                <td><span class="text-lg font-medium">Tags</span></td>
+                            </tr>
+                            <tr>
+                                <td>Body Large</td>
+                                <td class="font-mono text-sm">text-base</td>
+                                <td>16px</td>
+                                <td><span class="text-base">Save links from any app</span></td>
+                            </tr>
+                            <tr>
+                                <td>Body</td>
+                                <td class="font-mono text-sm">text-sm</td>
+                                <td>14px</td>
+                                <td><span class="text-sm">Organize your bookmarks with tags</span></td>
+                            </tr>
+                            <tr>
+                                <td>Caption</td>
+                                <td class="font-mono text-sm">text-xs</td>
+                                <td>12px</td>
+                                <td><span class="text-xs">Last updated 2 hours ago</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Styles -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Text Styles</h2>
+
+                <h3 class="font-semibold mt-4 mb-2">Page Title</h3>
+                <div class="type-sample">
+                    <h1 class="text-3xl font-bold">My Links</h1>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-3xl font-bold</p>
+                </div>
+
+                <h3 class="font-semibold mt-6 mb-2">Card Title</h3>
+                <div class="type-sample">
+                    <h2 class="text-xl font-semibold">Bookmark Title Goes Here</h2>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-xl font-semibold</p>
+                </div>
+
+                <h3 class="font-semibold mt-6 mb-2">Body Text</h3>
+                <div class="type-sample">
+                    <p class="text-base">ClipJot is your personal bookmark manager. Save links from any app on your device by using the share button.</p>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-base</p>
+                </div>
+
+                <h3 class="font-semibold mt-6 mb-2">Secondary Text</h3>
+                <div class="type-sample">
+                    <p class="text-sm text-base-content/70">Save your first link by sharing from any app</p>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-sm text-base-content/70</p>
+                </div>
+
+                <h3 class="font-semibold mt-6 mb-2">URL / Monospace</h3>
+                <div class="type-sample">
+                    <p class="text-sm font-mono text-primary truncate">https://example.com/article/how-to-save-bookmarks</p>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-sm font-mono text-primary</p>
+                </div>
+
+                <h3 class="font-semibold mt-6 mb-2">Error Text</h3>
+                <div class="type-sample">
+                    <p class="text-sm text-error">URL is required</p>
+                    <p class="text-sm opacity-60 font-mono mt-2">text-sm text-error</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Links</h2>
+
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <a href="#" class="link link-primary">Primary Link</a>
+                        <span class="text-sm opacity-60 ml-4 font-mono">link link-primary</span>
+                    </div>
+                    <div>
+                        <a href="#" class="link link-hover">Hover Link</a>
+                        <span class="text-sm opacity-60 ml-4 font-mono">link link-hover</span>
+                    </div>
+                    <div>
+                        <a href="#" class="text-primary hover:underline">Subtle Link</a>
+                        <span class="text-sm opacity-60 ml-4 font-mono">text-primary hover:underline</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform Mapping -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Platform Mapping</h2>
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra">
+                        <thead>
+                            <tr>
+                                <th>Purpose</th>
+                                <th>Tailwind / DaisyUI</th>
+                                <th>Android (Material 3)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Display</td>
+                                <td class="font-mono">text-4xl font-bold</td>
+                                <td class="font-mono">displayLarge</td>
+                            </tr>
+                            <tr>
+                                <td>Headline</td>
+                                <td class="font-mono">text-2xl font-semibold</td>
+                                <td class="font-mono">headlineMedium</td>
+                            </tr>
+                            <tr>
+                                <td>Title</td>
+                                <td class="font-mono">text-xl font-semibold</td>
+                                <td class="font-mono">titleLarge</td>
+                            </tr>
+                            <tr>
+                                <td>Body</td>
+                                <td class="font-mono">text-base</td>
+                                <td class="font-mono">bodyLarge</td>
+                            </tr>
+                            <tr>
+                                <td>Body Small</td>
+                                <td class="font-mono">text-sm</td>
+                                <td class="font-mono">bodyMedium</td>
+                            </tr>
+                            <tr>
+                                <td>Label</td>
+                                <td class="font-mono">text-xs font-medium</td>
+                                <td class="font-mono">labelSmall</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer footer-center p-4 bg-base-300 text-base-content mt-8">
+        <div>
+            <p>ClipJot Style Guide - Typography</p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('change', () => {
+            document.body.setAttribute('data-theme', themeToggle.checked ? 'clipjotdark' : 'clipjot');
+        });
+    </script>
+</body>
+</html>

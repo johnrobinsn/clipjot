@@ -13,6 +13,49 @@ from .models import Bookmark, Tag, User
 
 
 # =============================================================================
+# Heroicons SVG Helper
+# =============================================================================
+
+def heroicon(name: str, size: str = "w-5 h-5", cls: str = "", **attrs):
+    """Generate Heroicons SVG elements.
+
+    Args:
+        name: Icon name (e.g., 'bookmark', 'x-mark', 'pencil-square')
+        size: Tailwind size classes (default: 'w-5 h-5')
+        cls: Additional CSS classes
+        **attrs: Additional SVG attributes
+
+    Returns:
+        SVG element for the specified icon
+    """
+    icons = {
+        # Bookmark icon (solid) - brand icon
+        "bookmark": '''<path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" />''',
+
+        # X mark (outline) - close buttons
+        "x-mark": '''<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />''',
+
+        # Pencil square (outline) - edit/note indicator
+        "pencil-square": '''<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />''',
+
+        # Pencil (outline) - simple edit icon
+        "pencil": '''<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />''',
+    }
+
+    path_content = icons.get(name, icons["bookmark"])
+
+    # Determine if it's a solid or outline icon (solid icons use fill, outline use stroke)
+    is_solid = name in ["bookmark"]
+
+    all_classes = f"{size} {cls}".strip()
+
+    if is_solid:
+        return NotStr(f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="{all_classes}">{path_content}</svg>''')
+    else:
+        return NotStr(f'''<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="{all_classes}">{path_content}</svg>''')
+
+
+# =============================================================================
 # Page Layout Components
 # =============================================================================
 
@@ -27,6 +70,14 @@ def page_head(title: str = "ClipJot"):
         # DaisyUI + Tailwind CSS
         Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css"),
         Script(src="https://cdn.tailwindcss.com"),
+        # Custom DaisyUI theme colors via CSS variables (OKLCH format for DaisyUI 4)
+        Style("""
+            :root, [data-theme="light"], [data-theme="dark"] {
+                --p: 0.5457 0.2118 264.05;  /* #6366f1 indigo */
+                --pf: 0.4958 0.2044 265.75; /* #4f46e5 darker indigo */
+                --pc: 1 0 0;                 /* white */
+            }
+        """),
         # HTMX
         Script(src="https://unpkg.com/htmx.org@1.9.10"),
         # Dark mode script
@@ -113,7 +164,7 @@ def navbar(user: Optional[User] = None):
     return Nav(
         Div(
             A(
-                Img(src="/static/favicon.png", alt="ClipJot", cls="w-6 h-6"),
+                heroicon("bookmark", "w-6 h-6 shrink-0", "text-indigo-500"),
                 "ClipJot",
                 href="/",
                 cls="btn btn-ghost text-xl gap-2",
@@ -210,8 +261,8 @@ def flash_message(message: str, type: str = "info"):
     return Div(
         Span(message),
         Button(
-            "x",
-            cls="btn btn-sm btn-ghost",
+            heroicon("x-mark", "w-4 h-4"),
+            cls="btn btn-sm btn-ghost btn-square",
             onclick="this.parentElement.remove()",
         ),
         cls=f"alert {alert_class} mb-4",
@@ -285,8 +336,8 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
                     title=hover_title,
                 ),
                 Button(
-                    "\U0001F4DD",  # Memo/note icon
-                    cls="ml-1 flex-shrink-0 hover:scale-110 transition-transform",
+                    heroicon("pencil-square", "w-4 h-4", "text-base-content/60 hover:text-primary"),
+                    cls="ml-1 flex-shrink-0 hover:scale-110 transition-transform btn btn-ghost btn-xs p-0",
                     title=bookmark.comment,
                     hx_get=f"/bookmarks/{bookmark.id}/edit",
                     hx_target="#modal-container",
@@ -313,12 +364,13 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
         # Actions
         Td(
             Button(
-                "Edit",
-                cls="btn btn-xs btn-ghost",
+                heroicon("pencil", "w-4 h-4"),
+                cls="btn btn-xs btn-ghost btn-square",
+                title="Edit",
                 hx_get=f"/bookmarks/{bookmark.id}/edit",
                 hx_target="#modal-container",
             ),
-            cls="w-12 px-1",
+            cls="w-10 px-1",
         ),
         cls="hover",
         id=f"bookmark-{bookmark.id}",
@@ -348,7 +400,7 @@ def bookmark_list(bookmarks: list[tuple[Bookmark, list[Tag]]], selected_ids: set
                 Th("Link", cls="px-1"),
                 Th("Tags", cls="hidden md:table-cell px-1"),
                 Th("Added", cls="hidden md:table-cell px-1"),
-                Th("", cls="w-12 px-1"),  # Actions column, no header text
+                Th("", cls="w-10 px-1"),  # Actions column, no header text
             )
         ),
         Tbody(*rows, id="bookmark-list"),
@@ -572,7 +624,7 @@ def tag_chip(tag: Tag, removable: bool = False, bookmark_id: Optional[int] = Non
     if removable and bookmark_id:
         children.append(
             Button(
-                "x",
+                heroicon("x-mark", "w-3 h-3"),
                 cls="btn btn-xs btn-ghost p-0 min-h-0 h-4 w-4",
                 hx_delete=f"/bookmarks/{bookmark_id}/tags/{tag.id}",
                 hx_swap="outerHTML",
@@ -581,7 +633,7 @@ def tag_chip(tag: Tag, removable: bool = False, bookmark_id: Optional[int] = Non
 
     return Span(
         *children,
-        cls="badge badge-neutral gap-1",
+        cls="badge badge-primary gap-1",
         style="padding: 0.25rem 0.625rem; height: auto;",
     )
 
@@ -698,8 +750,8 @@ def new_links_banner(latest_bookmark_id: int | None):
                 onclick="window.location.reload()",
             ),
             Button(
-                "✕",
-                cls="btn btn-sm btn-ghost ml-1",
+                heroicon("x-mark", "w-4 h-4"),
+                cls="btn btn-sm btn-ghost btn-square ml-1",
                 onclick="this.parentElement.classList.add('hidden')",
             ),
             cls="alert alert-info hidden flex-row justify-center items-center mb-4",

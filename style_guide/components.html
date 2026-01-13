@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="clipjot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components - ClipJot Style Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [data-theme="clipjot"] {
+            --p: 238.7 83.5% 66.7%;
+            --pf: 238.7 83.5% 58.5%;
+            --pc: 0 0% 100%;
+            --s: 160 84.1% 39.4%;
+            --n: 217 33% 17%;
+            --b1: 0 0% 100%;
+            --b2: 220 14% 96%;
+            --b3: 220 13% 91%;
+            --bc: 217 33% 17%;
+            --er: 0 84% 60%;
+        }
+        [data-theme="clipjotdark"] {
+            --p: 238.7 83.5% 74.7%;
+            --pf: 238.7 83.5% 66.7%;
+            --pc: 217 33% 17%;
+            --s: 160 72% 64%;
+            --n: 217 33% 17%;
+            --b1: 217 33% 17%;
+            --b2: 222 47% 11%;
+            --b3: 217 33% 27%;
+            --bc: 217 33% 95%;
+            --er: 0 91% 71%;
+        }
+        .phone-mockup {
+            width: 320px;
+            border: 8px solid #1f2937;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200" data-theme="clipjot">
+    <div class="navbar bg-primary text-primary-content sticky top-0 z-50">
+        <div class="flex-1">
+            <a href="index.html" class="btn btn-ghost text-xl gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 shrink-0 text-indigo-500"><path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" /></svg>
+                ClipJot Style Guide
+            </a>
+            <span class="text-primary-content/70 ml-2">/ Components</span>
+        </div>
+        <div class="flex-none">
+            <label class="swap swap-rotate btn btn-ghost btn-circle">
+                <input type="checkbox" id="themeToggle" />
+                <svg class="swap-on fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/></svg>
+                <svg class="swap-off fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/></svg>
+            </label>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="prose max-w-none mb-8">
+            <h1 class="text-4xl font-bold mb-4">Full Components</h1>
+            <p class="text-lg text-base-content/70">
+                Complete component examples as they appear in ClipJot across platforms.
+            </p>
+        </div>
+
+        <!-- Chrome Extension Popup -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Chrome Extension Popup</h2>
+                <p class="text-base-content/70 mb-4">The popup interface (320px width).</p>
+
+                <div class="phone-mockup bg-base-100">
+                    <div class="p-4">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-indigo-500 shrink-0"><path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" /></svg>
+                                <span class="font-bold text-lg">ClipJot</span>
+                            </div>
+                            <button class="btn btn-ghost btn-sm btn-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label py-1">
+                                    <span class="label-text text-sm font-medium">URL</span>
+                                </label>
+                                <input type="text" class="input input-bordered input-sm" value="https://example.com/article" />
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label py-1">
+                                    <span class="label-text text-sm font-medium">Title</span>
+                                </label>
+                                <input type="text" class="input input-bordered input-sm" value="How to Save Bookmarks" />
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label py-1">
+                                    <span class="label-text text-sm font-medium">Tags</span>
+                                </label>
+                                <div class="flex flex-wrap gap-1 p-2 border border-base-300 rounded-lg bg-base-100 min-h-8">
+                                    <span class="badge badge-primary badge-sm gap-1">
+                                        tutorial
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-3 h-3 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </span>
+                                    <input type="text" placeholder="Add..." class="bg-transparent outline-none flex-1 min-w-16 text-xs" />
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-sm w-full mt-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                                Save Bookmark
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookmark List -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Bookmark List View</h2>
+                <p class="text-base-content/70 mb-4">How bookmarks appear in the My Links page.</p>
+
+                <div class="bg-base-200 rounded-lg p-4 max-w-2xl">
+                    <!-- Search -->
+                    <label class="input input-bordered flex items-center gap-2 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>
+                        <input type="text" class="grow" placeholder="Search links..." />
+                    </label>
+
+                    <!-- New links banner -->
+                    <div class="card bg-primary/10 border border-primary/20 mb-4">
+                        <div class="card-body p-2 flex-row items-center gap-2">
+                            <span class="flex-1 text-sm">New links available</span>
+                            <button class="btn btn-primary btn-xs">Refresh</button>
+                            <button class="btn btn-ghost btn-xs btn-circle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bookmark cards -->
+                    <div class="space-y-2">
+                        <div class="card bg-base-100 shadow hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="card-body p-3">
+                                <div class="flex items-start gap-3">
+                                    <img src="https://www.google.com/favicon.ico" alt="" class="w-4 h-4 mt-1 rounded" />
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-medium text-sm truncate">How to Build Better Software</h3>
+                                        <p class="text-xs text-primary truncate">https://example.com/software-tips</p>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            <span class="badge badge-xs badge-primary badge-outline">dev</span>
+                                            <span class="badge badge-xs badge-primary badge-outline">productivity</span>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown dropdown-end">
+                                        <button class="btn btn-ghost btn-xs btn-circle">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow hover:shadow-md transition-shadow cursor-pointer">
+                            <div class="card-body p-3">
+                                <div class="flex items-start gap-3">
+                                    <img src="https://github.com/favicon.ico" alt="" class="w-4 h-4 mt-1 rounded" />
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-medium text-sm truncate">Open Source Bookmark Manager</h3>
+                                        <p class="text-xs text-primary truncate">https://github.com/example/bookmarks</p>
+                                        <div class="flex flex-wrap gap-1 mt-1">
+                                            <span class="badge badge-xs badge-primary badge-outline">github</span>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown dropdown-end">
+                                        <button class="btn btn-ghost btn-xs btn-circle">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Screen -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Login Screen</h2>
+
+                <div class="bg-base-200 rounded-lg p-8 max-w-sm mx-auto">
+                    <div class="text-center mb-6">
+                        <div class="flex items-center justify-center gap-2 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-indigo-500 shrink-0"><path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" /></svg>
+                            <span class="text-2xl font-bold">ClipJot</span>
+                        </div>
+                        <p class="text-sm text-base-content/70">Sign in to save bookmarks</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button class="btn btn-outline w-full gap-2">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                            Sign in with Google
+                        </button>
+                        <button class="btn btn-outline w-full gap-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                            Sign in with GitHub
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Settings Page</h2>
+
+                <div class="bg-base-200 rounded-lg p-4 max-w-md">
+                    <!-- Header -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <button class="btn btn-ghost btn-sm btn-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 class="text-xl font-bold">Settings</h1>
+                    </div>
+
+                    <!-- Account Section -->
+                    <div class="card bg-base-100 mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold text-lg mb-3">Account</h3>
+                            <div class="flex items-center gap-3">
+                                <div class="avatar placeholder">
+                                    <div class="bg-primary text-primary-content rounded-full w-10">
+                                        <span>JD</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium">john@example.com</p>
+                                    <p class="text-xs text-base-content/60">Logged in</p>
+                                </div>
+                                <button class="btn btn-ghost btn-sm text-error">Log out</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Section -->
+                    <div class="card bg-base-100 mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold text-lg mb-3">Backend URL</h3>
+                            <div class="form-control">
+                                <input type="url" class="input input-bordered input-sm" value="https://clipjot.example.com" />
+                            </div>
+                            <button class="btn btn-primary btn-sm mt-3">Save Settings</button>
+                        </div>
+                    </div>
+
+                    <!-- Sharing Section -->
+                    <div class="card bg-base-100">
+                        <div class="card-body p-4">
+                            <h3 class="font-semibold text-lg mb-3">Sharing</h3>
+                            <div class="form-control">
+                                <label class="label cursor-pointer justify-between py-1">
+                                    <div>
+                                        <span class="label-text font-medium">Quick Save</span>
+                                        <p class="text-xs text-base-content/60">Save without editing</p>
+                                    </div>
+                                    <input type="checkbox" class="toggle toggle-primary toggle-sm" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selection Mode -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Selection Mode Action Bar</h2>
+
+                <div class="bg-base-200 rounded-lg p-4 max-w-2xl">
+                    <!-- Action bar -->
+                    <div class="card bg-base-100 shadow-lg">
+                        <div class="card-body p-3 flex-row items-center gap-2">
+                            <button class="btn btn-ghost btn-sm">Cancel</button>
+                            <span class="flex-1 text-center text-sm font-medium">3 selected</span>
+                            <button class="btn btn-ghost btn-sm">Select All</button>
+                            <button class="btn btn-ghost btn-sm text-error gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Selected items preview -->
+                    <div class="mt-4 space-y-2">
+                        <div class="card bg-primary/10 border-2 border-primary">
+                            <div class="card-body p-3">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" checked class="checkbox checkbox-primary checkbox-sm" />
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-sm">Selected Bookmark 1</h3>
+                                        <p class="text-xs text-primary">https://example.com/1</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-primary/10 border-2 border-primary">
+                            <div class="card-body p-3">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" checked class="checkbox checkbox-primary checkbox-sm" />
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-sm">Selected Bookmark 2</h3>
+                                        <p class="text-xs text-primary">https://example.com/2</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl mb-4">Confirmation Dialog</h2>
+
+                <div class="modal-box max-w-sm shadow-2xl">
+                    <h3 class="font-bold text-lg">Delete 3 links?</h3>
+                    <p class="py-4 text-base-content/70">This action cannot be undone.</p>
+                    <div class="modal-action">
+                        <button class="btn btn-ghost">Cancel</button>
+                        <button class="btn btn-error">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer footer-center p-4 bg-base-300 text-base-content mt-8">
+        <div>
+            <p>ClipJot Style Guide - Components</p>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('change', () => {
+            document.body.setAttribute('data-theme', themeToggle.checked ? 'clipjotdark' : 'clipjot');
+        });
+    </script>
+</body>
+</html>
