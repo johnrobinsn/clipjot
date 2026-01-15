@@ -35,16 +35,20 @@
         <key>NSExtensionPrincipalClass</key>
         <string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
 
-        <!-- Activation Rules - what content types we accept -->
-        <key>NSExtensionActivationRule</key>
+        <!-- Extension Attributes -->
+        <key>NSExtensionAttributes</key>
         <dict>
-            <!-- Accept URLs -->
-            <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
-            <integer>1</integer>
+            <!-- Activation Rules - what content types we accept -->
+            <key>NSExtensionActivationRule</key>
+            <dict>
+                <!-- Accept URLs -->
+                <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+                <integer>1</integer>
 
-            <!-- Accept plain text (might contain URLs) -->
-            <key>NSExtensionActivationSupportsText</key>
-            <true/>
+                <!-- Accept plain text (might contain URLs) -->
+                <key>NSExtensionActivationSupportsText</key>
+                <true/>
+            </dict>
         </dict>
     </dict>
 </dict>

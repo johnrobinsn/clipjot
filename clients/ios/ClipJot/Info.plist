@@ -31,7 +31,7 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
-            <string>com.clipjot.ios</string>
+            <string>net.clipjot.ios</string>
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>clipjot</string>

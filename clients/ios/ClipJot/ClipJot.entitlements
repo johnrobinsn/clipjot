@@ -5,13 +5,13 @@
     <!-- App Groups for sharing data with Share Extension -->
     <key>com.apple.security.application-groups</key>
     <array>
-        <string>group.com.clipjot.shared</string>
+        <string>group.net.clipjot.shared</string>
     </array>
 
     <!-- Keychain Access Groups for sharing tokens with Share Extension -->
     <key>keychain-access-groups</key>
     <array>
-        <string>$(AppIdentifierPrefix)com.clipjot.shared</string>
+        <string>$(AppIdentifierPrefix)net.clipjot.shared</string>
     </array>
 </dict>
 </plist>

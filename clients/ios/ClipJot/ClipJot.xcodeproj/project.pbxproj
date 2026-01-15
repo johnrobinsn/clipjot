@@ -484,6 +484,7 @@
 				CODE_SIGN_ENTITLEMENTS = ClipJot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S22Y9JKMPF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Info.plist;
@@ -513,6 +514,7 @@
 				CODE_SIGN_ENTITLEMENTS = ClipJot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S22Y9JKMPF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Info.plist;
@@ -607,6 +609,7 @@
 				CODE_SIGN_ENTITLEMENTS = ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S22Y9JKMPF;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtensionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
@@ -632,6 +635,7 @@
 				CODE_SIGN_ENTITLEMENTS = ShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S22Y9JKMPF;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ShareExtensionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;

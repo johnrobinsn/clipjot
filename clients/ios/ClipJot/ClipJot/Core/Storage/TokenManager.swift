@@ -6,13 +6,12 @@ import Security
 final class TokenManager {
     static let shared = TokenManager()
 
-    private let service = "com.clipjot.ios"
+    private let service = "net.clipjot.ios"
     private let account = "session_token"
 
     // Access group for sharing with Share Extension
-    // Format: $(AppIdentifierPrefix)com.clipjot.shared
-    // The AppIdentifierPrefix is added automatically by Xcode
-    private let accessGroup: String? = "com.clipjot.shared"
+    // Format: <TeamID>.net.clipjot.shared
+    private let accessGroup: String? = "S22Y9JKMPF.net.clipjot.shared"
 
     private init() {}
 

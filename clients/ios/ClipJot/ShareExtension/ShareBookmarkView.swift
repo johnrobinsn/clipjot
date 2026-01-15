@@ -351,9 +351,9 @@ struct TagInputView: View {
 
 class TokenManager {
     static let shared = TokenManager()
-    private let service = "com.clipjot.ios"
+    private let service = "net.clipjot.ios"
     private let account = "session_token"
-    private let accessGroup = "com.clipjot.shared"
+    private let accessGroup = "S22Y9JKMPF.net.clipjot.shared"
 
     var isLoggedIn: Bool { getToken() != nil }
 
@@ -381,7 +381,7 @@ class TokenManager {
 
 class SettingsManager {
     static let shared = SettingsManager()
-    private let appGroupIdentifier = "group.com.clipjot.shared"
+    private let appGroupIdentifier = "group.net.clipjot.shared"
 
     private var defaults: UserDefaults {
         UserDefaults(suiteName: appGroupIdentifier) ?? .standard
