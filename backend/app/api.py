@@ -3,7 +3,9 @@
 All endpoints use POST with JSON body and require API token authentication.
 """
 
+import asyncio
 import json
+import time
 from typing import Optional
 from dataclasses import asdict
 from fasthtml.common import Response
@@ -11,6 +13,7 @@ from fasthtml.common import Response
 from .models import Bookmark, Tag, now_iso
 from . import db as database
 from . import auth
+from . import config
 
 
 # =============================================================================
@@ -460,6 +463,102 @@ def api_bookmarks_list(request, db, data: dict) -> Response:
         "bookmarks": results,
         "has_more": has_more,
         "next_cursor": next_cursor,
+    })
+
+
+async def api_bookmarks_sync(request, db, data: dict) -> Response:
+    """Sync bookmarks incrementally using ID-based cursor.
+
+    POST /api/v1/bookmarks/sync
+    Requires: read scope
+
+    Body:
+        cursor: str (optional) - bookmark ID to start after, null for beginning
+        limit: int (optional, default 50, max 100)
+        skip_to_latest: bool (optional) - if true, just return cursor at latest ID
+        wait: bool (optional) - if true, long poll until new bookmarks arrive
+
+    Returns bookmarks in ID order (oldest first) for reliable sync.
+    """
+    token, user, error = get_api_auth(request, db)
+    if error:
+        return error
+
+    scope_error = require_scope(token, "read")
+    if scope_error:
+        return scope_error
+
+    # Parse parameters
+    cursor = data.get("cursor")  # string or None
+    limit = min(max(1, data.get("limit", 50)), 100)
+    skip_to_latest = data.get("skip_to_latest", False)
+    wait = data.get("wait", False)
+
+    cursor_id = int(cursor) if cursor else None
+
+    # Handle skip_to_latest - just return current max ID
+    if skip_to_latest:
+        latest_id = database.get_latest_bookmark_id(db, user.id)
+        return json_response({
+            "bookmarks": [],
+            "cursor": str(latest_id) if latest_id else None,
+            "has_more": False,
+            "waited": False,
+        })
+
+    # Long polling mode
+    if wait and cursor_id is not None:
+        start_time = time.time()
+        first_found_time = None
+        waited = True
+
+        while time.time() - start_time < config.SYNC_WAIT_TIMEOUT:
+            bookmarks = database.get_bookmarks_since_id(db, user.id, cursor_id, limit + 1)
+
+            if bookmarks:
+                if first_found_time is None:
+                    first_found_time = time.time()
+                # Wait for batch_delay to collect more
+                if time.time() - first_found_time >= config.SYNC_BATCH_DELAY:
+                    break
+
+            await asyncio.sleep(config.SYNC_POLL_INTERVAL)
+
+        # After loop, fetch final results
+        bookmarks = database.get_bookmarks_since_id(db, user.id, cursor_id, limit + 1)
+    else:
+        # Immediate mode (default)
+        bookmarks = database.get_bookmarks_since_id(db, user.id, cursor_id, limit + 1)
+        waited = False
+
+    # Determine has_more
+    has_more = len(bookmarks) > limit
+    if has_more:
+        bookmarks = bookmarks[:limit]
+
+    # Enrich with tags
+    result = []
+    for bm in bookmarks:
+        tags = database.get_bookmark_tags(db, bm.id)
+        result.append({
+            "id": bm.id,
+            "url": bm.url,
+            "title": bm.title,
+            "comment": bm.comment,
+            "tags": [{"id": t.id, "name": t.name} for t in tags],
+            "client_name": bm.client_name,
+            "created_at": bm.created_at,
+            "updated_at": bm.updated_at,
+        })
+
+    # Build response - cursor is the last bookmark ID returned
+    next_cursor = str(bookmarks[-1].id) if bookmarks else cursor
+
+    return json_response({
+        "bookmarks": result,
+        "cursor": next_cursor,
+        "has_more": has_more,
+        "waited": waited,
     })
 
 

@@ -464,6 +464,12 @@ async def api_bookmarks_list(request):
     return api.api_bookmarks_list(request, get_db(), data)
 
 
+@rt("/api/v1/bookmarks/sync", methods=["POST"])
+async def api_bookmarks_sync(request):
+    data = await parse_json_body(request)
+    return await api.api_bookmarks_sync(request, get_db(), data)
+
+
 @rt("/api/v1/tags/list", methods=["POST"])
 async def api_tags_list(request):
     data = await parse_json_body(request)

@@ -310,3 +310,242 @@ class TestRateLimiting:
                 allowed, retry_after = auth.check_rate_limit(plaintext)
                 assert allowed is False
                 assert retry_after > 0
+
+
+class TestSyncApi:
+    """Test sync API endpoint."""
+
+    @pytest.mark.asyncio
+    async def test_sync_from_beginning(self, db, test_token, test_bookmark):
+        """Test syncing from beginning (cursor=None) gets bookmarks."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert "bookmarks" in body
+        assert "cursor" in body
+        assert "has_more" in body
+        assert "waited" in body
+        assert len(body["bookmarks"]) >= 1
+
+    @pytest.mark.asyncio
+    async def test_sync_with_cursor(self, db, test_token, test_user):
+        """Test syncing with cursor returns bookmarks after that ID."""
+        from app.models import Bookmark
+        # Create multiple bookmarks
+        bm1 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://first.com"))
+        bm2 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://second.com"))
+        bm3 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://third.com"))
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        # Sync with cursor pointing to first bookmark
+        response = await api.api_bookmarks_sync(request, db, {"cursor": str(bm1.id)})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        # Should only get bookmarks after bm1
+        ids = [b["id"] for b in body["bookmarks"]]
+        assert bm1.id not in ids
+        assert bm2.id in ids
+        assert bm3.id in ids
+
+    @pytest.mark.asyncio
+    async def test_sync_empty_when_caught_up(self, db, test_token, test_bookmark):
+        """Test sync returns empty when cursor is at latest bookmark."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        # Use the test_bookmark's ID as cursor
+        response = await api.api_bookmarks_sync(request, db, {"cursor": str(test_bookmark.id)})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert body["bookmarks"] == []
+        assert body["has_more"] is False
+
+    @pytest.mark.asyncio
+    async def test_sync_respects_limit(self, db, test_token, test_user):
+        """Test sync respects limit parameter."""
+        from app.models import Bookmark
+        # Create 5 bookmarks
+        for i in range(5):
+            database.create_bookmark(db, Bookmark(user_id=test_user.id, url=f"https://site{i}.com"))
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None, "limit": 2})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert len(body["bookmarks"]) == 2
+        assert body["has_more"] is True
+
+    @pytest.mark.asyncio
+    async def test_sync_includes_tags(self, db, test_token, test_bookmark, test_tag):
+        """Test sync includes tags in bookmark response."""
+        database.add_bookmark_tag(db, test_bookmark.id, test_tag.id)
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        bookmark = next(b for b in body["bookmarks"] if b["id"] == test_bookmark.id)
+        assert len(bookmark["tags"]) == 1
+        assert bookmark["tags"][0]["name"] == test_tag.name
+
+    @pytest.mark.asyncio
+    async def test_sync_requires_auth(self, db):
+        """Test sync requires valid auth token."""
+        request = MockRequest()
+        response = await api.api_bookmarks_sync(request, db, {})
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_sync_allows_read_scope(self, db, read_only_token, test_bookmark):
+        """Test sync works with read-only token."""
+        plaintext, _ = read_only_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {})
+
+        assert response.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_sync_returns_bookmarks_in_id_order(self, db, test_token, test_user):
+        """Test sync returns bookmarks in ascending ID order (oldest first)."""
+        from app.models import Bookmark
+        # Create bookmarks in order
+        bm1 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://first.com"))
+        bm2 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://second.com"))
+        bm3 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://third.com"))
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        ids = [b["id"] for b in body["bookmarks"]]
+        # Verify ascending order
+        assert ids == sorted(ids)
+
+    @pytest.mark.asyncio
+    async def test_sync_cursor_is_last_id(self, db, test_token, test_user):
+        """Test that returned cursor is the ID of the last bookmark."""
+        from app.models import Bookmark
+        # Create bookmarks
+        bm1 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://first.com"))
+        bm2 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://second.com"))
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None, "limit": 1})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        # Cursor should be the ID of the last returned bookmark
+        assert body["cursor"] == str(body["bookmarks"][-1]["id"])
+
+    @pytest.mark.asyncio
+    async def test_sync_skip_to_latest(self, db, test_token, test_bookmark):
+        """Test skip_to_latest returns cursor at latest bookmark."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"skip_to_latest": True})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert body["bookmarks"] == []
+        assert body["cursor"] == str(test_bookmark.id)
+        assert body["has_more"] is False
+        assert body["waited"] is False
+
+    @pytest.mark.asyncio
+    async def test_sync_skip_to_latest_empty_db(self, db, test_token, test_user):
+        """Test skip_to_latest with no bookmarks returns null cursor."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        response = await api.api_bookmarks_sync(request, db, {"skip_to_latest": True})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert body["bookmarks"] == []
+        assert body["cursor"] is None
+        assert body["has_more"] is False
+        assert body["waited"] is False
+
+    @pytest.mark.asyncio
+    async def test_sync_wait_returns_immediately_with_new_bookmarks(self, db, test_token, test_user):
+        """Test wait mode returns immediately when bookmarks exist."""
+        from app.models import Bookmark
+        bm1 = database.create_bookmark(db, Bookmark(user_id=test_user.id, url="https://first.com"))
+
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        # Wait with cursor before the bookmark (cursor=0)
+        response = await api.api_bookmarks_sync(request, db, {"cursor": "0", "wait": True})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        assert len(body["bookmarks"]) == 1
+        assert body["waited"] is True
+
+    @pytest.mark.asyncio
+    async def test_sync_wait_without_cursor_does_not_wait(self, db, test_token, test_bookmark):
+        """Test that wait=True without cursor doesn't enable long polling."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        # wait=True but cursor=None should not trigger long polling
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None, "wait": True})
+
+        assert response.status_code == 200
+        body = json.loads(response.body)
+        # Should return immediately (waited=False when no cursor)
+        assert body["waited"] is False
+
+    @pytest.mark.asyncio
+    async def test_sync_waited_field_present(self, db, test_token, test_bookmark):
+        """Test that 'waited' field is always present in response."""
+        plaintext, _ = test_token
+        request = MockRequest(headers={"Authorization": f"Bearer {plaintext}"})
+        auth.clear_rate_limit_store()
+
+        # Test without wait parameter
+        response = await api.api_bookmarks_sync(request, db, {"cursor": None})
+        body = json.loads(response.body)
+        assert "waited" in body
+        assert body["waited"] is False
+
+        # Test with skip_to_latest
+        auth.clear_rate_limit_store()
+        response = await api.api_bookmarks_sync(request, db, {"skip_to_latest": True})
+        body = json.loads(response.body)
+        assert "waited" in body
+        assert body["waited"] is False

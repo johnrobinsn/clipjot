@@ -30,6 +30,14 @@ def _get_int(key: str, default: int) -> int:
     return int(value)
 
 
+def _get_float(key: str, default: float) -> float:
+    """Get float environment variable."""
+    value = os.getenv(key)
+    if value is None:
+        return default
+    return float(value)
+
+
 def _get_path(key: str, default: str | None = None) -> str | None:
     """Get path environment variable, resolving relative paths from project root."""
     value = os.getenv(key, default)
@@ -70,6 +78,11 @@ FREE_TIER_MAX_TAGS: int = _get_int("FREE_TIER_MAX_TAGS", 50)
 SSL_CERT_FILE: str | None = _get_path("SSL_CERT_FILE")
 SSL_KEY_FILE: str | None = _get_path("SSL_KEY_FILE")
 SSL_REDIRECT_PORT: int = _get_int("SSL_REDIRECT_PORT", 5000)  # HTTP port for redirect to HTTPS
+
+# Sync API long polling settings
+SYNC_WAIT_TIMEOUT: int = _get_int("SYNC_WAIT_TIMEOUT", 30)  # Max seconds to hold long poll connection
+SYNC_BATCH_DELAY: float = _get_float("SYNC_BATCH_DELAY", 2.0)  # Seconds to batch after first find
+SYNC_POLL_INTERVAL: float = _get_float("SYNC_POLL_INTERVAL", 0.5)  # Internal DB poll interval
 
 
 def has_ssl_config() -> bool:

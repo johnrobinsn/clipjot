@@ -88,6 +88,7 @@ def _create_indexes(db):
     indexes = [
         "CREATE INDEX IF NOT EXISTS idx_bookmark_user_created ON bookmark(user_id, created_at DESC)",
         "CREATE INDEX IF NOT EXISTS idx_bookmark_user_url ON bookmark(user_id, url)",
+        "CREATE INDEX IF NOT EXISTS idx_bookmark_user_id ON bookmark(user_id, id)",  # For sync queries
         "CREATE INDEX IF NOT EXISTS idx_tag_user ON tag(user_id)",
         "CREATE INDEX IF NOT EXISTS idx_session_expires ON session(expires_at)",
         "CREATE INDEX IF NOT EXISTS idx_session_user ON session(user_id)",
@@ -461,6 +462,34 @@ def get_latest_bookmark_id(db, user_id: int) -> Optional[int]:
     )
     row = result.fetchone()
     return row[0] if row else None
+
+
+def get_bookmarks_since_id(db, user_id: int, cursor_id: Optional[int], limit: int) -> list[Bookmark]:
+    """Get bookmarks with ID > cursor_id, ordered by ID ascending.
+
+    Used for incremental sync - returns bookmarks in ID order so clients
+    can use the last ID as a cursor for the next request.
+    """
+    if cursor_id is None:
+        result = db.execute("""
+            SELECT id, user_id, url, title, comment, client_name, created_at, updated_at
+            FROM bookmark
+            WHERE user_id = ?
+            ORDER BY id ASC
+            LIMIT ?
+        """, [user_id, limit])
+    else:
+        result = db.execute("""
+            SELECT id, user_id, url, title, comment, client_name, created_at, updated_at
+            FROM bookmark
+            WHERE user_id = ? AND id > ?
+            ORDER BY id ASC
+            LIMIT ?
+        """, [user_id, cursor_id, limit])
+
+    return [Bookmark(id=row[0], user_id=row[1], url=row[2], title=row[3],
+                     comment=row[4], client_name=row[5], created_at=row[6], updated_at=row[7])
+            for row in result.fetchall()]
 
 
 def create_bookmark(db, bookmark: Bookmark) -> Bookmark:
