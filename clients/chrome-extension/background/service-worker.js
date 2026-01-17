@@ -31,6 +31,13 @@ chrome.runtime.onInstalled.addListener(() => {
     title: 'View Links...',
     contexts: ['action'],
   });
+
+  // Create context menu for extension icon to open settings
+  chrome.contextMenus.create({
+    id: 'open-clipjot-settings',
+    title: 'Settings...',
+    contexts: ['action'],
+  });
 });
 
 // Handle context menu clicks
@@ -40,6 +47,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     const storage = await chrome.storage.local.get(['backendUrl']);
     const backendUrl = storage.backendUrl || DEFAULT_BACKEND_URL;
     chrome.tabs.create({ url: backendUrl });
+    return;
+  }
+
+  // Handle "Settings..." - open options page
+  if (info.menuItemId === 'open-clipjot-settings') {
+    chrome.runtime.openOptionsPage();
     return;
   }
 
