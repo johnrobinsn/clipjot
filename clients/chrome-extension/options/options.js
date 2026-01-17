@@ -6,6 +6,7 @@ const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 
 // DOM Elements
 const backendUrlInput = document.getElementById('backend-url');
+const quickSaveToggle = document.getElementById('quick-save');
 const saveBtn = document.getElementById('save-btn');
 const statusMessage = document.getElementById('status-message');
 
@@ -14,8 +15,9 @@ const statusMessage = document.getElementById('status-message');
  */
 async function init() {
   // Load current settings
-  const storage = await chrome.storage.local.get(['backendUrl']);
+  const storage = await chrome.storage.local.get(['backendUrl', 'quickSave']);
   backendUrlInput.value = storage.backendUrl || DEFAULT_BACKEND_URL;
+  quickSaveToggle.checked = storage.quickSave || false;
 }
 
 /**
@@ -71,12 +73,23 @@ async function saveSettings() {
   }
 
   // Connection test passed - save URL and clear token to force re-login
-  await chrome.storage.local.set({ backendUrl: normalizedUrl });
+  await chrome.storage.local.set({
+    backendUrl: normalizedUrl,
+    quickSave: quickSaveToggle.checked
+  });
   await chrome.storage.local.remove('sessionToken');
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Settings';
   showStatus('Settings saved! Please log in again.', 'success');
+}
+
+/**
+ * Save quick save setting immediately on toggle (no server test needed)
+ */
+async function saveQuickSave() {
+  await chrome.storage.local.set({ quickSave: quickSaveToggle.checked });
+  showStatus(quickSaveToggle.checked ? 'Quick Save enabled' : 'Quick Save disabled', 'success');
 }
 
 /**
@@ -110,6 +123,7 @@ function showStatus(message, type = 'info') {
 
 // Event Listeners
 saveBtn.addEventListener('click', saveSettings);
+quickSaveToggle.addEventListener('change', saveQuickSave);
 
 // Save on Enter key in URL input
 backendUrlInput.addEventListener('keydown', (e) => {

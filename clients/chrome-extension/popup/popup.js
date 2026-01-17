@@ -8,6 +8,7 @@ const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 // State
 let backendUrl = DEFAULT_BACKEND_URL;
 let sessionToken = null;
+let quickSave = false;
 let userTags = [];
 let selectedTags = [];
 
@@ -37,12 +38,14 @@ const loginError = document.getElementById('login-error');
  */
 async function init() {
   // Load settings and session
-  const storage = await chrome.storage.local.get(['backendUrl', 'sessionToken']);
+  const storage = await chrome.storage.local.get(['backendUrl', 'sessionToken', 'quickSave']);
   backendUrl = storage.backendUrl || DEFAULT_BACKEND_URL;
   sessionToken = storage.sessionToken || null;
+  quickSave = storage.quickSave || false;
 
   console.log('Init - backendUrl:', backendUrl);
   console.log('Init - sessionToken:', sessionToken ? 'present' : 'missing');
+  console.log('Init - quickSave:', quickSave);
 
   if (sessionToken) {
     // Verify session is still valid
@@ -50,7 +53,15 @@ async function init() {
     const isValid = await verifySession();
     console.log('Session valid:', isValid);
     if (isValid) {
-      await showBookmarkView();
+      // Check for pending bookmark from context menu
+      const pending = await chrome.storage.local.get('pendingBookmark');
+
+      if (quickSave) {
+        // Quick save mode - save immediately without showing form
+        await performQuickSave(pending.pendingBookmark);
+      } else {
+        await showBookmarkView();
+      }
     } else {
       // Session expired, clear it
       await chrome.storage.local.remove('sessionToken');
@@ -119,6 +130,82 @@ async function showBookmarkView() {
 
   // Load user's tags
   await loadTags();
+}
+
+/**
+ * Perform quick save - save bookmark immediately without showing form
+ */
+async function performQuickSave(pendingBookmark) {
+  // Get URL and title from pending bookmark or current tab
+  let url, title;
+
+  if (pendingBookmark) {
+    url = pendingBookmark.url || '';
+    title = pendingBookmark.title || '';
+    // Clear the pending bookmark
+    await chrome.storage.local.remove('pendingBookmark');
+  } else {
+    // Get current tab info
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab) {
+      url = tab.url || '';
+      title = tab.title || '';
+    }
+  }
+
+  if (!url) {
+    // No URL to save, fall back to showing the form
+    await showBookmarkView();
+    return;
+  }
+
+  // Show a quick saving indicator
+  loadingEl.innerHTML = '<span class="loading loading-spinner loading-lg"></span><p style="margin-top: 0.5rem; font-size: 0.875rem;">Saving...</p>';
+
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/bookmarks/add`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url,
+        title: title || undefined,
+        client_name: 'chrome-extension',
+      }),
+    });
+
+    if (response.ok) {
+      // Show success with title or URL, then close
+      const displayText = title || url;
+      const truncated = displayText.length > 45 ? displayText.substring(0, 45) + '...' : displayText;
+      const escaped = truncated.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      loadingEl.innerHTML = `
+        <div>
+          <div class="brand-header" style="margin-bottom: 0.75rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="brand-icon" style="width: 1.5rem; height: 1.5rem;"><path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" /></svg>
+            <span style="font-size: 1.125rem; font-weight: bold;">ClipJot</span>
+          </div>
+          <p style="font-size: 1rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 1rem;">${escaped}</p>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 2rem; height: 2rem; color: oklch(var(--su));"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <p style="font-size: 1.125rem;">Saved!</p>
+          </div>
+        </div>`;
+      setTimeout(() => window.close(), 1500);
+    } else {
+      const data = await response.json();
+      // On error, fall back to showing the form with the error
+      await showBookmarkView();
+      showError(data.error || 'Failed to save bookmark');
+    }
+  } catch (error) {
+    console.error('Quick save error:', error);
+    // On error, fall back to showing the form
+    await showBookmarkView();
+    showError('Failed to connect to server');
+  }
 }
 
 /**
@@ -438,6 +525,10 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     // If backend URL changed, update our local copy
     if (changes.backendUrl && changes.backendUrl.newValue) {
       backendUrl = changes.backendUrl.newValue;
+    }
+    // If quick save setting changed, update our local copy
+    if (changes.quickSave !== undefined) {
+      quickSave = changes.quickSave.newValue || false;
     }
   }
 });
