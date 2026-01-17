@@ -7,6 +7,8 @@ const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 // DOM Elements
 const backendUrlInput = document.getElementById('backend-url');
 const quickSaveToggle = document.getElementById('quick-save');
+const shortcutDisplay = document.getElementById('shortcut-display');
+const changeShortcutBtn = document.getElementById('change-shortcut');
 const saveBtn = document.getElementById('save-btn');
 const statusMessage = document.getElementById('status-message');
 
@@ -18,6 +20,34 @@ async function init() {
   const storage = await chrome.storage.local.get(['backendUrl', 'quickSave']);
   backendUrlInput.value = storage.backendUrl || DEFAULT_BACKEND_URL;
   quickSaveToggle.checked = storage.quickSave || false;
+
+  // Load keyboard shortcut
+  await loadShortcut();
+}
+
+/**
+ * Load and display the current keyboard shortcut
+ */
+async function loadShortcut() {
+  try {
+    const commands = await chrome.commands.getAll();
+    const saveCommand = commands.find(cmd => cmd.name === '_execute_action');
+    if (saveCommand && saveCommand.shortcut) {
+      shortcutDisplay.textContent = saveCommand.shortcut;
+    } else {
+      shortcutDisplay.textContent = 'Not set';
+    }
+  } catch (error) {
+    console.error('Failed to load shortcut:', error);
+    shortcutDisplay.textContent = 'Unknown';
+  }
+}
+
+/**
+ * Open Chrome's extension shortcuts page
+ */
+function openShortcutsPage() {
+  chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
 }
 
 /**
@@ -124,6 +154,14 @@ function showStatus(message, type = 'info') {
 // Event Listeners
 saveBtn.addEventListener('click', saveSettings);
 quickSaveToggle.addEventListener('change', saveQuickSave);
+changeShortcutBtn.addEventListener('click', openShortcutsPage);
+
+// Refresh shortcut display when returning to this tab
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    loadShortcut();
+  }
+});
 
 // Save on Enter key in URL input
 backendUrlInput.addEventListener('keydown', (e) => {
