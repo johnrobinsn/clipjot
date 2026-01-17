@@ -204,6 +204,7 @@ def auth_github(request, redirect_uri: str = None):
 
 @rt("/auth_redirect/github")
 def auth_redirect_github(request, code: str = None, state: str = None):
+    print(f"[DEBUG] GitHub auth redirect - code exists: {bool(code)}")
     if not github_client:
         return Response("GitHub OAuth not configured", status_code=503)
     if not code:
@@ -211,7 +212,9 @@ def auth_redirect_github(request, code: str = None, state: str = None):
 
     try:
         oauth_redirect = f"{config.BASE_URL}/auth_redirect/github"
+        print(f"[DEBUG] Calling retr_info with redirect: {oauth_redirect}")
         user_info = github_client.retr_info(code, oauth_redirect)
+        print(f"[DEBUG] Got user_info: {user_info}")
 
         # Check if this is extension flow (state starts with "ext:")
         if state:
@@ -224,8 +227,13 @@ def auth_redirect_github(request, code: str = None, state: str = None):
             except Exception:
                 pass  # Invalid state, fall through to web flow
 
-        return views.oauth_callback_handler(request, get_db(), "github", user_info)
+        print("[DEBUG] Calling oauth_callback_handler")
+        result = views.oauth_callback_handler(request, get_db(), "github", user_info)
+        print(f"[DEBUG] oauth_callback_handler returned: {type(result)}")
+        return result
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return Response(f"OAuth error: {e}", status_code=400)
 
 

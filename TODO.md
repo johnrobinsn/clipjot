@@ -16,15 +16,20 @@
 
 ## Android Client Launch List
 -[X] Setting to `Add Shared Link without Editing`
+-[ ] Google Play?
+-[X] Consider embedding the clipjot site into the clipjot app so you don't have to install both and manage two logins
 
 ## Chrome extension Launch List
 -[X] After saving bookmark panel stays open
 
+## Backend Launch List
+-[ ] Do I want the webui to prompt to install when on mobile?
+
 ## Ready to Ship
 -[ ] Mindful usage
-
+-[X] In Android app change gear to a hamburger and have settings, logout and about...
 -[ ] Cursor like API for synchronizing links to some processing client.
--[ ] Review for consistency (icons, fonts, styles, other branding... ) Pull together a style guide
+-[X] Review for consistency (icons, fonts, styles, other branding... ) Pull together a style guide
 -[ ] Versioning and Release Process
 -[ ] Stop using wildcard cert on ringzero.ai
 -[ ] developer docs and llms.txt
@@ -32,16 +37,11 @@
 -[ ] Display what auth provider is in use when logged in?
 -[ ] if I change the url and I get logged out
 -[ ] Is it possible for me to get the add link panel when I'm signed out
--[ ] IOS Version
--[ ] Consider embedding the clipjot site into the clipjot app so you don't have to install both and manage two logins
+-[ ] IOS Version?
 -[ ] db backup strategy
 -[ ] validate streaming api and augmenting metadata.
 -[ ] Consider upper bounds on all input form elements.
--[ ] Research IOS sharing mechanism
 -[ ] Test self hosting it
--[ ] In Android app change gear to a hamburger and have settings, logout and about...
--[ ] ClipJot.ai?
--[ ] Backup .env files
 -[ ] API Synchronization
 -[ ] Analytics Config in WebUI
 
@@ -51,6 +51,7 @@
 -[ ] Premium Payment Flow
 -[ ] IOS sharing
 -[ ] Optional hook for X to add a post if we bookmark it
+-[ ] ClipJot.ai?
 
 ## Operations
 -[ ] Setup production Oauth Client for Google
@@ -58,3 +59,4 @@
 -[ ] What are best practices for backing up and operationalizing clipjot backend
 -[ ] Dockerization
 -[ ] Disaster Recovery and Restore From Backups
+-[ ] Backup .env files
