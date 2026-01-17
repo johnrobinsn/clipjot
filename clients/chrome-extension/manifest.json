@@ -10,6 +10,15 @@
     "identity",
     "scripting"
   ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+J",
+        "mac": "Alt+Shift+J"
+      },
+      "description": "Save current page to ClipJot"
+    }
+  },
   "host_permissions": [
     "*://*/*"
   ],
