@@ -1,5 +1,8 @@
 package com.clipjot.android.ui.links;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -8,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -204,6 +209,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         private final HorizontalScrollView tagsScrollView;
         private final ChipGroup tagsChipGroup;
         private final TextView commentIndicator;
+        private final ImageButton copyButton;
         private final ImageButton editButton;
 
         ViewHolder(View itemView) {
@@ -215,6 +221,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
             tagsScrollView = itemView.findViewById(R.id.tagsScrollView);
             tagsChipGroup = itemView.findViewById(R.id.tagsChipGroup);
             commentIndicator = itemView.findViewById(R.id.commentIndicator);
+            copyButton = itemView.findViewById(R.id.copyButton);
             editButton = itemView.findViewById(R.id.editButton);
         }
 
@@ -265,6 +272,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
 
             // Selection mode
             checkbox.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+            copyButton.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
             editButton.setVisibility(selectionMode ? View.GONE : View.VISIBLE);
 
             if (selectionMode) {
@@ -293,11 +301,30 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
 
             checkbox.setOnClickListener(v -> toggleSelection(bookmark));
 
+            copyButton.setOnClickListener(v -> copyBookmark(bookmark));
+
             editButton.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onEditClick(bookmark);
                 }
             });
+        }
+
+        private void copyBookmark(BookmarkResponse bookmark) {
+            Context context = itemView.getContext();
+            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+
+            String url = bookmark.getUrl();
+            String title = bookmark.getTitle() != null ? bookmark.getTitle() : url;
+            String htmlContent = "<a href=\"" + url + "\">" + title + "</a>";
+
+            // Create ClipData with HTML and plain text fallback
+            ClipData clip = ClipData.newHtmlText("Link", url, htmlContent);
+
+            clipboard.setPrimaryClip(clip);
+
+            // Show feedback
+            Snackbar.make(itemView, R.string.link_copied, Snackbar.LENGTH_SHORT).show();
         }
 
         private void toggleSelection(BookmarkResponse bookmark) {

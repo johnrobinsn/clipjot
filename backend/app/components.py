@@ -367,13 +367,21 @@ def bookmark_row(bookmark: Bookmark, tags: list[Tag], selected: bool = False):
         # Actions
         Td(
             Button(
+                heroicon("clipboard-document", "w-4 h-4"),
+                cls="btn btn-xs btn-ghost btn-square copy-btn",
+                title="Copy URL",
+                data_url=bookmark.url,
+                data_title=bookmark.title or bookmark.url,
+                onclick="copyBookmark(this)",
+            ),
+            Button(
                 heroicon("pencil", "w-4 h-4"),
                 cls="btn btn-xs btn-ghost btn-square",
                 title="Edit",
                 hx_get=f"/bookmarks/{bookmark.id}/edit",
                 hx_target="#modal-container",
             ),
-            cls="w-10 px-1",
+            cls="w-20 px-1 flex gap-1",
         ),
         cls="hover",
         id=f"bookmark-{bookmark.id}",
@@ -979,6 +987,35 @@ def keyboard_shortcuts_script():
         document.addEventListener('change', (e) => {
             if (e.target.matches('.bookmark-checkbox')) updateBulkBar();
         });
+
+        // Copy bookmark URL with rich format (HTML link)
+        async function copyBookmark(btn) {
+            const url = btn.dataset.url;
+            const title = btn.dataset.title;
+            const htmlContent = `<a href="${url}">${title}</a>`;
+
+            try {
+                // Try rich clipboard with both plain text and HTML
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'text/plain': new Blob([url], { type: 'text/plain' }),
+                        'text/html': new Blob([htmlContent], { type: 'text/html' })
+                    })
+                ]);
+            } catch (err) {
+                // Fallback to plain text only
+                await navigator.clipboard.writeText(url);
+            }
+
+            // Show brief feedback
+            const originalTitle = btn.title;
+            btn.title = 'Copied!';
+            btn.classList.add('text-success');
+            setTimeout(() => {
+                btn.title = originalTitle;
+                btn.classList.remove('text-success');
+            }, 1500);
+        }
     """)
 
 

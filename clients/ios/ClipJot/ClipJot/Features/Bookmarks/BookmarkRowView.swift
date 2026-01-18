@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Single bookmark row in the list.
 /// Equivalent to Android's item_bookmark.xml layout.
@@ -9,6 +10,8 @@ struct BookmarkRowView: View {
 
     // Brand color
     private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+
+    @State private var showCopiedFeedback = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -65,6 +68,17 @@ struct BookmarkRowView: View {
 
             Spacer()
 
+            // Copy button
+            Button {
+                copyBookmark()
+            } label: {
+                Image(systemName: showCopiedFeedback ? "checkmark" : "doc.on.doc")
+                    .font(.body)
+                    .foregroundColor(showCopiedFeedback ? .green : .secondary)
+                    .padding(8)
+            }
+            .buttonStyle(.plain)
+
             // Edit button
             Button {
                 onEdit()
@@ -78,6 +92,36 @@ struct BookmarkRowView: View {
         }
         .padding(.vertical, 8)
         .contentShape(Rectangle()) // Make entire row tappable
+    }
+
+    private func copyBookmark() {
+        let url = bookmark.url
+        let title = bookmark.title ?? url
+
+        // Create HTML link
+        let htmlContent = "<a href=\"\(url)\">\(title)</a>"
+
+        // Set multiple representations on pasteboard
+        let pasteboard = UIPasteboard.general
+        pasteboard.items = [[
+            UTType.plainText.identifier: url,
+            UTType.html.identifier: htmlContent,
+            UTType.url.identifier: URL(string: url) as Any
+        ]]
+
+        // Haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+
+        // Show brief visual feedback
+        withAnimation {
+            showCopiedFeedback = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation {
+                showCopiedFeedback = false
+            }
+        }
     }
 }
 

@@ -82,12 +82,22 @@
                 android:visibility="gone" />
         </LinearLayout>
 
+        <!-- Copy button -->
+        <ImageButton
+            android:id="@+id/copyButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_copy"
+            android:contentDescription="@string/copy"
+            app:tint="?android:textColorSecondary" />
+
         <!-- Edit button -->
         <ImageButton
             android:id="@+id/editButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_edit"
             android:contentDescription="@string/edit"

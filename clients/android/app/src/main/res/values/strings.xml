@@ -64,6 +64,8 @@
     <string name="retry">Retry</string>
     <string name="edit_link">Edit Link</string>
     <string name="edit">Edit</string>
+    <string name="copy">Copy</string>
+    <string name="link_copied">Link copied</string>
     <string name="delete">Delete</string>
     <string name="delete_link_title">Delete link?</string>
     <string name="delete_link_confirm">This action cannot be undone.</string>
