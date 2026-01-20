@@ -15,6 +15,7 @@ final class AuthManager: NSObject, ObservableObject {
 
     @Published var isAuthenticating = false
     @Published var authError: String?
+    @Published var isLoggedIn: Bool = TokenManager.shared.isLoggedIn
 
     private var authSession: ASWebAuthenticationSession?
     private var presentationAnchor: ASPresentationAnchor?
@@ -96,6 +97,7 @@ final class AuthManager: NSObject, ObservableObject {
         // Save token
         do {
             try TokenManager.shared.saveToken(token)
+            isLoggedIn = true
         } catch {
             authError = "Failed to save session: \(error.localizedDescription)"
             return
@@ -134,6 +136,7 @@ final class AuthManager: NSObject, ObservableObject {
         // Clear local data
         TokenManager.shared.clearToken()
         SettingsManager.shared.clearUserData()
+        isLoggedIn = false
     }
 
     /// Clear any authentication error

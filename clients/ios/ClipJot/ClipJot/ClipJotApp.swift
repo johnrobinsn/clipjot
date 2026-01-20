@@ -50,7 +50,7 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if TokenManager.shared.isLoggedIn {
+            if authManager.isLoggedIn {
                 BookmarkListView()
                     .onAppear {
                         checkPendingBookmark()
@@ -70,8 +70,6 @@ struct ContentView: View {
                 LoginView()
             }
         }
-        // Re-render when auth state changes
-        .id(TokenManager.shared.isLoggedIn)
     }
 
     /// Check for pending bookmark from Share Extension
