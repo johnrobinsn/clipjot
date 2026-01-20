@@ -38,8 +38,7 @@ struct LoginView: View {
                         authManager.startOAuth(provider: .google)
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "g.circle.fill")
-                                .font(.title2)
+                            GoogleIcon(size: 20)
                             Text("Continue with Google")
                                 .fontWeight(.medium)
                         }
@@ -60,8 +59,7 @@ struct LoginView: View {
                         authManager.startOAuth(provider: .github)
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "chevron.left.forwardslash.chevron.right")
-                                .font(.title2)
+                            GitHubIcon(size: 20, color: .primary)
                             Text("Continue with GitHub")
                                 .fontWeight(.medium)
                         }
