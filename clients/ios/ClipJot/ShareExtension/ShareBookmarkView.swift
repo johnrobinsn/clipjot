@@ -109,11 +109,10 @@ struct ShareBookmarkView: View {
     }
 
     private var quickSaveView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
+        VStack(spacing: 16) {
             ProgressView()
-                .scaleEffect(1.5)
+                .scaleEffect(1.2)
+                .padding(.top, 24)
 
             Text("Saving...")
                 .font(.headline)
@@ -123,15 +122,9 @@ struct ShareBookmarkView: View {
                 .foregroundColor(.secondary)
                 .lineLimit(1)
                 .padding(.horizontal)
-
-            Spacer()
-
-            Button("Edit") {
-                // Disable quick save for this session
-                // This will show the form view
-            }
-            .padding(.bottom, 32)
+                .padding(.bottom, 24)
         }
+        .frame(maxWidth: .infinity)
         .navigationTitle("Save Bookmark")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -144,21 +137,20 @@ struct ShareBookmarkView: View {
     }
 
     private var successView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
+        VStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
+                .font(.system(size: 48))
                 .foregroundColor(.green)
+                .padding(.top, 24)
 
             Text("Saved!")
                 .font(.headline)
-
-            Spacer()
+                .padding(.bottom, 24)
         }
+        .frame(maxWidth: .infinity)
         .onAppear {
             // Auto-dismiss after delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 onComplete()
             }
         }
