@@ -113,6 +113,35 @@ final class BookmarkListViewModel: ObservableObject {
         await loadBookmarks()
     }
 
+    /// Silent refresh when app resumes from background (no loading indicator)
+    func silentRefresh() async {
+        // Only refresh if we have data already (not initial load)
+        guard !bookmarks.isEmpty else { return }
+        // Don't refresh while already loading
+        guard !isLoading, !isLoadingMore else { return }
+
+        do {
+            let request = BookmarkSearchRequest(
+                query: searchQuery.isEmpty ? nil : searchQuery,
+                page: 1,
+                pageSize: pageSize
+            )
+            let response = try await APIClient.shared.searchBookmarks(request)
+
+            bookmarks = response.bookmarks
+            hasMore = response.hasMore
+            currentPage = 1
+            hasNewLinks = false
+
+            // Update latest bookmark for new links detection
+            if searchQuery.isEmpty, let firstBookmark = bookmarks.first {
+                latestKnownBookmarkId = firstBookmark.id
+            }
+        } catch {
+            // Silently ignore errors on background refresh
+        }
+    }
+
     /// Delete a bookmark
     func deleteBookmark(_ bookmark: Bookmark) async -> Bool {
         do {

@@ -768,13 +768,14 @@ def new_links_banner(latest_bookmark_id: int | None):
             cls="alert alert-info hidden flex-row justify-center items-center mb-4",
             id="new-links-banner",
         ),
-        # Polling script
+        # Polling script with visibility detection
         Script(f"""
             (function() {{
                 const latestId = {latest_bookmark_id if latest_bookmark_id else 'null'};
                 if (!latestId) return;  // No bookmarks yet
 
                 const pollInterval = 60000;  // 60 seconds
+                let pollTimer = null;
 
                 async function checkForNewLinks() {{
                     try {{
@@ -789,7 +790,34 @@ def new_links_banner(latest_bookmark_id: int | None):
                     }}
                 }}
 
-                setInterval(checkForNewLinks, pollInterval);
+                function startPolling() {{
+                    if (!pollTimer) {{
+                        pollTimer = setInterval(checkForNewLinks, pollInterval);
+                    }}
+                }}
+
+                function stopPolling() {{
+                    if (pollTimer) {{
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                    }}
+                }}
+
+                // Handle tab visibility changes
+                document.addEventListener('visibilitychange', function() {{
+                    if (document.hidden) {{
+                        stopPolling();
+                    }} else {{
+                        // Immediately check when tab becomes visible
+                        checkForNewLinks();
+                        startPolling();
+                    }}
+                }});
+
+                // Start polling only if page is visible
+                if (!document.hidden) {{
+                    startPolling();
+                }}
             }})();
         """),
         id="new-links-checker",

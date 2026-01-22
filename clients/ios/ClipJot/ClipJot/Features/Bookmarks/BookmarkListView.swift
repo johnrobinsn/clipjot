@@ -10,6 +10,7 @@ struct BookmarkListView: View {
     @State private var showAddBookmark = false
     @State private var editingBookmark: Bookmark?
     @State private var showDeleteConfirmation = false
+    @Environment(\.scenePhase) private var scenePhase
 
     // Brand color
     private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
@@ -81,6 +82,13 @@ struct BookmarkListView: View {
         }
         .task {
             await viewModel.loadBookmarks()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await viewModel.silentRefresh()
+                }
+            }
         }
     }
 
