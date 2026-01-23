@@ -130,12 +130,48 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
             finish();
             return;
         }
-        // Silently refresh if we already have data
+        // Check for changes and auto-refresh if found (like web client does on visibility change)
         if (adapter.getItemCount() > 0) {
-            silentRefresh();
+            checkForChangesAndRefresh();
         }
         // Start polling for new links
         startNewLinksPolling();
+    }
+
+    /**
+     * Check for new/edited bookmarks on resume and refresh if changes detected.
+     * Similar to web client's visibilitychange handler.
+     */
+    private void checkForChangesAndRefresh() {
+        if (latestKnownBookmarkId == null) {
+            silentRefresh();
+            return;
+        }
+
+        ClipJotApi api = ApiClient.getApi(this);
+        api.getLatestBookmarkId().enqueue(new Callback<LatestBookmarkResponse>() {
+            @Override
+            public void onResponse(Call<LatestBookmarkResponse> call, Response<LatestBookmarkResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    if (hasChanges(response.body())) {
+                        // Changes detected - do a full refresh
+                        hideNewLinksBanner();
+                        loadBookmarks(true);
+                    } else {
+                        // No changes - just do silent refresh
+                        silentRefresh();
+                    }
+                } else {
+                    silentRefresh();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LatestBookmarkResponse> call, Throwable t) {
+                // On error, fall back to silent refresh
+                silentRefresh();
+            }
+        });
     }
 
     @Override
