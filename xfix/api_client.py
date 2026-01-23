@@ -5,12 +5,12 @@ from dataclasses import dataclass
 
 import httpx
 
-# X.com URL patterns to match
+# X.com URL patterns to match - only tweet URLs (must have /status/)
 X_URL_PATTERNS = [
-    re.compile(r"https?://(www\.)?x\.com/"),
-    re.compile(r"https?://(www\.)?twitter\.com/"),
-    re.compile(r"https?://mobile\.twitter\.com/"),
-    re.compile(r"https?://m\.twitter\.com/"),
+    re.compile(r"https?://(www\.)?x\.com/[^/]+/status/\d+"),
+    re.compile(r"https?://(www\.)?twitter\.com/[^/]+/status/\d+"),
+    re.compile(r"https?://mobile\.twitter\.com/[^/]+/status/\d+"),
+    re.compile(r"https?://m\.twitter\.com/[^/]+/status/\d+"),
 ]
 
 
@@ -39,13 +39,52 @@ class SyncResponse:
 
 
 def is_x_url(url: str) -> bool:
-    """Check if URL is from X.com/Twitter."""
+    """Check if URL is a tweet URL from X.com/Twitter (must have /status/)."""
     return any(pattern.match(url) for pattern in X_URL_PATTERNS)
+
+
+def is_placeholder_title(title: str | None) -> bool:
+    """Check if title is a timestamp/placeholder that should be replaced.
+
+    Detects patterns like:
+    - Relative times: "18h", "2h", "5m", "3d"
+    - Short dates: "Jan 22", "Dec 5"
+    - Full timestamps: "3:01 PM · Jan 23, 2026", "12:20 AM · Jan 22, 2026"
+    - URL-like titles (just the URL repeated)
+    """
+    if not title:
+        return True
+
+    title = title.strip()
+
+    # Very short titles are likely placeholders
+    if len(title) <= 5:
+        return True
+
+    # Relative time patterns: "18h", "2h", "5m", "3d", "1w"
+    if re.match(r"^\d+[hdmws]$", title, re.IGNORECASE):
+        return True
+
+    # Short date patterns: "Jan 22", "Dec 5", "January 22"
+    if re.match(r"^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2}$", title, re.IGNORECASE):
+        return True
+
+    # Full timestamp: "3:01 PM · Jan 23, 2026" or "12:20 AM · Jan 22, 2026"
+    if re.match(r"^\d{1,2}:\d{2}\s*(AM|PM)\s*·", title, re.IGNORECASE):
+        return True
+
+    # URL as title
+    if title.startswith("http://") or title.startswith("https://"):
+        return True
+
+    return False
 
 
 def needs_enrichment(bookmark: Bookmark) -> bool:
     """Check if bookmark needs title or comment enrichment."""
-    return not bookmark.title or not bookmark.comment
+    needs_title = not bookmark.title or is_placeholder_title(bookmark.title)
+    needs_comment = not bookmark.comment
+    return needs_title or needs_comment
 
 
 class ClipJotClient:

@@ -12,7 +12,7 @@ import signal
 import sys
 from pathlib import Path
 
-from api_client import Bookmark, ClipJotClient
+from api_client import Bookmark, ClipJotClient, is_placeholder_title
 from config import Config, load_config
 from enricher import Enricher
 from fetcher import ErrorType, RateLimiter, fetch_tweet
@@ -119,7 +119,8 @@ async def process_bookmark(
     logger.info(f"Fetched tweet content ({len(content.text)} chars)")
 
     # Determine what needs enrichment
-    need_title = not bookmark.title
+    replacing_title = is_placeholder_title(bookmark.title)
+    need_title = not bookmark.title or replacing_title
     need_comment = not bookmark.comment
 
     # Generate enrichment
@@ -140,7 +141,10 @@ async def process_bookmark(
         logger.info(f"Enriched bookmark {bookmark_id}")
         logger.info(f"  URL: {url}")
         if new_title:
-            logger.info(f"  Title: {new_title}")
+            if replacing_title:
+                logger.info(f"  Title: {new_title} (replacing: {bookmark.title!r})")
+            else:
+                logger.info(f"  Title: {new_title}")
         if new_comment:
             # Indent multi-line comments
             comment_lines = new_comment.split("\n")
