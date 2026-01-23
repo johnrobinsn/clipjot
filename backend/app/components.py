@@ -804,12 +804,24 @@ def new_links_banner(latest_bookmark_id: int | None):
                 }}
 
                 // Handle tab visibility changes
-                document.addEventListener('visibilitychange', function() {{
+                document.addEventListener('visibilitychange', async function() {{
                     if (document.hidden) {{
                         stopPolling();
                     }} else {{
-                        // Immediately check when tab becomes visible
-                        checkForNewLinks();
+                        // Check for new links when tab becomes visible and auto-refresh if found
+                        try {{
+                            const response = await fetch('/api/internal/latest-bookmark');
+                            if (response.ok) {{
+                                const data = await response.json();
+                                if (data.id && data.id > latestId) {{
+                                    // Auto-refresh to show new links
+                                    window.location.reload();
+                                    return;
+                                }}
+                            }}
+                        }} catch (e) {{
+                            // Silently ignore errors
+                        }}
                         startPolling();
                     }}
                 }});
