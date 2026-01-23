@@ -20,6 +20,7 @@ final class BookmarkListViewModel: ObservableObject {
     private var currentPage = 1
     private let pageSize = 30
     private var latestKnownBookmarkId: Int?
+    private var latestKnownUpdateTimestamp: String?
     private var searchDebounceTask: Task<Void, Never>?
     private var newLinksPollingTask: Task<Void, Never>?
 
@@ -56,9 +57,10 @@ final class BookmarkListViewModel: ObservableObject {
             bookmarks = response.bookmarks
             hasMore = response.hasMore
 
-            // Track latest bookmark for new links detection
+            // Track latest bookmark ID and update timestamp for new links detection
             if searchQuery.isEmpty, let firstBookmark = bookmarks.first {
                 latestKnownBookmarkId = firstBookmark.id
+                latestKnownUpdateTimestamp = firstBookmark.updatedAt
             }
 
             // Start polling for new links (only on first page, no search)
@@ -136,9 +138,10 @@ final class BookmarkListViewModel: ObservableObject {
             currentPage = 1
             hasNewLinks = false
 
-            // Update latest bookmark for new links detection
+            // Update latest bookmark ID and timestamp for new links detection
             if searchQuery.isEmpty, let firstBookmark = bookmarks.first {
                 latestKnownBookmarkId = firstBookmark.id
+                latestKnownUpdateTimestamp = firstBookmark.updatedAt
             }
         } catch {
             // Silently ignore errors on background refresh
@@ -222,12 +225,29 @@ final class BookmarkListViewModel: ObservableObject {
 
         do {
             let response = try await APIClient.shared.getLatestBookmarkId()
-            if let latestId = response.latestId, latestId > latestKnown {
+            if hasChanges(response, latestKnownId: latestKnown) {
                 hasNewLinks = true
             }
         } catch {
             // Silently ignore polling errors
         }
+    }
+
+    /// Check if there are new bookmarks or edits compared to known state.
+    private func hasChanges(_ response: LatestBookmarkResponse, latestKnownId: Int) -> Bool {
+        // Check for new bookmarks (higher ID)
+        let hasNewBookmark = response.id != nil && response.id! > latestKnownId
+
+        // Check for edits (different timestamp)
+        let hasUpdates: Bool
+        if let knownTimestamp = latestKnownUpdateTimestamp,
+           let serverTimestamp = response.lastUpdated {
+            hasUpdates = serverTimestamp != knownTimestamp
+        } else {
+            hasUpdates = false
+        }
+
+        return hasNewBookmark || hasUpdates
     }
 
     private func handleUnauthorized() async {

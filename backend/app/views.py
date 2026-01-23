@@ -273,13 +273,14 @@ def bookmark_index(request, db):
             cls="text-center py-12",
         )
 
-    # Get latest bookmark ID for new links detection (only on first page, no search)
+    # Get latest bookmark ID and update timestamp for new links detection (only on first page, no search)
     latest_bookmark_id = bookmarks[0].id if bookmarks and page == 1 and not query else None
+    last_updated = database.get_latest_update_timestamp(db, user.id) if latest_bookmark_id else None
 
     # Build content
     content = Div(
         # New links banner (only shown when new links detected via JS polling)
-        new_links_banner(latest_bookmark_id) if latest_bookmark_id else None,
+        new_links_banner(latest_bookmark_id, last_updated) if latest_bookmark_id else None,
         # Header
         Div(
             H1("My Links", cls="text-2xl font-bold"),
@@ -1303,12 +1304,15 @@ def export_download(request, db):
 # =============================================================================
 
 def internal_latest_bookmark(request, db):
-    """Get the latest bookmark ID for the current user.
+    """Get the latest bookmark ID and update timestamp for the current user.
 
-    Used by the new links banner to detect when new bookmarks are added.
+    Used by the new links banner to detect when bookmarks are added or edited.
     Supports both cookie-based session auth (WebUI) and Bearer token auth (Android/extensions).
 
     GET /api/internal/latest-bookmark
+
+    Returns:
+        {"id": <latest_bookmark_id>, "last_updated": <max_updated_at_timestamp>}
     """
     user = None
 
@@ -1330,13 +1334,14 @@ def internal_latest_bookmark(request, db):
 
     if not user:
         return Response(
-            json.dumps({"id": None}),
+            json.dumps({"id": None, "last_updated": None}),
             media_type="application/json",
         )
 
-    latest = database.get_latest_bookmark_id(db, user.id)
+    latest_id = database.get_latest_bookmark_id(db, user.id)
+    last_updated = database.get_latest_update_timestamp(db, user.id)
 
     return Response(
-        json.dumps({"id": latest}),
+        json.dumps({"id": latest_id, "last_updated": last_updated}),
         media_type="application/json",
     )

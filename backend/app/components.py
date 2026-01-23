@@ -749,12 +749,15 @@ def keyboard_help_hint():
     )
 
 
-def new_links_banner(latest_bookmark_id: int | None):
-    """Banner that shows when new links are available, with polling script."""
+def new_links_banner(latest_bookmark_id: int | None, last_updated: str | None = None):
+    """Banner that shows when new links are available or edited, with polling script."""
+    # JSON-safe string for last_updated (null or quoted string)
+    last_updated_js = f'"{last_updated}"' if last_updated else 'null'
+
     return Div(
-        # Hidden banner - shown by JavaScript when new links detected
+        # Hidden banner - shown by JavaScript when new/edited links detected
         Div(
-            Span("New links available"),
+            Span("Links updated"),
             Button(
                 "Refresh",
                 cls="btn btn-sm btn-primary ml-2",
@@ -772,17 +775,26 @@ def new_links_banner(latest_bookmark_id: int | None):
         Script(f"""
             (function() {{
                 const latestId = {latest_bookmark_id if latest_bookmark_id else 'null'};
+                const lastUpdated = {last_updated_js};
                 if (!latestId) return;  // No bookmarks yet
 
                 const pollInterval = 60000;  // 60 seconds
                 let pollTimer = null;
+
+                function hasChanges(data) {{
+                    // Check for new bookmarks (higher ID)
+                    const hasNewBookmark = data.id && data.id > latestId;
+                    // Check for edits (different timestamp)
+                    const hasUpdates = lastUpdated && data.last_updated && data.last_updated !== lastUpdated;
+                    return hasNewBookmark || hasUpdates;
+                }}
 
                 async function checkForNewLinks() {{
                     try {{
                         const response = await fetch('/api/internal/latest-bookmark');
                         if (!response.ok) return;
                         const data = await response.json();
-                        if (data.id && data.id > latestId) {{
+                        if (hasChanges(data)) {{
                             document.getElementById('new-links-banner')?.classList.remove('hidden');
                         }}
                     }} catch (e) {{
@@ -808,13 +820,13 @@ def new_links_banner(latest_bookmark_id: int | None):
                     if (document.hidden) {{
                         stopPolling();
                     }} else {{
-                        // Check for new links when tab becomes visible and auto-refresh if found
+                        // Check for changes when tab becomes visible and auto-refresh if found
                         try {{
                             const response = await fetch('/api/internal/latest-bookmark');
                             if (response.ok) {{
                                 const data = await response.json();
-                                if (data.id && data.id > latestId) {{
-                                    // Auto-refresh to show new links
+                                if (hasChanges(data)) {{
+                                    // Auto-refresh to show changes
                                     window.location.reload();
                                     return;
                                 }}

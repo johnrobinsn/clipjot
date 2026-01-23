@@ -10,6 +10,7 @@ struct Bookmark: Identifiable, Codable, Equatable, Hashable {
     let tags: [String]
     let clientName: String?
     let createdAt: String
+    let updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -19,6 +20,7 @@ struct Bookmark: Identifiable, Codable, Equatable, Hashable {
         case tags
         case clientName = "client_name"
         case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 
     /// Display title - uses title if available, otherwise URL

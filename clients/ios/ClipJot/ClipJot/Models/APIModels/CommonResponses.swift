@@ -14,12 +14,14 @@ typealias DeleteResponse = SuccessResponse
 /// Equivalent to Android's LogoutResponse.
 typealias LogoutResponse = SuccessResponse
 
-/// Response containing latest bookmark ID (for new links detection).
+/// Response containing latest bookmark ID and update timestamp (for new links detection).
 /// Equivalent to Android's LatestBookmarkResponse.
 struct LatestBookmarkResponse: Codable {
-    let latestId: Int?
+    let id: Int?
+    let lastUpdated: String?
 
     enum CodingKeys: String, CodingKey {
-        case latestId = "latest_id"
+        case id
+        case lastUpdated = "last_updated"
     }
 }

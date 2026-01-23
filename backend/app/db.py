@@ -464,6 +464,19 @@ def get_latest_bookmark_id(db, user_id: int) -> Optional[int]:
     return row[0] if row else None
 
 
+def get_latest_update_timestamp(db, user_id: int) -> Optional[str]:
+    """Get the most recent updated_at timestamp across all bookmarks for a user.
+
+    Used by the new links detection feature to detect edits to any bookmark.
+    """
+    result = db.execute(
+        "SELECT MAX(updated_at) FROM bookmark WHERE user_id = ?",
+        [user_id]
+    )
+    row = result.fetchone()
+    return row[0] if row and row[0] else None
+
+
 def get_bookmarks_since_id(db, user_id: int, cursor_id: Optional[int], limit: int) -> list[Bookmark]:
     """Get bookmarks with ID > cursor_id, ordered by ID ascending.
 

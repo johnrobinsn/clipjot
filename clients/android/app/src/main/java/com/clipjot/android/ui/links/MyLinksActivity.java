@@ -87,6 +87,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private boolean hasMore = true;
     private boolean isLoading = false;
     private Integer latestKnownBookmarkId = null;
+    private String latestKnownUpdateTimestamp = null;
 
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
@@ -408,8 +409,8 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
             @Override
             public void onResponse(Call<LatestBookmarkResponse> call, Response<LatestBookmarkResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Integer serverId = response.body().getId();
-                    if (serverId != null && serverId > latestKnownBookmarkId) {
+                    LatestBookmarkResponse data = response.body();
+                    if (hasChanges(data)) {
                         showNewLinksBanner();
                     }
                 }
@@ -420,6 +421,22 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
                 // Silently ignore errors
             }
         });
+    }
+
+    /**
+     * Check if there are new bookmarks or edits compared to known state.
+     */
+    private boolean hasChanges(LatestBookmarkResponse data) {
+        // Check for new bookmarks (higher ID)
+        Integer serverId = data.getId();
+        boolean hasNewBookmark = serverId != null && latestKnownBookmarkId != null && serverId > latestKnownBookmarkId;
+
+        // Check for edits (different timestamp)
+        String serverTimestamp = data.getLastUpdated();
+        boolean hasUpdates = latestKnownUpdateTimestamp != null && serverTimestamp != null
+                && !serverTimestamp.equals(latestKnownUpdateTimestamp);
+
+        return hasNewBookmark || hasUpdates;
     }
 
     private void showNewLinksBanner() {
@@ -465,11 +482,13 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
                     if (refresh) {
                         adapter.setBookmarks(bookmarks != null ? bookmarks : Collections.emptyList());
-                        // Track latest bookmark ID for new links detection (only on first page, no search)
+                        // Track latest bookmark ID and update timestamp for new links detection (only on first page, no search)
                         if (currentQuery.isEmpty() && bookmarks != null && !bookmarks.isEmpty()) {
-                            latestKnownBookmarkId = bookmarks.get(0).getId();
+                            BookmarkResponse firstBookmark = bookmarks.get(0);
+                            latestKnownBookmarkId = firstBookmark.getId();
+                            latestKnownUpdateTimestamp = firstBookmark.getUpdatedAt();
                             hideNewLinksBanner();
-                            // Restart polling with new ID
+                            // Restart polling with new values
                             stopNewLinksPolling();
                             startNewLinksPolling();
                         }
