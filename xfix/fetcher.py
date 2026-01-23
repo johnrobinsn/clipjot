@@ -51,6 +51,19 @@ class TweetContent:
     retweets: int | None = None
     replies: int | None = None
     views: int | None = None
+    media_urls: list[str] = field(default_factory=list)
+
+    def to_markdown(self) -> str:
+        """Format tweet content as markdown with media links."""
+        lines = [self.text]
+
+        if self.media_urls:
+            lines.append("")
+            lines.append("**Media:**")
+            for url in self.media_urls:
+                lines.append(f"- {url}")
+
+        return "\n".join(lines)
 
 
 @dataclass
@@ -175,6 +188,19 @@ async def fetch_via_fxtwitter(url: str, timeout: float = 30.0) -> FetchResult:
                     error_message="No text in fxtwitter response",
                 )
 
+            # Extract media URLs from fxtwitter response
+            media_urls: list[str] = []
+            media = tweet.get("media")
+            if media:
+                # Photos
+                for photo in media.get("photos", []):
+                    if photo_url := photo.get("url"):
+                        media_urls.append(photo_url)
+                # Videos (use the tweet URL as the video link)
+                for video in media.get("videos", []):
+                    if video_url := video.get("url"):
+                        media_urls.append(video_url)
+
             return FetchResult(
                 success=True,
                 content=TweetContent(
@@ -186,6 +212,7 @@ async def fetch_via_fxtwitter(url: str, timeout: float = 30.0) -> FetchResult:
                     retweets=tweet.get("retweets"),
                     replies=tweet.get("replies"),
                     views=tweet.get("views"),
+                    media_urls=media_urls,
                 ),
             )
 

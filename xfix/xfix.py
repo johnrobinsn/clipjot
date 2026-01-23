@@ -133,7 +133,7 @@ async def process_bookmark(
 
     # Prepare update
     new_title = enrich_result.title if need_title else None
-    new_comment = enrich_result.comment if need_comment else None
+    new_comment = content.to_markdown() if need_comment else None
 
     # Log the generated content
     if logger.verbose:  # type: ignore
