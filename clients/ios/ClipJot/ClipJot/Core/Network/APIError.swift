@@ -40,6 +40,14 @@ enum APIError: LocalizedError {
         }
         return false
     }
+
+    /// Whether this error is due to request cancellation (should be silently ignored)
+    var isCancelled: Bool {
+        if case .networkError(let error) = self {
+            return (error as? URLError)?.code == .cancelled
+        }
+        return false
+    }
 }
 
 /// Server error response structure

@@ -7,8 +7,18 @@ import UniformTypeIdentifiers
 /// Equivalent to Android's ShareActivity.
 class ShareViewController: UIViewController {
 
+    private var isQuickSaveMode: Bool {
+        let defaults = UserDefaults(suiteName: "group.net.clipjot.shared")
+        return defaults?.bool(forKey: "quick_save_enabled") ?? false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // Set compact size for quick save mode
+        if isQuickSaveMode {
+            preferredContentSize = CGSize(width: 320, height: 150)
+        }
 
         // Extract shared content
         extractSharedContent { [weak self] url, title in

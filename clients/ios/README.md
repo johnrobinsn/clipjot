@@ -163,10 +163,24 @@ The app uses ASWebAuthenticationSession for OAuth:
 The Share Extension allows saving links from any app:
 
 1. User shares a link from Safari, Twitter, etc.
-2. "Save to ClipJot" appears in share sheet
-3. If logged in: Shows bookmark form
+2. "ClipJot" appears in share sheet
+3. If logged in: Shows bookmark form (or saves instantly with Quick Save)
 4. If not logged in: Saves as "pending" bookmark
 5. Pending bookmarks are saved when user logs in to main app
+
+### Adding ClipJot to Share Sheet Favorites
+
+By default, ClipJot may be buried under "More" in the share sheet. To add it to your favorites for quicker access:
+
+1. Tap the **Share** button in any app
+2. Scroll the bottom row of actions to the right
+3. Tap **"Edit Actions..."**
+4. Find **ClipJot** in the list
+5. Tap the **green + button** to add it to Favorites
+6. Optionally drag to reorder it higher in the list
+7. Tap **Done**
+
+ClipJot will now appear directly in the share sheet without extra taps.
 
 ## Architecture
 

@@ -66,9 +66,12 @@ final class BookmarkListViewModel: ObservableObject {
                 startNewLinksPolling()
             }
         } catch let apiError as APIError {
-            error = apiError.localizedDescription
-            if apiError.requiresLogout {
-                await handleUnauthorized()
+            // Ignore cancellation errors (from debounce cancelling previous requests)
+            if !apiError.isCancelled {
+                error = apiError.localizedDescription
+                if apiError.requiresLogout {
+                    await handleUnauthorized()
+                }
             }
         } catch {
             self.error = error.localizedDescription

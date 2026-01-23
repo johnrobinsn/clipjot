@@ -6,7 +6,7 @@ final class SettingsManager {
     static let shared = SettingsManager()
 
     // App Group identifier for sharing with Share Extension
-    private let appGroupIdentifier = "group.com.clipjot.shared"
+    private let appGroupIdentifier = "group.net.clipjot.shared"
 
     // Keys
     private enum Keys {
