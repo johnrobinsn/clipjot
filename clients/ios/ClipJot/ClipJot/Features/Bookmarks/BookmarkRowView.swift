@@ -149,7 +149,8 @@ struct SimpleBookmarkRowView: View {
                 comment: "This is a note about the bookmark",
                 tags: ["swift", "ios", "development"],
                 clientName: "ios",
-                createdAt: "2024-01-15"
+                createdAt: "2024-01-15",
+                updatedAt: nil
             ),
             isSelected: false,
             onEdit: {}
@@ -163,7 +164,8 @@ struct SimpleBookmarkRowView: View {
                 comment: nil,
                 tags: [],
                 clientName: "web",
-                createdAt: "2024-01-14"
+                createdAt: "2024-01-14",
+                updatedAt: nil
             ),
             isSelected: true,
             onEdit: {}

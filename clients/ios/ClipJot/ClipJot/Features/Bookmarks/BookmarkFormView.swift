@@ -258,7 +258,8 @@ struct BookmarkFormView: View {
             comment: "A note",
             tags: ["test"],
             clientName: "ios",
-            createdAt: "2024-01-15"
+            createdAt: "2024-01-15",
+            updatedAt: nil
         ))
     ) {}
 }
