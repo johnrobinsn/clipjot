@@ -523,10 +523,57 @@ curl -X POST https://your-domain.com/api/v1/import \
 
 ---
 
+## Authentication Endpoints
+
+### Authenticate with Invite Code
+
+Exchange an invite code for an authentication token. This endpoint does not require authentication.
+
+**Endpoint:** `POST /api/v1/auth/invite`
+**Scope:** None (public endpoint)
+
+**Request:**
+```json
+{
+  "code": "ABCD1234",
+  "client_name": "ios"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `code` | string | Yes | The invite code (case-insensitive) |
+| `client_name` | string | No | Client identifier (e.g., "ios", "android", "chrome-extension") |
+
+**Response (200):**
+```json
+{
+  "token": "session_token_here",
+  "user": {
+    "id": 123,
+    "email": "user@example.com"
+  }
+}
+```
+
+**Error Responses:**
+- `400` - Invalid or missing code
+- `401` - Code is expired, revoked, or has reached usage limit
+
+**Example:**
+```bash
+curl -X POST https://your-domain.com/api/v1/auth/invite \
+  -H "Content-Type: application/json" \
+  -d '{"code": "ABCD1234", "client_name": "api"}'
+```
+
+---
+
 ## Quick Reference
 
 | Endpoint | Method | Scope | Description |
 |----------|--------|-------|-------------|
+| `/api/v1/auth/invite` | POST | none | Authenticate with invite code |
 | `/api/v1/bookmarks/add` | POST | write | Create bookmark |
 | `/api/v1/bookmarks/edit` | POST | write | Update bookmark |
 | `/api/v1/bookmarks/delete` | POST | write | Delete bookmark |

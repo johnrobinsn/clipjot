@@ -293,6 +293,49 @@ clipjot token revoke <email> --name <name>
 ```
 Revoke a specific API token by name.
 
+#### Invite Code Commands
+
+Invite codes allow users to authenticate without OAuth. Useful for testing, app store review, and special access scenarios.
+
+```bash
+clipjot invite generate <email> [--expires DAYS] [--max-uses N] [--note TEXT]
+```
+Generate an invite code for a user account.
+
+**Options:**
+- `<email>` - Email of the user account this code grants access to (required)
+- `--expires` - Days until expiration (default: 90)
+- `--max-uses` - Maximum number of uses (default: unlimited)
+- `--note` - Optional note (e.g., "App Store reviewer")
+
+**Output:** Prints the generated code (shown once).
+
+**Example:**
+```bash
+clipjot invite generate user@example.com
+clipjot invite generate user@example.com --expires 30 --max-uses 1 --note "Beta tester"
+```
+
+```bash
+clipjot invite list [--all]
+```
+List active invite codes.
+
+**Options:**
+- `--all` - Include expired and revoked codes
+
+**Output columns:** Code, User Email, Created, Expires, Uses, Status, Note
+
+```bash
+clipjot invite revoke <code>
+```
+Revoke an invite code (immediately stops working).
+
+```bash
+clipjot invite delete <code>
+```
+Permanently delete an invite code from the database.
+
 #### Exit Codes
 
 | Code | Meaning |
