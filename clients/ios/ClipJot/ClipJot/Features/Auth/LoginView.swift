@@ -5,6 +5,7 @@ import SwiftUI
 struct LoginView: View {
     @StateObject private var authManager = AuthManager.shared
     @State private var showSettings = false
+    @State private var showInviteCode = false
 
     // Brand color
     private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
@@ -70,6 +71,17 @@ struct LoginView: View {
                         .cornerRadius(12)
                     }
                     .disabled(authManager.isAuthenticating)
+
+                    // Invite code link (minimal, secondary UI)
+                    Button {
+                        showInviteCode = true
+                    } label: {
+                        Text("Have an invite code?")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .disabled(authManager.isAuthenticating)
+                    .padding(.top, 8)
                 }
                 .padding(.horizontal, 32)
 
@@ -106,6 +118,9 @@ struct LoginView: View {
             .navigationBarHidden(true)
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showInviteCode) {
+                InviteCodeView(authManager: authManager)
             }
         }
     }

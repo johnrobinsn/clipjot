@@ -8,7 +8,7 @@ from fastlite import database
 
 from . import config
 from .models import (
-    User, Credential, Session, ApiToken, Tag, Bookmark, BookmarkTag,
+    User, Credential, Session, ApiToken, Tag, Bookmark, BookmarkTag, InviteCode,
     now_iso, is_expired
 )
 
@@ -23,7 +23,7 @@ def _dict_to_dataclass(cls, data):
         # Handle boolean conversion for SQLite (0/1 -> False/True)
         converted = {}
         for key, value in data.items():
-            if key in ('is_premium', 'is_admin', 'is_suspended') and isinstance(value, int):
+            if key in ('is_premium', 'is_admin', 'is_suspended', 'is_revoked') and isinstance(value, int):
                 converted[key] = bool(value)
             else:
                 converted[key] = value
@@ -59,6 +59,7 @@ def init_db(db=None):
     db.create(Tag, pk='id')
     db.create(Bookmark, pk='id')
     db.create(BookmarkTag, pk=['bookmark_id', 'tag_id'])
+    db.create(InviteCode, pk='id')
 
     # Run migrations
     _run_migrations(db)
@@ -97,6 +98,8 @@ def _create_indexes(db):
         "CREATE INDEX IF NOT EXISTS idx_credential_provider ON credential(provider, provider_user_id)",
         "CREATE INDEX IF NOT EXISTS idx_bookmark_tag_bookmark ON bookmark_tag(bookmark_id)",
         "CREATE INDEX IF NOT EXISTS idx_bookmark_tag_tag ON bookmark_tag(tag_id)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_invite_code_code ON invite_code(code)",
+        "CREATE INDEX IF NOT EXISTS idx_invite_code_user ON invite_code(user_id)",
     ]
     for idx in indexes:
         try:
@@ -565,6 +568,77 @@ def remove_bookmark_tag(db, bookmark_id: int, tag_id: int):
         "DELETE FROM bookmark_tag WHERE bookmark_id = ? AND tag_id = ?",
         [bookmark_id, tag_id]
     )
+
+
+# =============================================================================
+# Invite Code queries
+# =============================================================================
+
+def create_invite_code(db, invite_code: InviteCode) -> InviteCode:
+    """Create a new invite code."""
+    if not invite_code.created_at:
+        invite_code.created_at = now_iso()
+    result = db.t.invite_code.insert(invite_code)
+    return _dict_to_dataclass(InviteCode, result)
+
+
+def get_invite_code_by_code(db, code: str) -> Optional[InviteCode]:
+    """Get invite code by code string (case-insensitive)."""
+    upper_code = code.upper()
+    codes = list(db.t.invite_code(where=f"UPPER(code) = '{upper_code}'", limit=1))
+    if not codes:
+        return None
+    return _dict_to_dataclass(InviteCode, codes[0])
+
+
+def get_invite_code_by_id(db, code_id: int) -> Optional[InviteCode]:
+    """Get invite code by ID."""
+    try:
+        result = db.t.invite_code[code_id]
+        return _dict_to_dataclass(InviteCode, result)
+    except Exception:
+        return None
+
+
+def get_all_invite_codes(db, include_expired: bool = False) -> list[InviteCode]:
+    """Get all invite codes, optionally including expired/revoked ones."""
+    if include_expired:
+        codes = list(db.t.invite_code(order_by="created_at DESC"))
+    else:
+        now = now_iso()
+        codes = list(db.t.invite_code(
+            where=f"is_revoked = 0 AND (expires_at IS NULL OR expires_at > '{now}')",
+            order_by="created_at DESC"
+        ))
+    return [_dict_to_dataclass(InviteCode, c) for c in codes]
+
+
+def get_invite_codes_for_user(db, user_id: int) -> list[InviteCode]:
+    """Get all invite codes for a specific user."""
+    codes = list(db.t.invite_code(where=f"user_id = {user_id}", order_by="created_at DESC"))
+    return [_dict_to_dataclass(InviteCode, c) for c in codes]
+
+
+def increment_invite_code_usage(db, code_id: int):
+    """Increment the use_count of an invite code."""
+    db.execute("UPDATE invite_code SET use_count = use_count + 1 WHERE id = ?", [code_id])
+
+
+def revoke_invite_code(db, code_id: int) -> bool:
+    """Revoke an invite code. Returns True if code was found and revoked."""
+    code = get_invite_code_by_id(db, code_id)
+    if not code:
+        return False
+    db.execute("UPDATE invite_code SET is_revoked = 1 WHERE id = ?", [code_id])
+    return True
+
+
+def delete_invite_code(db, code_id: int):
+    """Delete an invite code."""
+    try:
+        db.t.invite_code.delete(code_id)
+    except (KeyError, IndexError):
+        pass
 
 
 # =============================================================================

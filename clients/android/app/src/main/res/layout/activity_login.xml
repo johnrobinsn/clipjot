@@ -93,23 +93,39 @@
         style="@style/Widget.Material3.Button.OutlinedButton"
         app:icon="@drawable/ic_github"
         app:iconGravity="textStart"
-        app:layout_constraintBottom_toTopOf="@+id/settingsButton"
+        app:layout_constraintBottom_toTopOf="@+id/inviteCodeLink"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/googleLoginButton"
         app:layout_constraintWidth_max="320dp" />
+
+    <!-- Invite Code Link (minimal, secondary UI) -->
+    <TextView
+        android:id="@+id/inviteCodeLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/have_invite_code"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+        android:textColor="?android:textColorSecondary"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toTopOf="@+id/settingsButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/githubLoginButton" />
 
     <!-- Settings Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/settingsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="@string/settings"
         style="@style/Widget.Material3.Button.TextButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/githubLoginButton" />
+        app:layout_constraintTop_toBottomOf="@+id/inviteCodeLink" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

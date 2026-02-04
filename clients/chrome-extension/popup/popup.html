@@ -41,6 +41,17 @@
           </svg>
           Sign in with GitHub
         </button>
+
+        <!-- Invite code link (minimal, secondary UI) -->
+        <a id="invite-code-link" href="#" style="font-size: 0.75rem; color: var(--fallback-bc,oklch(var(--bc)/0.5)); text-align: center; margin-top: 0.5rem; display: block;">Have an invite code?</a>
+
+        <!-- Invite code form (hidden by default) -->
+        <div id="invite-code-form" class="hidden" style="margin-top: 0.75rem;">
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="invite-code-input" class="input input-bordered input-sm" style="flex: 1; text-transform: uppercase; font-family: monospace;" placeholder="Enter code" maxlength="8">
+            <button id="invite-code-submit" class="btn btn-sm btn-primary">Submit</button>
+          </div>
+        </div>
       </div>
 
       <div class="divider" style="font-size: 0.75rem;">OR</div>

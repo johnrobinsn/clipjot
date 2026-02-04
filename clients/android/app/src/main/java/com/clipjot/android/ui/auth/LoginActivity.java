@@ -3,13 +3,20 @@ package com.clipjot.android.ui.auth;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.clipjot.android.R;
+import com.clipjot.android.data.api.ApiClient;
+import com.clipjot.android.data.api.model.InviteCodeAuthResponse;
+import com.clipjot.android.data.api.model.InviteCodeRequest;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
 import com.clipjot.android.ui.links.MyLinksActivity;
@@ -18,6 +25,10 @@ import com.google.android.material.button.MaterialButton;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Login activity with OAuth provider buttons.
@@ -50,10 +61,12 @@ public class LoginActivity extends AppCompatActivity {
         MaterialButton googleButton = findViewById(R.id.googleLoginButton);
         MaterialButton githubButton = findViewById(R.id.githubLoginButton);
         MaterialButton settingsButton = findViewById(R.id.settingsButton);
+        TextView inviteCodeLink = findViewById(R.id.inviteCodeLink);
 
         googleButton.setOnClickListener(v -> startOAuth("google"));
         githubButton.setOnClickListener(v -> startOAuth("github"));
         settingsButton.setOnClickListener(v -> openSettings());
+        inviteCodeLink.setOnClickListener(v -> showInviteCodeDialog());
     }
 
     private void startOAuth(String provider) {
@@ -76,6 +89,62 @@ public class LoginActivity extends AppCompatActivity {
     private void openSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
+    }
+
+    private void showInviteCodeDialog() {
+        EditText input = new EditText(this);
+        input.setHint(R.string.invite_code_hint);
+        input.setFilters(new InputFilter[]{
+                new InputFilter.AllCaps(),
+                new InputFilter.LengthFilter(8)
+        });
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
+
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        input.setPadding(padding, padding, padding, padding);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.invite_code_title)
+                .setView(input)
+                .setPositiveButton(R.string.submit, (dialog, which) -> {
+                    String code = input.getText().toString().trim().toUpperCase();
+                    if (code.length() == 8) {
+                        authenticateWithInviteCode(code);
+                    } else {
+                        Toast.makeText(this, "Please enter a valid 8-character code", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void authenticateWithInviteCode(String code) {
+        InviteCodeRequest request = new InviteCodeRequest(code);
+
+        ApiClient.getApiWithoutAuth(this)
+                .authenticateWithInviteCode(request)
+                .enqueue(new Callback<InviteCodeAuthResponse>() {
+                    @Override
+                    public void onResponse(Call<InviteCodeAuthResponse> call, Response<InviteCodeAuthResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            InviteCodeAuthResponse authResponse = response.body();
+                            tokenManager.saveToken(authResponse.getToken());
+                            if (authResponse.getUser() != null) {
+                                settingsManager.setUserEmail(authResponse.getUser().getEmail());
+                            }
+                            Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
+                            navigateToMyLinks();
+                        } else {
+                            String errorMessage = "Invalid invite code";
+                            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<InviteCodeAuthResponse> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this, R.string.error_network, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

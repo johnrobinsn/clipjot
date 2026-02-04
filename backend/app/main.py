@@ -141,6 +141,11 @@ def logout(request):
     return views.logout(request, get_db())
 
 
+@rt("/auth/invite-web", methods=["POST"])
+async def auth_invite_web(request):
+    return await views.invite_web_login(request, get_db())
+
+
 # =============================================================================
 # OAuth Routes
 # =============================================================================
@@ -434,6 +439,12 @@ async def parse_json_body(request):
         return json.loads(body) if body else {}
     except json.JSONDecodeError:
         return {}
+
+
+@rt("/api/v1/auth/invite", methods=["POST"])
+async def api_auth_invite(request):
+    data = await parse_json_body(request)
+    return api.api_auth_invite(request, get_db(), data)
 
 
 @rt("/api/v1/logout", methods=["POST"])

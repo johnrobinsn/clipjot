@@ -3,6 +3,7 @@
 Dataclass definitions used by FastLite for table creation and CRUD operations.
 """
 
+import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
@@ -84,6 +85,29 @@ class BookmarkTag:
     """Junction table linking bookmarks to tags."""
     bookmark_id: int = 0
     tag_id: int = 0
+
+
+@dataclass
+class InviteCode:
+    """Invite code for authentication without OAuth.
+
+    Used primarily for App Store reviewers and beta testers.
+    """
+    id: Optional[int] = None
+    code: str = ""                      # 8-char alphanumeric (uppercase)
+    user_id: int = 0                    # Account this grants access to
+    created_at: Optional[str] = None
+    expires_at: Optional[str] = None    # Default: 90 days from creation
+    max_uses: Optional[int] = None      # None = unlimited
+    use_count: int = 0
+    is_revoked: bool = False
+    note: Optional[str] = None          # e.g., "App Store reviewer"
+
+
+def generate_invite_code(length: int = 8) -> str:
+    """Generate random alphanumeric code (no ambiguous chars: 0,O,I,L,1)."""
+    alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
 
 
 # Helper functions for timestamp handling

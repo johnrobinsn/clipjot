@@ -25,3 +25,28 @@ struct LatestBookmarkResponse: Codable {
         case lastUpdated = "last_updated"
     }
 }
+
+// MARK: - Invite Code Auth
+
+/// Request body for invite code authentication.
+struct InviteCodeAuthRequest: Codable {
+    let code: String
+    let clientName: String
+
+    enum CodingKeys: String, CodingKey {
+        case code
+        case clientName = "client_name"
+    }
+}
+
+/// User info returned from invite code authentication.
+struct InviteCodeUser: Codable {
+    let id: Int
+    let email: String
+}
+
+/// Response from invite code authentication endpoint.
+struct InviteCodeAuthResponse: Codable {
+    let token: String
+    let user: InviteCodeUser
+}

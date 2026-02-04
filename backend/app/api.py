@@ -123,6 +123,51 @@ def require_scope(token: auth.ApiToken, scope: str) -> Optional[Response]:
 # Auth API Endpoints
 # =============================================================================
 
+def api_auth_invite(request, db, data: dict) -> Response:
+    """Authenticate using an invite code.
+
+    POST /api/v1/auth/invite
+    No authentication required.
+
+    Body:
+        code: str (required) - The invite code
+        client_name: str (optional) - Client identifier ('ios', 'android', 'chrome-extension', 'web')
+
+    Returns on success:
+        { "token": "...", "user": { "id": 1, "email": "..." } }
+    """
+    code = data.get("code", "").strip()
+    if not code:
+        return validation_error("code is required")
+
+    client_name = data.get("client_name", "api")
+
+    # Validate the invite code
+    invite, user, error_message = auth.validate_invite_code(db, code)
+    if error_message:
+        return error_response(error_message, "INVALID_INVITE_CODE", 401)
+
+    # Increment usage count
+    database.increment_invite_code_usage(db, invite.id)
+
+    # Create session
+    token, session = auth.create_user_session(
+        db,
+        user.id,
+        user_agent=request.headers.get("user-agent"),
+        client_name=client_name,
+        ip_address=request.client.host if request.client else None,
+    )
+
+    return json_response({
+        "token": token,
+        "user": {
+            "id": user.id,
+            "email": user.email,
+        }
+    })
+
+
 def api_logout(request, db, data: dict) -> Response:
     """Log out and revoke the current session.
 

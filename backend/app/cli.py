@@ -14,7 +14,7 @@ from datetime import datetime
 from . import config
 from . import db as database
 from . import auth
-from .models import now_iso, future_iso
+from .models import now_iso, future_iso, generate_invite_code, InviteCode
 
 
 # =============================================================================
@@ -600,6 +600,138 @@ def token_revoke(email, name):
 
     database.delete_token(db, token.id)
     click.echo(f"Token '{name}' has been revoked.")
+
+
+# =============================================================================
+# Invite Code Commands
+# =============================================================================
+
+@cli.group()
+def invite():
+    """Invite code management commands."""
+    pass
+
+
+@invite.command("generate")
+@click.argument("email")
+@click.option("--expires", "-e", type=int, default=90, help="Days until expiration (default: 90)")
+@click.option("--max-uses", "-m", type=int, default=None, help="Maximum number of uses (default: unlimited)")
+@click.option("--note", "-n", type=str, default=None, help="Note for this code (e.g., 'App Store reviewer')")
+def invite_generate(email, expires, max_uses, note):
+    """Generate an invite code for a user.
+
+    EMAIL: User's email address to grant access to.
+    """
+    db = database.get_db()
+    user = database.get_user_by_email(db, email)
+
+    if not user:
+        click.echo(f"Error: User not found: {email}", err=True)
+        sys.exit(3)
+
+    code = generate_invite_code()
+    invite_code = InviteCode(
+        code=code,
+        user_id=user.id,
+        expires_at=future_iso(days=expires),
+        max_uses=max_uses,
+        note=note,
+    )
+    invite_code = database.create_invite_code(db, invite_code)
+
+    click.echo(f"Invite code generated for {email}")
+    click.echo(f"  Code: {code}")
+    click.echo(f"  Expires: {invite_code.expires_at[:10]}")
+    click.echo(f"  Max uses: {max_uses if max_uses else 'Unlimited'}")
+    if note:
+        click.echo(f"  Note: {note}")
+
+
+@invite.command("list")
+@click.option("--all", "include_all", is_flag=True, help="Include expired and revoked codes")
+def invite_list(include_all):
+    """List all invite codes."""
+    db = database.get_db()
+    codes = database.get_all_invite_codes(db, include_expired=include_all)
+
+    if not codes:
+        click.echo("No invite codes found.")
+        return
+
+    click.echo(f"{'Code':<10} {'User':<30} {'Uses':<8} {'Expires':<12} {'Status':<12} {'Note':<20}")
+    click.echo("-" * 100)
+
+    for c in codes:
+        user = database.get_user_by_id(db, c.user_id)
+        email = user.email if user else f"[deleted user {c.user_id}]"
+
+        uses = f"{c.use_count}"
+        if c.max_uses is not None:
+            uses = f"{c.use_count}/{c.max_uses}"
+
+        expires = c.expires_at[:10] if c.expires_at else "Never"
+
+        from .models import is_expired
+        if c.is_revoked:
+            status = "revoked"
+        elif c.expires_at and is_expired(c.expires_at):
+            status = "expired"
+        elif c.max_uses is not None and c.use_count >= c.max_uses:
+            status = "used-up"
+        else:
+            status = "active"
+
+        note = (c.note[:17] + "...") if c.note and len(c.note) > 20 else (c.note or "")
+
+        click.echo(f"{c.code:<10} {email:<30} {uses:<8} {expires:<12} {status:<12} {note:<20}")
+
+    click.echo(f"\nTotal: {len(codes)} codes")
+
+
+@invite.command("revoke")
+@click.argument("code")
+def invite_revoke(code):
+    """Revoke an invite code.
+
+    CODE: The invite code to revoke.
+    """
+    db = database.get_db()
+    invite_code = database.get_invite_code_by_code(db, code)
+
+    if not invite_code:
+        click.echo(f"Error: Invite code not found: {code}", err=True)
+        sys.exit(3)
+
+    if invite_code.is_revoked:
+        click.echo(f"Invite code {code} is already revoked.")
+        return
+
+    database.revoke_invite_code(db, invite_code.id)
+    click.echo(f"Invite code {code} has been revoked.")
+
+
+@invite.command("delete")
+@click.argument("code")
+@click.option("--force", is_flag=True, help="Skip confirmation")
+def invite_delete(code, force):
+    """Delete an invite code.
+
+    CODE: The invite code to delete.
+    """
+    db = database.get_db()
+    invite_code = database.get_invite_code_by_code(db, code)
+
+    if not invite_code:
+        click.echo(f"Error: Invite code not found: {code}", err=True)
+        sys.exit(3)
+
+    if not force:
+        if not click.confirm(f"Are you sure you want to delete invite code {code}?"):
+            click.echo("Cancelled.")
+            return
+
+    database.delete_invite_code(db, invite_code.id)
+    click.echo(f"Invite code {code} has been deleted.")
 
 
 # =============================================================================

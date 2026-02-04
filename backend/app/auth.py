@@ -9,7 +9,7 @@ from typing import Optional
 from fasthtml.common import RedirectResponse
 
 from . import config
-from .models import User, Session, ApiToken, future_iso, now_iso, is_expired
+from .models import User, Session, ApiToken, InviteCode, future_iso, now_iso, is_expired
 from . import db as database
 
 
@@ -145,6 +145,51 @@ def check_token_scope(token: ApiToken, required_scope: str) -> bool:
     if required_scope == "read":
         return token.scope in ("read", "write")
     return token.scope == required_scope
+
+
+# =============================================================================
+# Invite Code Authentication
+# =============================================================================
+
+def validate_invite_code(db, code: str) -> tuple[Optional[InviteCode], Optional[User], Optional[str]]:
+    """Validate an invite code and return the associated user.
+
+    Args:
+        db: Database connection
+        code: The invite code string (case-insensitive)
+
+    Returns:
+        (invite_code, user, error_message) tuple.
+        If valid: (InviteCode, User, None)
+        If invalid: (None, None, error_message)
+    """
+    # Get the invite code
+    invite = database.get_invite_code_by_code(db, code)
+    if not invite:
+        return None, None, "Invalid invite code"
+
+    # Check if revoked
+    if invite.is_revoked:
+        return None, None, "This invite code has been revoked"
+
+    # Check if expired
+    if invite.expires_at and is_expired(invite.expires_at):
+        return None, None, "This invite code has expired"
+
+    # Check usage limit
+    if invite.max_uses is not None and invite.use_count >= invite.max_uses:
+        return None, None, "This invite code has reached its usage limit"
+
+    # Get the associated user
+    user = database.get_user_by_id(db, invite.user_id)
+    if not user:
+        return None, None, "The account associated with this code no longer exists"
+
+    # Check if user is suspended
+    if user.is_suspended:
+        return None, None, "The account associated with this code is suspended"
+
+    return invite, user, None
 
 
 # =============================================================================

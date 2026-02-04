@@ -6,6 +6,8 @@ import com.clipjot.android.data.api.model.BookmarkResponse;
 import com.clipjot.android.data.api.model.BookmarkSearchRequest;
 import com.clipjot.android.data.api.model.BookmarkSearchResponse;
 import com.clipjot.android.data.api.model.DeleteResponse;
+import com.clipjot.android.data.api.model.InviteCodeAuthResponse;
+import com.clipjot.android.data.api.model.InviteCodeRequest;
 import com.clipjot.android.data.api.model.LatestBookmarkResponse;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
@@ -36,6 +38,13 @@ public interface ClipJotApi {
      */
     @POST("api/v1/tags/list")
     Call<TagsResponse> listTags(@Body Map<String, Object> body);
+
+    /**
+     * Authenticate with an invite code.
+     * No authentication header required.
+     */
+    @POST("api/v1/auth/invite")
+    Call<InviteCodeAuthResponse> authenticateWithInviteCode(@Body InviteCodeRequest request);
 
     /**
      * Logout and revoke the current session.

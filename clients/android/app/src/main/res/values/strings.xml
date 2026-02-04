@@ -10,6 +10,10 @@
     <string name="login_github">Sign in with GitHub</string>
     <string name="login_success">Signed in successfully</string>
     <string name="login_error">Login failed: %1$s</string>
+    <string name="have_invite_code">Have an invite code?</string>
+    <string name="invite_code_title">Enter Invite Code</string>
+    <string name="invite_code_hint">Enter code</string>
+    <string name="submit">Submit</string>
 
     <!-- Bookmark Form -->
     <string name="save_link">Save Link</string>

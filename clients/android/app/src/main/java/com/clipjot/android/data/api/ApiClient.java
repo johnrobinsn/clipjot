@@ -22,7 +22,9 @@ public class ApiClient {
 
     private static final String DEFAULT_BACKEND_URL = "https://clipjot.net";
     private static ClipJotApi api;
+    private static ClipJotApi apiNoAuth;
     private static String currentBaseUrl;
+    private static String currentBaseUrlNoAuth;
     private static final Gson gson = new Gson();
 
     /**
@@ -58,11 +60,44 @@ public class ApiClient {
     }
 
     /**
+     * Get the API instance without authentication (for public endpoints like invite code auth).
+     */
+    public static synchronized ClipJotApi getApiWithoutAuth(Context context) {
+        String baseUrl = getBackendUrl(context);
+
+        // Rebuild client if URL changed
+        if (apiNoAuth == null || !baseUrl.equals(currentBaseUrlNoAuth)) {
+            currentBaseUrlNoAuth = baseUrl;
+
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(normalizeUrl(baseUrl))
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            apiNoAuth = retrofit.create(ClipJotApi.class);
+        }
+        return apiNoAuth;
+    }
+
+    /**
      * Reset the client (call when backend URL changes).
      */
     public static synchronized void resetClient() {
         api = null;
         currentBaseUrl = null;
+        apiNoAuth = null;
+        currentBaseUrlNoAuth = null;
     }
 
     /**

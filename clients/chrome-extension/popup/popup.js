@@ -18,6 +18,10 @@ const loginViewEl = document.getElementById('login-view');
 const bookmarkViewEl = document.getElementById('bookmark-view');
 const loginGoogleBtn = document.getElementById('login-google');
 const loginGithubBtn = document.getElementById('login-github');
+const inviteCodeLink = document.getElementById('invite-code-link');
+const inviteCodeForm = document.getElementById('invite-code-form');
+const inviteCodeInput = document.getElementById('invite-code-input');
+const inviteCodeSubmit = document.getElementById('invite-code-submit');
 const openOptionsBtn = document.getElementById('open-options');
 const settingsBtn = document.getElementById('settings-btn');
 const bookmarkForm = document.getElementById('bookmark-form');
@@ -281,6 +285,68 @@ async function handleLogin(provider) {
 }
 
 /**
+ * Toggle invite code form visibility
+ */
+function toggleInviteCodeForm(e) {
+  e.preventDefault();
+  inviteCodeForm.classList.toggle('hidden');
+  if (!inviteCodeForm.classList.contains('hidden')) {
+    inviteCodeInput.focus();
+  }
+}
+
+/**
+ * Handle invite code authentication
+ */
+async function handleInviteCodeLogin() {
+  const code = inviteCodeInput.value.trim().toUpperCase();
+
+  if (code.length !== 8) {
+    showLoginError('Please enter a valid 8-character code');
+    return;
+  }
+
+  inviteCodeSubmit.classList.add('loading');
+  inviteCodeSubmit.disabled = true;
+  loginError.classList.add('hidden');
+
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/auth/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        code: code,
+        client_name: 'chrome-extension',
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.token) {
+      sessionToken = data.token;
+      await chrome.storage.local.set({ sessionToken: data.token });
+
+      // Show success briefly, then close
+      loginError.textContent = 'Login successful!';
+      loginError.classList.remove('hidden');
+      loginError.classList.remove('alert-error');
+      loginError.classList.add('alert-success');
+      setTimeout(() => window.close(), 1000);
+    } else {
+      showLoginError(data.error || 'Invalid invite code');
+    }
+  } catch (error) {
+    console.error('Invite code error:', error);
+    showLoginError('Failed to connect to server');
+  } finally {
+    inviteCodeSubmit.classList.remove('loading');
+    inviteCodeSubmit.disabled = false;
+  }
+}
+
+/**
  * Render selected tags
  */
 function renderSelectedTags() {
@@ -476,6 +542,14 @@ async function handleLogout() {
 // Event Listeners
 loginGoogleBtn.addEventListener('click', () => handleLogin('google'));
 loginGithubBtn.addEventListener('click', () => handleLogin('github'));
+inviteCodeLink.addEventListener('click', toggleInviteCodeForm);
+inviteCodeSubmit.addEventListener('click', handleInviteCodeLogin);
+inviteCodeInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    handleInviteCodeLogin();
+  }
+});
 openOptionsBtn.addEventListener('click', openOptions);
 settingsBtn.addEventListener('click', openOptions);
 logoutBtn.addEventListener('click', handleLogout);

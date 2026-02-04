@@ -62,6 +62,12 @@ actor APIClient {
 
     // MARK: - Auth Endpoints
 
+    /// Authenticate with an invite code (no auth header required)
+    func authenticateWithInviteCode(_ code: String) async throws -> InviteCodeAuthResponse {
+        let request = InviteCodeAuthRequest(code: code, clientName: "ios")
+        return try await postNoAuth(endpoint: "api/v1/auth/invite", body: request)
+    }
+
     /// Logout and invalidate session
     func logout() async throws -> LogoutResponse {
         try await post(endpoint: "api/v1/logout", body: EmptyBody())
@@ -84,6 +90,22 @@ actor APIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         addAuthHeader(to: &request)
+
+        do {
+            request.httpBody = try encoder.encode(body)
+        } catch {
+            throw APIError.encodingError
+        }
+
+        return try await performRequest(request)
+    }
+
+    /// POST without authentication header (for public endpoints like invite code auth)
+    private func postNoAuth<T: Decodable, B: Encodable>(endpoint: String, body: B) async throws -> T {
+        let url = baseURL.appendingPathComponent(endpoint)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         do {
             request.httpBody = try encoder.encode(body)

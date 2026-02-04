@@ -123,6 +123,42 @@ final class AuthManager: NSObject, ObservableObject {
         return true
     }
 
+    /// Authenticate with an invite code
+    /// - Parameter code: The invite code string
+    func authenticateWithInviteCode(_ code: String) async throws {
+        isAuthenticating = true
+        authError = nil
+
+        defer {
+            isAuthenticating = false
+        }
+
+        do {
+            let response = try await APIClient.shared.authenticateWithInviteCode(code)
+
+            // Save token
+            try TokenManager.shared.saveToken(response.token)
+            isLoggedIn = true
+
+            // Save user email if provided
+            SettingsManager.shared.userEmail = response.user.email
+        } catch let error as APIError {
+            // Extract user-friendly error message
+            switch error {
+            case .serverError(_, let message):
+                authError = message ?? "Invalid invite code"
+            case .networkError:
+                authError = "Network error. Please check your connection."
+            default:
+                authError = "Authentication failed. Please try again."
+            }
+            throw error
+        } catch {
+            authError = "Authentication failed. Please try again."
+            throw error
+        }
+    }
+
     /// Logout the current user
     func logout() async {
         // Try to invalidate session on server

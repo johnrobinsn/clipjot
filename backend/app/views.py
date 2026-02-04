@@ -108,12 +108,45 @@ def login_page(request, db):
               cls="text-error")
         )
 
+    # Invite code section (minimal, secondary UI)
+    invite_code_section = Div(
+        # Toggle link
+        A(
+            "Have an invite code?",
+            href="#",
+            cls="text-sm text-base-content/50 hover:text-base-content/70",
+            onclick="document.getElementById('invite-code-form').classList.toggle('hidden'); return false;",
+        ),
+        # Hidden form
+        Form(
+            Div(
+                Input(
+                    type="text",
+                    name="code",
+                    placeholder="Enter code",
+                    cls="input input-bordered input-sm w-full uppercase",
+                    maxlength="8",
+                    autocapitalize="characters",
+                ),
+                Button("Submit", type="submit", cls="btn btn-sm btn-ghost"),
+                cls="flex gap-2 mt-2",
+            ),
+            Div(id="invite-error", cls="text-error text-xs mt-1"),
+            id="invite-code-form",
+            cls="hidden",
+            action="/auth/invite-web",
+            method="post",
+        ),
+        cls="mt-4",
+    )
+
     content = Div(
         Div(
             Div(
                 H2("Welcome to ClipJot", cls="card-title mb-6"),
                 P("Sign in to manage your links", cls="mb-6 text-base-content/70"),
                 *providers,
+                invite_code_section,
                 cls="card-body items-center text-center",
             ),
             cls="card w-96 bg-base-100 shadow-xl",
@@ -196,6 +229,41 @@ def oauth_extension_callback(request, db, provider: str, user_info: dict, redire
     # Redirect back to extension with token in URL
     separator = "&" if "?" in redirect_uri else "?"
     return RedirectResponse(f"{redirect_uri}{separator}token={token}", status_code=303)
+
+
+async def invite_web_login(request, db):
+    """Handle invite code login from web form.
+
+    POST /auth/invite-web
+    """
+    form = await request.form()
+    code = form.get("code", "").strip()
+
+    if not code:
+        # Redirect back to login with error
+        return RedirectResponse("/login?error=code_required", status_code=303)
+
+    # Validate the invite code
+    invite, user, error_message = auth.validate_invite_code(db, code)
+    if error_message:
+        # Redirect back to login with error
+        return RedirectResponse(f"/login?error={error_message.replace(' ', '+')}", status_code=303)
+
+    # Increment usage count
+    database.increment_invite_code_usage(db, invite.id)
+
+    # Create session
+    token, session = auth.create_user_session(
+        db,
+        user.id,
+        user_agent=request.headers.get("user-agent"),
+        client_name="web",
+        ip_address=request.client.host if request.client else None,
+    )
+
+    # Create response with session cookie
+    response = RedirectResponse("/", status_code=303)
+    return set_session_cookie(response, token)
 
 
 def logout(request, db):
