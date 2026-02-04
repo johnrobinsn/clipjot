@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ClipJot</string>
+    <string name="share_shortcut_short_label">Save to ClipJot</string>
+    <string name="share_shortcut_long_label">Save link to ClipJot</string>
     <string name="app_website">https://clipjot.net</string>
     <string name="app_description">ClipJot is your personal bookmark manager. Save links from any app on your device by using the share button — just look for ClipJot in the share sheet.\n\nOrganize your bookmarks with tags, add notes, and access your collection from anywhere. Whether you\'re saving articles to read later, collecting recipes, or bookmarking resources for work, ClipJot keeps everything in one place.</string>
 

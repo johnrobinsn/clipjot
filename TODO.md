@@ -1,22 +1,22 @@
 # TODO
 
 ## Current Scope
--[X] Try on Phone connecting to prod
--[X] Deploy Prod
--[X] Set up Google Auth for Prod
--[ ] Set up Google Auth for Dev
--[ ] Dev Workflow
--[X] Verify Android Studio workflow after URL change
--[X] Change default to clipjot.net
--[X] lowercase clipjot for conda env and repo
--[X] Combine testing of configured URL with savings revert if test fails.
--[X] Add support for certs
--[X] Deal with a large number of URLs
--[X] Make ClipJot WebUI more mobile friendly
--[ ] Github auth can only do one userid?
--[ ] Splash screen on clipjot.net
--[ ] Should I split out client repos from backend?
--[ ] Should I open source the backend?
+- [X] Try on Phone connecting to prod
+- [X] Deploy Prod
+- [X] Set up Google Auth for Prod
+- [ ] Set up Google Auth for Dev
+- [ ] Dev Workflow
+- [X] Verify Android Studio workflow after URL change
+- [X] Change default to clipjot.net
+- [X] lowercase clipjot for conda env and repo
+- [X] Combine testing of configured URL with savings revert if test fails.
+- [X] Add support for certs
+- [X] Deal with a large number of URLs
+- [X] Make ClipJot WebUI more mobile friendly
+- [ ] Github auth can only do one userid?
+- [ ] Splash screen on clipjot.net
+- [ ] Should I split out client repos from backend?
+- [ ] Should I open source the backend?
 
 ## Android Client Launch List
 -[X] Setting to `Add Shared Link without Editing`

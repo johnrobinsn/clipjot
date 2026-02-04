@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Static shortcut for direct share -->
+    <shortcut
+        android:shortcutId="share_shortcut"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/share_shortcut_short_label"
+        android:shortcutLongLabel="@string/share_shortcut_long_label">
+        <intent
+            android:action="android.intent.action.SEND"
+            android:targetPackage="com.clipjot.android"
+            android:targetClass="com.clipjot.android.ui.share.ShareActivity" />
+        <categories android:name="com.clipjot.android.category.SHARE_TARGET" />
+    </shortcut>
+
+    <!-- Share target for direct share -->
+    <share-target android:targetClass="com.clipjot.android.ui.share.ShareActivity">
+        <data android:mimeType="text/plain" />
+        <category android:name="com.clipjot.android.category.SHARE_TARGET" />
+    </share-target>
+
+</shortcuts>
