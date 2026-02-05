@@ -185,6 +185,16 @@
         </LinearLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <!-- Floating Action Button for adding links -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddLink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/add_link"
+        app:srcCompat="@drawable/ic_add" />
+
     <!-- Bottom action bar for selection mode -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/selectionBar"

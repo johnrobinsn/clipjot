@@ -38,9 +38,12 @@ import com.clipjot.android.data.prefs.TokenManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import com.clipjot.android.ui.share.BookmarkBottomSheet;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,6 +80,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private MaterialCardView newLinksBanner;
     private MaterialButton refreshButton;
     private ImageButton dismissBannerButton;
+    private FloatingActionButton fabAddLink;
 
     private BookmarkAdapter adapter;
     private TokenManager tokenManager;
@@ -230,6 +234,19 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
         newLinksBanner = findViewById(R.id.newLinksBanner);
         refreshButton = findViewById(R.id.refreshButton);
         dismissBannerButton = findViewById(R.id.dismissBannerButton);
+        fabAddLink = findViewById(R.id.fabAddLink);
+
+        // Setup FAB click to add new link
+        fabAddLink.setOnClickListener(v -> showAddLinkSheet());
+    }
+
+    private void showAddLinkSheet() {
+        BookmarkBottomSheet bottomSheet = BookmarkBottomSheet.newInstance("", "");
+        bottomSheet.setOnDismissListener(() -> {
+            // Refresh to show newly added link
+            loadBookmarks(true);
+        });
+        bottomSheet.show(getSupportFragmentManager(), "add_link_sheet");
     }
 
     private void setupToolbar() {

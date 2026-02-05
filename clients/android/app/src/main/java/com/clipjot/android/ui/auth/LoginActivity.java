@@ -60,6 +60,35 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setupButtons();
+
+        // Check for OAuth error passed from OAuthCallbackActivity
+        checkForOAuthError(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // Handle OAuth error when activity is reused
+        checkForOAuthError(intent);
+    }
+
+    private void checkForOAuthError(Intent intent) {
+        if (intent != null && intent.hasExtra("oauth_error")) {
+            String error = intent.getStringExtra("oauth_error");
+            intent.removeExtra("oauth_error"); // Don't show again on rotation
+            if (error != null && !error.isEmpty()) {
+                showOAuthErrorDialog(error);
+            }
+        }
+    }
+
+    private void showOAuthErrorDialog(String error) {
+        String message = error + "\n\n" + getString(R.string.login_error_retry_hint);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.login_error_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
     private void setupButtons() {

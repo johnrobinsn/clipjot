@@ -12,6 +12,8 @@
     <string name="login_github">Sign in with GitHub</string>
     <string name="login_success">Signed in successfully</string>
     <string name="login_error">Login failed: %1$s</string>
+    <string name="login_error_title">Sign In Failed</string>
+    <string name="login_error_retry_hint">This can happen if the login took too long. Please try again.</string>
     <string name="have_invite_code">Have an invite code?</string>
     <string name="invite_code_title">Enter Invite Code</string>
     <string name="invite_code_hint">Enter code</string>
@@ -60,6 +62,7 @@
 
     <!-- My Links -->
     <string name="my_links_title">My Links</string>
+    <string name="add_link">Add Link</string>
     <string name="my_links">My Links</string>
     <string name="search_links">Search links…</string>
     <string name="no_links_yet">No links yet</string>

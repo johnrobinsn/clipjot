@@ -51,8 +51,11 @@ public class OAuthCallbackActivity extends AppCompatActivity {
                 finish();
 
             } else if (error != null) {
-                // Show error
-                Toast.makeText(this, getString(R.string.login_error, error), Toast.LENGTH_LONG).show();
+                // Redirect to LoginActivity with error to show in a proper dialog
+                Intent loginIntent = new Intent(this, LoginActivity.class);
+                loginIntent.putExtra("oauth_error", error);
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(loginIntent);
                 finish();
 
             } else {

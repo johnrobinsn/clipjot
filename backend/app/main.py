@@ -167,28 +167,41 @@ def auth_google(request, redirect_uri: str = None):
 
 @rt("/auth_redirect/google")
 def auth_redirect_google(request, code: str = None, state: str = None):
+    import base64
+    from urllib.parse import quote
+
     if not google_client:
         return Response("Google OAuth not configured", status_code=503)
     if not code:
         return RedirectResponse("/login", status_code=303)
 
+    # Parse state first to determine if this is extension flow
+    extension_redirect = None
+    if state:
+        try:
+            decoded = base64.urlsafe_b64decode(state.encode()).decode()
+            if decoded.startswith("ext:"):
+                extension_redirect = decoded[4:]  # Remove "ext:" prefix
+        except Exception:
+            pass
+
     try:
         oauth_redirect = f"{config.BASE_URL}/auth_redirect/google"
         user_info = google_client.retr_info(code, oauth_redirect)
 
-        # Check if this is extension flow (state starts with "ext:")
-        if state:
-            import base64
-            try:
-                decoded = base64.urlsafe_b64decode(state.encode()).decode()
-                if decoded.startswith("ext:"):
-                    extension_redirect = decoded[4:]  # Remove "ext:" prefix
-                    return views.oauth_extension_callback(request, get_db(), "google", user_info, extension_redirect)
-            except Exception:
-                pass  # Invalid state, fall through to web flow
+        # Handle extension flow
+        if extension_redirect:
+            return views.oauth_extension_callback(request, get_db(), "google", user_info, extension_redirect)
 
         return views.oauth_callback_handler(request, get_db(), "google", user_info)
     except Exception as e:
+        error_msg = str(e)
+
+        # If extension flow, redirect back to app with error
+        if extension_redirect:
+            separator = "&" if "?" in extension_redirect else "?"
+            return RedirectResponse(f"{extension_redirect}{separator}error={quote(error_msg)}", status_code=303)
+
         return Response(f"OAuth error: {e}", status_code=400)
 
 
@@ -209,11 +222,24 @@ def auth_github(request, redirect_uri: str = None):
 
 @rt("/auth_redirect/github")
 def auth_redirect_github(request, code: str = None, state: str = None):
+    import base64
+    from urllib.parse import quote
+
     print(f"[DEBUG] GitHub auth redirect - code exists: {bool(code)}")
     if not github_client:
         return Response("GitHub OAuth not configured", status_code=503)
     if not code:
         return RedirectResponse("/login", status_code=303)
+
+    # Parse state first to determine if this is extension flow
+    extension_redirect = None
+    if state:
+        try:
+            decoded = base64.urlsafe_b64decode(state.encode()).decode()
+            if decoded.startswith("ext:"):
+                extension_redirect = decoded[4:]  # Remove "ext:" prefix
+        except Exception:
+            pass
 
     try:
         oauth_redirect = f"{config.BASE_URL}/auth_redirect/github"
@@ -221,16 +247,9 @@ def auth_redirect_github(request, code: str = None, state: str = None):
         user_info = github_client.retr_info(code, oauth_redirect)
         print(f"[DEBUG] Got user_info: {user_info}")
 
-        # Check if this is extension flow (state starts with "ext:")
-        if state:
-            import base64
-            try:
-                decoded = base64.urlsafe_b64decode(state.encode()).decode()
-                if decoded.startswith("ext:"):
-                    extension_redirect = decoded[4:]  # Remove "ext:" prefix
-                    return views.oauth_extension_callback(request, get_db(), "github", user_info, extension_redirect)
-            except Exception:
-                pass  # Invalid state, fall through to web flow
+        # Handle extension flow
+        if extension_redirect:
+            return views.oauth_extension_callback(request, get_db(), "github", user_info, extension_redirect)
 
         print("[DEBUG] Calling oauth_callback_handler")
         result = views.oauth_callback_handler(request, get_db(), "github", user_info)
@@ -239,6 +258,13 @@ def auth_redirect_github(request, code: str = None, state: str = None):
     except Exception as e:
         import traceback
         traceback.print_exc()
+        error_msg = str(e)
+
+        # If extension flow, redirect back to app with error
+        if extension_redirect:
+            separator = "&" if "?" in extension_redirect else "?"
+            return RedirectResponse(f"{extension_redirect}{separator}error={quote(error_msg)}", status_code=303)
+
         return Response(f"OAuth error: {e}", status_code=400)
 
 
