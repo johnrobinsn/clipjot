@@ -44,15 +44,15 @@
 
     <!-- Account -->
     <string name="account_title">Account</string>
-    <string name="account_logged_in">Logged in</string>
-    <string name="logout">Log out</string>
-    <string name="logout_title">Log out?</string>
-    <string name="logout_confirm">Are you sure you want to log out?</string>
-    <string name="logged_out">Logged out</string>
+    <string name="account_logged_in">Signed in</string>
+    <string name="logout">Sign Out</string>
+    <string name="logout_title">Sign Out?</string>
+    <string name="logout_confirm">Are you sure you want to sign out?</string>
+    <string name="logged_out">Signed out</string>
     <string name="cancel">Cancel</string>
     <string name="reset_defaults">Reset to Defaults</string>
     <string name="reset_defaults_title">Reset settings?</string>
-    <string name="reset_defaults_confirm">This will reset all settings to their default values and log you out.</string>
+    <string name="reset_defaults_confirm">This will reset all settings to their default values and sign you out.</string>
     <string name="reset_defaults_done">Settings reset to defaults</string>
 
     <!-- Warnings -->

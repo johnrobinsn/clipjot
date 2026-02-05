@@ -61,12 +61,24 @@ def heroicon(name: str, size: str = "w-5 h-5", cls: str = "", **attrs):
 
         # Puzzle piece (outline) - for extensions
         "puzzle-piece": '''<path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .659-.663 47.703 47.703 0 0 0-.31-4.82 48.847 48.847 0 0 1-6.067.21.64.64 0 0 1-.657-.643v0Z" />''',
+
+        # Apple logo (solid) - brand icon
+        "apple": '''<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11Z"/>''',
+
+        # Android logo (solid) - brand icon
+        "android": '''<path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C6.97 3.26 6 5.01 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/>''',
+
+        # Google logo (solid) - brand icon
+        "google": '''<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />''',
+
+        # GitHub logo (solid) - brand icon
+        "github": '''<path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>''',
     }
 
     path_content = icons.get(name, icons["bookmark"])
 
     # Determine if it's a solid or outline icon (solid icons use fill, outline use stroke)
-    is_solid = name in ["bookmark"]
+    is_solid = name in ["bookmark", "apple", "android", "google", "github"]
 
     all_classes = f"{size} {cls}".strip()
 
@@ -136,8 +148,8 @@ def page_head(title: str = "ClipJot"):
     )
 
 
-def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, flash: Optional[str] = None):
-    """Wrap content in full page layout with navbar."""
+def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, flash: Optional[str] = None, hide_login: bool = False):
+    """Wrap content in full page layout with navbar and footer."""
     main_children = [content]
     if flash:
         main_children.insert(0, flash_message(flash))
@@ -145,10 +157,19 @@ def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, fl
     return Html(
         Head(*page_head(title)),
         Body(
-            navbar(user),
+            navbar(user, hide_login=hide_login),
             Main(
                 *main_children,
                 cls="container mx-auto px-4 py-6 max-w-6xl",
+            ),
+            Footer(
+                P(
+                    "© 2025 RingZero LLC",
+                    Span(" · ", cls="mx-1"),
+                    A("Privacy Policy", href="/privacy", cls="hover:underline"),
+                    cls="text-base-content/50 text-sm",
+                ),
+                cls="py-8 text-center",
             ),
             keyboard_shortcuts_script(),
             cls="min-h-screen bg-base-200",
@@ -157,7 +178,7 @@ def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, fl
     )
 
 
-def navbar(user: Optional[User] = None):
+def navbar(user: Optional[User] = None, hide_login: bool = False):
     """Navigation bar component."""
     search_form = Form(
         Div(
@@ -197,7 +218,7 @@ def navbar(user: Optional[User] = None):
         ),
         Div(
             search_form,
-            user_menu(user) if user else login_button(),
+            user_menu(user) if user else (None if hide_login else login_button()),
             cls="flex-none gap-2",
         ),
         cls="navbar bg-base-100 shadow-lg",
@@ -213,11 +234,11 @@ def user_menu(user: User):
         Li(A("API Tokens", href="/settings/tokens")),
         Li(A("Sessions", href="/settings/sessions")),
         Li(A("Export Data", href="/export")),
-        Li(cls="divider"),
+        Hr(cls="my-1"),
     ]
     if user.is_admin:
         menu_items.append(Li(A("Admin", href="/admin")))
-    menu_items.append(Li(A("Logout", href="/logout", hx_post="/logout", hx_swap="none")))
+    menu_items.append(Li(A("Sign Out", href="/logout", hx_post="/logout", hx_swap="none")))
 
     return Div(
         Div(
@@ -333,14 +354,14 @@ def landing_downloads():
     """Download/install section for landing page."""
     platforms = [
         {
-            "icon": "device-phone-mobile",
+            "icon": "apple",
             "title": "iOS",
             "description": "Download from the App Store",
             "link": "https://apps.apple.com/app/clipjot",  # TODO: Update with real link
             "link_text": "App Store",
         },
         {
-            "icon": "device-phone-mobile",
+            "icon": "android",
             "title": "Android",
             "description": "Download the APK from GitHub",
             "link": "https://github.com/anthropics/clipjot-android/releases",  # TODO: Update with real link
@@ -782,6 +803,8 @@ def bookmark_form(bookmark: Optional[Bookmark] = None, tags: list[Tag] = None, a
             ),
             cls="flex justify-end gap-2",
         ),
+        # Auto-focus the appropriate field when modal loads
+        Script(f"document.getElementById('{'title' if is_edit else 'url'}').focus();"),
         cls="space-y-4",
         action=action,
         method="post",
@@ -1110,13 +1133,14 @@ def keyboard_shortcuts_script():
 
         function showKeyboardHelp() {
             const shortcuts = [
+                ['a', 'Add new link'],
                 ['/', 'Focus search / Clear search'],
                 ['j / k', 'Navigate down / up'],
+                ['gg / G', 'Go to first / last row'],
                 ['n / p', 'Next / Previous page'],
                 ['Enter', 'Open selected link'],
                 ['o', 'Open in new tab'],
                 ['x', 'Toggle checkbox'],
-                ['G', 'Go to last row'],
                 ['Escape', 'Close modal / Clear selection'],
                 ['?', 'Show this help'],
             ];
@@ -1137,11 +1161,39 @@ def keyboard_shortcuts_script():
             document.body.appendChild(modal);
         }
 
+        // Track last key press for gg detection
+        let lastKeyTime = 0;
+        let lastKey = '';
+
         document.addEventListener('keydown', (e) => {
-            // Skip if in input/textarea
+            // Escape always works - close modal even when in input
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.modal');
+                if (modal) {
+                    e.preventDefault();
+                    closeModal();
+                    return;
+                }
+                // If no modal, clear selections
+                document.querySelectorAll('.bookmark-checkbox').forEach(cb => cb.checked = false);
+                updateBulkBar();
+                return;
+            }
+
+            // Skip other shortcuts if in input/textarea
             if (e.target.matches('input, textarea, select')) return;
 
+            const now = Date.now();
+
             switch(e.key) {
+                case 'a':
+                    // Add new link - trigger the add link button
+                    const addBtn = document.querySelector('[hx-get="/bookmarks/add"]');
+                    if (addBtn) {
+                        e.preventDefault();
+                        addBtn.click();
+                    }
+                    break;
                 case '/':
                     e.preventDefault();
                     const searchInput = document.getElementById('search-input');
@@ -1175,8 +1227,15 @@ def keyboard_shortcuts_script():
                     }
                     break;
                 case 'g':
-                    if (e.shiftKey) selectRow(rows().length - 1);
-                    // gg handled by double-tap
+                    if (e.shiftKey) {
+                        selectRow(rows().length - 1);
+                    } else {
+                        // gg - go to first row (double-tap within 500ms)
+                        if (lastKey === 'g' && now - lastKeyTime < 500) {
+                            selectRow(0);
+                            lastKey = '';  // Reset to prevent triple-g issues
+                        }
+                    }
                     break;
                 case 'n':
                     const nextPage = document.getElementById('page-next');
@@ -1189,15 +1248,14 @@ def keyboard_shortcuts_script():
                 case 'G':
                     selectRow(rows().length - 1);
                     break;
-                case 'Escape':
-                    closeModal();
-                    document.querySelectorAll('.bookmark-checkbox').forEach(cb => cb.checked = false);
-                    updateBulkBar();
-                    break;
                 case '?':
                     showKeyboardHelp();
                     break;
             }
+
+            // Track last key for double-tap detection (gg)
+            lastKey = e.key;
+            lastKeyTime = now;
         });
 
         // Update bulk bar when checkboxes change

@@ -103,14 +103,14 @@ struct SettingsView: View {
                         } label: {
                             HStack {
                                 Spacer()
-                                Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                                Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                                 Spacer()
                             }
                         }
                     }
                 } else {
                     Section("Account") {
-                        Text("Not logged in")
+                        Text("Not signed in")
                             .foregroundColor(.secondary)
 
                         Button {

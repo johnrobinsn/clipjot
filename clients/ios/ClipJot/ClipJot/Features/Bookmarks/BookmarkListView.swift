@@ -230,7 +230,7 @@ struct BookmarkListView: View {
                             await AuthManager.shared.logout()
                         }
                     } label: {
-                        Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

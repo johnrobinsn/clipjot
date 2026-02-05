@@ -16,6 +16,7 @@ from .components import (
     tag_list_item, tag_chip, pagination, modal, modal_container,
     bulk_actions_bar, flash_message, settings_nav, keyboard_help_hint,
     new_links_banner, landing_hero, landing_features, landing_downloads,
+    heroicon,
 )
 
 
@@ -88,17 +89,19 @@ def login_page(request, db):
     if config.has_google_oauth():
         providers.append(
             A(
+                heroicon("google", "w-5 h-5"),
                 "Continue with Google",
                 href="/auth/google",
-                cls="btn btn-outline w-full mb-3",
+                cls="btn btn-outline w-full mb-3 gap-2",
             )
         )
     if config.has_github_oauth():
         providers.append(
             A(
+                heroicon("github", "w-5 h-5"),
                 "Continue with GitHub",
                 href="/auth/github",
-                cls="btn btn-outline w-full mb-3",
+                cls="btn btn-outline w-full mb-3 gap-2",
             )
         )
 
@@ -154,7 +157,7 @@ def login_page(request, db):
         cls="flex items-center justify-center min-h-[60vh]",
     )
 
-    return page_layout(content, title="Login - ClipJot")
+    return page_layout(content, title="Login - ClipJot", hide_login=True)
 
 
 def health_check(request, db):
@@ -392,6 +395,75 @@ def landing_page():
         landing_downloads(),
     )
     return page_layout(content, title="ClipJot - Save Links From Anywhere")
+
+
+def privacy_policy():
+    """Privacy policy page.
+
+    GET /privacy
+    """
+    content = Div(
+        Div(
+            H1("Privacy Policy", cls="text-3xl font-bold mb-6"),
+            P(f"Last updated: January 2025", cls="text-base-content/60 mb-8"),
+
+            H2("Overview", cls="text-xl font-semibold mt-6 mb-3"),
+            P(
+                "ClipJot is a personal bookmark manager. We are committed to protecting your privacy "
+                "and being transparent about what data we collect and how we use it.",
+                cls="mb-4"
+            ),
+
+            H2("Data We Collect", cls="text-xl font-semibold mt-6 mb-3"),
+            Ul(
+                Li("Email address (from your OAuth provider) for account identification"),
+                Li("Links you save, including URLs, titles, and any notes you add"),
+                Li("Tags you create to organize your links"),
+                cls="list-disc list-inside mb-4 space-y-1"
+            ),
+
+            H2("How We Use Your Data", cls="text-xl font-semibold mt-6 mb-3"),
+            Ul(
+                Li("To provide the ClipJot service and sync your links across devices"),
+                Li("To authenticate you when you sign in"),
+                Li("To display your saved links and tags"),
+                cls="list-disc list-inside mb-4 space-y-1"
+            ),
+
+            H2("Data We Don't Collect", cls="text-xl font-semibold mt-6 mb-3"),
+            Ul(
+                Li("We don't track your browsing activity outside of links you explicitly save"),
+                Li("We don't sell or share your data with third parties"),
+                Li("We don't use your data for advertising"),
+                cls="list-disc list-inside mb-4 space-y-1"
+            ),
+
+            H2("Data Storage", cls="text-xl font-semibold mt-6 mb-3"),
+            P(
+                "Your data is stored securely on our servers. You can export all your data at any time "
+                "from the Settings page, and you can delete your account which will remove all your data.",
+                cls="mb-4"
+            ),
+
+            H2("Third-Party Services", cls="text-xl font-semibold mt-6 mb-3"),
+            P(
+                "We use Google and GitHub OAuth for authentication. When you sign in, these services "
+                "provide us with your email address. Please refer to their respective privacy policies "
+                "for information about how they handle your data.",
+                cls="mb-4"
+            ),
+
+            H2("Contact", cls="text-xl font-semibold mt-6 mb-3"),
+            P(
+                "If you have questions about this privacy policy, please contact us at ringzero.llc@gmail.com",
+                cls="mb-4"
+            ),
+
+            cls="card-body",
+        ),
+        cls="card bg-base-100 shadow-xl max-w-3xl mx-auto",
+    )
+    return page_layout(content, title="Privacy Policy - ClipJot", hide_login=True)
 
 
 def bookmark_add_form(request, db):

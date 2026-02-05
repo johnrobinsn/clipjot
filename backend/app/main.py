@@ -251,6 +251,141 @@ def index(request):
     return views.bookmark_index(request, get_db())
 
 
+@rt("/privacy")
+def privacy_policy():
+    return views.privacy_policy()
+
+
+@rt("/llms.txt")
+def llms_txt():
+    """LLM-readable site description (llms.txt standard)."""
+    content = """# ClipJot
+
+> Personal bookmark manager - save links from anywhere, access them everywhere.
+
+ClipJot is a self-hosted bookmark manager with web UI, REST API, Chrome extension, and Android app.
+
+## Features
+
+- Save links from browser extension, mobile app, or web UI
+- Organize with tags
+- Add notes to bookmarks
+- Full-text search
+- Export/import data
+- OAuth authentication (Google, GitHub)
+
+## API
+
+REST API available at /api/v1/ for programmatic access.
+API documentation: /llms-full.txt
+
+## Contact
+
+Email: ringzero.llc@gmail.com
+"""
+    return Response(content, media_type="text/plain; charset=utf-8")
+
+
+@rt("/llms-full.txt")
+def llms_full_txt():
+    """Extended LLM-readable documentation."""
+    content = """# ClipJot - Full Documentation
+
+> Personal bookmark manager - save links from anywhere, access them everywhere.
+
+## Overview
+
+ClipJot is a self-hosted bookmark manager built with FastHTML/HTMX. It provides:
+- Web interface for managing bookmarks
+- REST API for programmatic access
+- Chrome browser extension
+- Android mobile app
+
+## Authentication
+
+ClipJot supports:
+- OAuth via Google or GitHub
+- Invite codes for passwordless access
+- Session-based auth for web UI
+- Bearer token auth for API
+
+## API Endpoints
+
+All API endpoints use POST method and accept/return JSON.
+Authentication: Bearer token in Authorization header.
+
+### Bookmarks
+
+- POST /api/v1/bookmarks/add
+  Body: {"url": "...", "title": "...", "comment": "...", "tags": ["tag1", "tag2"]}
+
+- POST /api/v1/bookmarks/edit
+  Body: {"id": 123, "title": "...", "comment": "...", "tags": ["tag1"]}
+
+- POST /api/v1/bookmarks/delete
+  Body: {"id": 123}
+
+- POST /api/v1/bookmarks/list
+  Body: {"limit": 50, "offset": 0}
+
+- POST /api/v1/bookmarks/search
+  Body: {"query": "search term", "limit": 50}
+
+- POST /api/v1/bookmarks/sync
+  Body: {"since": "2024-01-01T00:00:00Z"}
+
+### Tags
+
+- POST /api/v1/tags/list
+  Body: {}
+
+- POST /api/v1/tags/create
+  Body: {"name": "tag-name"}
+
+- POST /api/v1/tags/update
+  Body: {"id": 123, "name": "new-name"}
+
+- POST /api/v1/tags/delete
+  Body: {"id": 123}
+
+### Data
+
+- POST /api/v1/export
+  Body: {}
+  Returns all bookmarks as JSON.
+
+- POST /api/v1/import
+  Body: {"bookmarks": [...]}
+
+## Data Model
+
+### Bookmark
+- id: integer
+- url: string (required)
+- title: string (optional)
+- comment: string (optional)
+- tags: array of tag names
+- created_at: ISO timestamp
+- updated_at: ISO timestamp
+
+### Tag
+- id: integer
+- name: string
+- user_id: integer
+
+## Rate Limits
+
+Free tier: 1000 bookmarks, 50 tags
+Premium: Unlimited
+
+## Contact
+
+Email: ringzero.llc@gmail.com
+Website: https://clipjot.app
+"""
+    return Response(content, media_type="text/plain; charset=utf-8")
+
+
 @rt("/bookmarks/add", methods=["GET"])
 def bookmark_add_form(request):
     return views.bookmark_add_form(request, get_db())

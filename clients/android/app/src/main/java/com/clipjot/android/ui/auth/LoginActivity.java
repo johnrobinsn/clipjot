@@ -45,6 +45,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Hide action bar - we have a custom header in the layout
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         settingsManager = new SettingsManager(this);
         tokenManager = new TokenManager(this);
 
