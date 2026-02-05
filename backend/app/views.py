@@ -15,7 +15,7 @@ from .components import (
     page_layout, bookmark_list, bookmark_form, bookmark_row,
     tag_list_item, tag_chip, pagination, modal, modal_container,
     bulk_actions_bar, flash_message, settings_nav, keyboard_help_hint,
-    new_links_banner,
+    new_links_banner, landing_hero, landing_features, landing_downloads,
 )
 
 
@@ -287,13 +287,17 @@ def logout(request, db):
 # =============================================================================
 
 def bookmark_index(request, db):
-    """Main bookmark list page.
+    """Main links list page or landing page.
 
     GET /
+
+    Shows landing page for unauthenticated users,
+    links list for authenticated users.
     """
-    result = require_auth(request, db)
-    if isinstance(result, Response):
-        return result
+    result = get_current_user(request, db)
+    if not result:
+        # Not authenticated - show landing page
+        return landing_page()
     user, _ = result
 
     # Get query params
@@ -375,6 +379,19 @@ def bookmark_index(request, db):
     )
 
     return page_layout(content, title="My Links - ClipJot", user=user)
+
+
+def landing_page():
+    """Landing page for unauthenticated users.
+
+    GET / (when not authenticated)
+    """
+    content = Div(
+        landing_hero(),
+        landing_features(),
+        landing_downloads(),
+    )
+    return page_layout(content, title="ClipJot - Save Links From Anywhere")
 
 
 def bookmark_add_form(request, db):
@@ -840,8 +857,30 @@ def settings_page(request, db):
             ),
             cls="card bg-base-100 shadow-xl mb-6",
         ),
+        # Danger Zone - separated at bottom
+        Div(
+            Div(
+                Div(
+                    H2("Danger Zone", cls="card-title text-error"),
+                    P(
+                        "Permanently delete your account and all associated data.",
+                        cls="text-base-content/70 mb-4"
+                    ),
+                    Button(
+                        "Delete Account",
+                        cls="btn btn-error btn-outline",
+                        hx_get="/settings/delete-account",
+                        hx_target="#modal-container",
+                    ),
+                    cls="card-body",
+                ),
+                cls="card bg-base-100 border-2 border-error/50 shadow-xl",
+            ),
+            cls="mt-8 pt-6 border-t border-base-300",
+        ),
         # Navigation to other settings pages
         settings_nav("settings"),
+        modal_container(),
     )
 
     return page_layout(content, title="Settings - ClipJot", user=user)
@@ -1285,6 +1324,110 @@ def settings_sessions_revoke_all(request, db):
 
     response = Response(status_code=200)
     response.headers["HX-Redirect"] = "/settings/sessions"
+    return response
+
+
+def settings_delete_account_form(request, db):
+    """Show delete account confirmation modal.
+
+    GET /settings/delete-account
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    content = Div(
+        P(
+            "This action is permanent. Your account will be scheduled for deletion "
+            "and you will be logged out immediately.",
+            cls="text-error mb-4"
+        ),
+        P(
+            "If you sign in again with the same Google or GitHub account, "
+            "you will start fresh with a new empty account.",
+            cls="text-base-content/70 mb-4"
+        ),
+        P(
+            "Your data will be permanently deleted within 30 days.",
+            cls="text-base-content/70 mb-6"
+        ),
+        Form(
+            Div(
+                Label(
+                    'Type "delete my account" to confirm:',
+                    cls="label",
+                    _for="confirmation"
+                ),
+                Input(
+                    type="text",
+                    name="confirmation",
+                    id="confirmation",
+                    cls="input input-bordered w-full",
+                    placeholder="delete my account",
+                    autocomplete="off",
+                    oninput="document.getElementById('delete-btn').disabled = this.value !== 'delete my account'",
+                ),
+                cls="form-control mb-6",
+            ),
+            Div(
+                Button(
+                    "Cancel",
+                    type="button",
+                    cls="btn btn-ghost",
+                    onclick="closeModal()"
+                ),
+                Button(
+                    "Delete My Account",
+                    type="submit",
+                    id="delete-btn",
+                    cls="btn btn-error",
+                    disabled=True,
+                ),
+                cls="flex justify-end gap-2",
+            ),
+            hx_post="/settings/delete-account",
+        ),
+    )
+
+    return modal("Delete Account", content)
+
+
+async def settings_delete_account(request, db):
+    """Process account deletion request.
+
+    POST /settings/delete-account
+    """
+    result = require_auth(request, db)
+    if isinstance(result, Response):
+        return result
+    user, _ = result
+
+    form = await request.form()
+    confirmation = form.get("confirmation", "").strip()
+
+    # Validate confirmation phrase (server-side check)
+    if confirmation != "delete my account":
+        return Response("Invalid confirmation phrase", status_code=400)
+
+    # Mark user for deletion
+    database.mark_user_for_deletion(db, user)
+
+    # Delete credentials (breaks OAuth re-login link)
+    database.delete_user_credentials(db, user.id)
+
+    # Revoke all sessions
+    database.delete_user_sessions(db, user.id)
+
+    # Revoke all API tokens
+    database.delete_user_tokens(db, user.id)
+
+    # Delete invite codes
+    database.delete_user_invite_codes(db, user.id)
+
+    # Redirect to login page with deletion confirmation
+    response = RedirectResponse("/login", status_code=303)
+    response.delete_cookie("session")
     return response
 
 

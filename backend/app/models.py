@@ -20,6 +20,7 @@ class User:
     is_suspended: bool = False
     suspended_at: Optional[str] = None
     suspended_reason: Optional[str] = None
+    marked_for_deletion_at: Optional[str] = None  # When user requested deletion
 
 
 @dataclass

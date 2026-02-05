@@ -365,6 +365,16 @@ async def settings_sessions_revoke_all(request):
     return views.settings_sessions_revoke_all(request, get_db())
 
 
+@rt("/settings/delete-account", methods=["GET"])
+def settings_delete_account_form(request):
+    return views.settings_delete_account_form(request, get_db())
+
+
+@rt("/settings/delete-account", methods=["POST"])
+async def settings_delete_account(request):
+    return await views.settings_delete_account(request, get_db())
+
+
 @rt("/export")
 def export_page(request):
     return views.export_page(request, get_db())

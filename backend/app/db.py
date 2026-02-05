@@ -155,6 +155,13 @@ def delete_user(db, user_id: int) -> bool:
     return True
 
 
+def mark_user_for_deletion(db, user: User) -> User:
+    """Mark a user account for deletion (soft delete)."""
+    user.marked_for_deletion_at = now_iso()
+    result = db.t.user.update(user)
+    return _dict_to_dataclass(User, result)
+
+
 # =============================================================================
 # Credential queries
 # =============================================================================
@@ -180,6 +187,11 @@ def create_credential(db, user_id: int, provider: str, provider_user_id: str) ->
     )
     result = db.t.credential.insert(cred)
     return _dict_to_dataclass(Credential, result)
+
+
+def delete_user_credentials(db, user_id: int):
+    """Delete all OAuth credentials for a user (breaks re-login link)."""
+    db.execute("DELETE FROM credential WHERE user_id = ?", [user_id])
 
 
 # =============================================================================
@@ -319,6 +331,11 @@ def cleanup_expired_tokens(db) -> int:
     count = result.fetchone()[0]
     db.execute(f"DELETE FROM api_token WHERE expires_at <= '{now}'")
     return count
+
+
+def delete_user_tokens(db, user_id: int):
+    """Delete all API tokens for a user."""
+    db.execute("DELETE FROM api_token WHERE user_id = ?", [user_id])
 
 
 # =============================================================================
@@ -639,6 +656,11 @@ def delete_invite_code(db, code_id: int):
         db.t.invite_code.delete(code_id)
     except (KeyError, IndexError):
         pass
+
+
+def delete_user_invite_codes(db, user_id: int):
+    """Delete all invite codes for a user."""
+    db.execute("DELETE FROM invite_code WHERE user_id = ?", [user_id])
 
 
 # =============================================================================

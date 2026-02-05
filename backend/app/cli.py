@@ -617,7 +617,8 @@ def invite():
 @click.option("--expires", "-e", type=int, default=90, help="Days until expiration (default: 90)")
 @click.option("--max-uses", "-m", type=int, default=None, help="Maximum number of uses (default: unlimited)")
 @click.option("--note", "-n", type=str, default=None, help="Note for this code (e.g., 'App Store reviewer')")
-def invite_generate(email, expires, max_uses, note):
+@click.option("--create", "-c", is_flag=True, help="Create user if it doesn't exist")
+def invite_generate(email, expires, max_uses, note, create):
     """Generate an invite code for a user.
 
     EMAIL: User's email address to grant access to.
@@ -626,8 +627,13 @@ def invite_generate(email, expires, max_uses, note):
     user = database.get_user_by_email(db, email)
 
     if not user:
-        click.echo(f"Error: User not found: {email}", err=True)
-        sys.exit(3)
+        if create:
+            user = database.create_user(db, email)
+            click.echo(f"Created new user: {email}")
+        else:
+            click.echo(f"Error: User not found: {email}", err=True)
+            click.echo("Use --create to create the user automatically.", err=True)
+            sys.exit(3)
 
     code = generate_invite_code()
     invite_code = InviteCode(

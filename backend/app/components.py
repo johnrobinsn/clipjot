@@ -40,6 +40,27 @@ def heroicon(name: str, size: str = "w-5 h-5", cls: str = "", **attrs):
 
         # Pencil (outline) - simple edit icon
         "pencil": '''<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />''',
+
+        # Tag (outline) - for tags/organization
+        "tag": '''<path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />''',
+
+        # Globe (outline) - for sync/everywhere
+        "globe-alt": '''<path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />''',
+
+        # Share (outline) - for sharing
+        "share": '''<path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />''',
+
+        # Code bracket (outline) - for API/developer
+        "code-bracket": '''<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />''',
+
+        # Rocket launch (outline) - for building/launching
+        "rocket-launch": '''<path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />''',
+
+        # Device phone mobile (outline) - for mobile apps
+        "device-phone-mobile": '''<path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />''',
+
+        # Puzzle piece (outline) - for extensions
+        "puzzle-piece": '''<path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.959.401v0a.656.656 0 0 0 .659-.663 47.703 47.703 0 0 0-.31-4.82 48.847 48.847 0 0 1-6.067.21.64.64 0 0 1-.657-.643v0Z" />''',
     }
 
     path_content = icons.get(name, icons["bookmark"])
@@ -218,8 +239,152 @@ def user_menu(user: User):
 
 
 def login_button():
-    """Login button for unauthenticated users."""
-    return A("Login", href="/login", cls="btn btn-primary")
+    """Sign in button for unauthenticated users."""
+    return A("Sign In", href="/login", cls="btn btn-primary")
+
+
+def landing_hero():
+    """Hero section for landing page."""
+    return Div(
+        Div(
+            # App icon and name
+            Div(
+                Div(
+                    heroicon("bookmark", "w-14 h-14", "text-indigo-500"),
+                    H1("ClipJot", cls="text-5xl font-bold"),
+                    cls="flex items-center justify-center gap-3",
+                ),
+                P("Your Personal Link Manager", cls="text-xl text-base-content/70 mt-2"),
+                cls="text-center",
+            ),
+            # Description
+            P(
+                "Save links from anywhere and access them from any device. "
+                "Organize with tags, add notes, and never lose a link again.",
+                cls="text-center text-lg text-base-content/80 max-w-2xl mx-auto mt-6",
+            ),
+            # CTA Button
+            Div(
+                A(
+                    "Sign In to Get Started",
+                    href="/login",
+                    cls="btn btn-primary btn-lg",
+                ),
+                cls="text-center mt-8",
+            ),
+            cls="py-16 px-4",
+        ),
+        cls="bg-base-100 rounded-lg shadow-xl",
+    )
+
+
+def landing_features():
+    """Features section for landing page."""
+    features = [
+        {
+            "icon": "rocket-launch",
+            "title": "Your Data Belongs to You",
+            "description": "Full API access lets you export, automate, and build on top of your data however you want.",
+        },
+        {
+            "icon": "share",
+            "title": "Save From Anywhere",
+            "description": "Use the browser extension, mobile app, or share from any app to save links instantly.",
+        },
+        {
+            "icon": "tag",
+            "title": "Organize With Tags",
+            "description": "Create custom tags to categorize your links and find them quickly.",
+        },
+        {
+            "icon": "globe-alt",
+            "title": "Access Everywhere",
+            "description": "Your links sync across all your devices — web, Chrome, and Android.",
+        },
+    ]
+
+    feature_cards = [
+        Div(
+            Div(
+                Div(
+                    heroicon(f["icon"], "w-8 h-8", "text-primary"),
+                    cls="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4",
+                ),
+                H3(f["title"], cls="text-lg font-semibold mb-2"),
+                P(f["description"], cls="text-base-content/70"),
+                cls="card-body items-center text-center",
+            ),
+            cls="card bg-base-100 shadow-md",
+        )
+        for f in features
+    ]
+
+    return Div(
+        H2("Why ClipJot?", cls="text-2xl font-bold text-center mb-8"),
+        Div(
+            *feature_cards,
+            cls="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+        ),
+        cls="py-12 px-4",
+    )
+
+
+def landing_downloads():
+    """Download/install section for landing page."""
+    platforms = [
+        {
+            "icon": "device-phone-mobile",
+            "title": "iOS",
+            "description": "Download from the App Store",
+            "link": "https://apps.apple.com/app/clipjot",  # TODO: Update with real link
+            "link_text": "App Store",
+        },
+        {
+            "icon": "device-phone-mobile",
+            "title": "Android",
+            "description": "Download the APK from GitHub",
+            "link": "https://github.com/anthropics/clipjot-android/releases",  # TODO: Update with real link
+            "link_text": "GitHub Releases",
+        },
+        {
+            "icon": "puzzle-piece",
+            "title": "Chrome Extension",
+            "description": "Install from GitHub",
+            "link": "https://github.com/anthropics/clipjot-chrome",  # TODO: Update with real link
+            "link_text": "GitHub",
+        },
+    ]
+
+    platform_cards = [
+        Div(
+            Div(
+                Div(
+                    heroicon(p["icon"], "w-8 h-8", "text-primary"),
+                    cls="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4",
+                ),
+                H3(p["title"], cls="text-lg font-semibold mb-2"),
+                P(p["description"], cls="text-base-content/70 mb-4"),
+                A(
+                    p["link_text"],
+                    href=p["link"],
+                    cls="btn btn-primary btn-sm",
+                    target="_blank",
+                ),
+                cls="card-body items-center text-center",
+            ),
+            cls="card bg-base-100 shadow-md",
+        )
+        for p in platforms
+    ]
+
+    return Div(
+        H2("Get ClipJot", cls="text-2xl font-bold text-center mb-8"),
+        Div(
+            *platform_cards,
+            cls="grid grid-cols-1 md:grid-cols-3 gap-6",
+        ),
+        cls="py-12 px-4",
+    )
 
 
 def settings_nav(current: str = None):
