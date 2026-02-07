@@ -4,9 +4,19 @@ Save and organize bookmarks from anywhere.
 
 **Production:** [https://clipjot.net](https://clipjot.net)
 
-## Overview
+## About This Repository
 
-ClipJot is a bookmark manager with native apps for iOS, Android, and Chrome. Save links with one tap from any app's share sheet, organize with tags, and access your bookmarks from any device.
+This is the **open source** repository for ClipJot, containing:
+
+- **Native clients** for iOS, Android, and Chrome
+- **API documentation** and example code
+- **Developer resources** for building integrations
+
+The backend server is maintained separately. All clients communicate with the production API at [clipjot.net](https://clipjot.net).
+
+## What is ClipJot?
+
+ClipJot is a bookmark manager that lets you save links with one tap from any app's share sheet, organize with tags, and access your bookmarks from any device.
 
 ## Repository Structure
 
