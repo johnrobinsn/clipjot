@@ -28,10 +28,9 @@ clipjot/
 │   ├── ios/              # iOS app (Swift/SwiftUI)
 │   ├── android/          # Android app (Java)
 │   └── chrome-extension/ # Chrome extension
-├── docs/
-│   ├── api/              # REST API specification
-│   └── examples/         # API client examples
-└── xfix/                 # Sync utility tool
+└── docs/
+    ├── api/              # REST API specification
+    └── examples/         # API client examples
 ```
 
 ## Clients
