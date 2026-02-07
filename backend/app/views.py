@@ -1813,7 +1813,7 @@ def api_docs_v1(request, db):
         docs_code_scripts(),
     )
 
-    return docs_page_layout(content, title="API Documentation v1 - ClipJot", user=user)
+    return docs_page_layout(content, title="API Documentation v1 - ClipJot", user=user, current_page="docs")
 
 
 def api_changelog(request, db):
@@ -1863,4 +1863,4 @@ def api_changelog(request, db):
         ),
     )
 
-    return docs_page_layout(content, title="API Changelog - ClipJot", user=user)
+    return docs_page_layout(content, title="API Changelog - ClipJot", user=user, current_page="changelog")
