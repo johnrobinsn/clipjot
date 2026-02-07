@@ -84,6 +84,9 @@ SYNC_WAIT_TIMEOUT: int = _get_int("SYNC_WAIT_TIMEOUT", 30)  # Max seconds to hol
 SYNC_BATCH_DELAY: float = _get_float("SYNC_BATCH_DELAY", 2.0)  # Seconds to batch after first find
 SYNC_POLL_INTERVAL: float = _get_float("SYNC_POLL_INTERVAL", 0.5)  # Internal DB poll interval
 
+# Analytics
+GOOGLE_ANALYTICS_ID: str | None = _get_env("GOOGLE_ANALYTICS_ID")  # e.g., G-XXXXXXXXXX
+
 
 def has_ssl_config() -> bool:
     """Check if SSL certificates are configured."""
