@@ -1,107 +1,124 @@
 # ClipJot Chrome Extension
 
-A Chrome extension for saving bookmarks to ClipJot.
+Save bookmarks to [ClipJot](https://clipjot.net) with one click.
 
 ## Features
 
-- Save current page with one click
-- Right-click any link to save it
-- Auto-fill URL and title from the page
-- Add tags from your existing vocabulary
-- Add comments/notes to bookmarks
-- Configurable backend URL
+- **One-click save** - Save the current page instantly
+- **Quick Save mode** - Save without showing the form (enable in Settings)
+- **Right-click to save** - Save any link from the context menu
+- **Tag management** - Add tags with autocomplete from your existing tags
+- **Keyboard shortcut** - Press `Alt+Shift+J` to open the extension
+- **Works with clipjot.net** - Ready to use with the production server
 
 ## Installation
 
-### Development / Local Testing
+### Step 1: Download
 
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top right)
-3. Click "Load unpacked"
-4. Select the `clients/chrome-extension` directory
+**Option A: Download ZIP** (easiest)
+1. Go to the [latest release](https://github.com/johnrobinsn/clipjot/releases/tag/chrome-v1.0.0)
+2. Under "Assets", download `Source code (zip)`
+3. Extract the ZIP file
+4. The extension is in the `clients/chrome-extension` folder
 
-### Configuration
+**Option B: Clone with Git**
+```bash
+git clone https://github.com/johnrobinsn/clipjot.git
+cd clipjot/clients/chrome-extension
+```
 
-1. Click the extension icon in the toolbar
-2. Click "Settings" (gear icon)
-3. Enter your ClipJot server URL (default: `http://localhost:5001`)
-4. Click "Save Settings"
+### Step 2: Install in Chrome
+
+1. Open Chrome and go to `chrome://extensions/`
+2. Turn on **Developer mode** (toggle in the top right corner)
+3. Click **Load unpacked**
+4. Select the `chrome-extension` folder you downloaded
+5. The ClipJot icon will appear in your toolbar
+
+> **Tip:** Click the puzzle piece icon in Chrome's toolbar and pin ClipJot for easy access.
+
+### Step 3: Sign In
+
+1. Click the ClipJot icon in your toolbar
+2. Sign in with **Google** or **GitHub**
+3. You're ready to save bookmarks!
 
 ## Usage
 
-### Save Current Page
-1. Navigate to any page you want to save
-2. Click the ClipJot icon in the toolbar
-3. (Optional) Edit the title, add tags, or add a comment
-4. Click "Save Bookmark"
+### Save the Current Page
+1. Click the ClipJot icon (or press `Alt+Shift+J`)
+2. Add tags or a comment (optional)
+3. Click **Save Bookmark**
 
-### Save a Link
+### Save Any Link
 1. Right-click any link on a page
-2. Select "Save to ClipJot"
-3. The popup will open with the link pre-filled
-4. Add tags and comments as desired
-5. Click "Save Bookmark"
+2. Select **Save to ClipJot**
+3. Add tags and click Save
 
-## Authentication
+### Quick Save Mode
+Want to save pages instantly without seeing the form?
+1. Click the **gear icon** to open Settings
+2. Enable **Quick Save**
+3. Now clicking the extension saves immediately!
 
-The extension uses OAuth via your ClipJot server:
+## Settings
 
-1. Click the extension icon
-2. Click "Sign in with Google" or "Sign in with GitHub"
-3. Complete the OAuth flow in the popup window
-4. You'll be redirected back to the extension once authenticated
+Click the gear icon in the extension popup to access settings:
 
-Your session is stored securely in Chrome's local storage.
+- **Backend URL** - Server address (default: `https://clipjot.net`)
+- **Quick Save** - Save instantly without showing the form
+- **Keyboard Shortcuts** - Link to customize `Alt+Shift+J`
 
-## Permissions
+## Troubleshooting
 
-The extension requires these permissions:
+**"Invalid token" or signed out unexpectedly?**
+- Click Sign Out, then sign in again
 
-- `activeTab` - Access the current tab's URL and title
-- `contextMenus` - Add "Save to ClipJot" to right-click menu
-- `storage` - Store your session and settings
-- `host_permissions (*://*/*)` - Communicate with your ClipJot server
+**Extension not appearing?**
+- Make sure Developer mode is enabled at `chrome://extensions/`
+- Try clicking the puzzle piece icon and pinning ClipJot
 
-## Development
+**Can't connect to server?**
+- Check your internet connection
+- Verify the backend URL in Settings is correct
 
-### Structure
+## Updating
+
+To update to a new version:
+1. Download the latest release
+2. Go to `chrome://extensions/`
+3. Click the refresh icon on the ClipJot extension
+4. Or remove and re-add the extension
+
+---
+
+## For Developers
+
+### Project Structure
 
 ```
 chrome-extension/
 ├── manifest.json           # Extension manifest (V3)
-├── popup/
-│   ├── popup.html          # Popup UI
-│   ├── popup.css           # Popup styles
-│   └── popup.js            # Popup logic
-├── options/
-│   ├── options.html        # Options page
-│   ├── options.css         # Options styles
-│   └── options.js          # Options logic
-├── background/
-│   └── service-worker.js   # Background script
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md
+├── popup/                  # Main popup UI
+├── options/                # Settings page
+├── background/             # Service worker
+└── icons/                  # Extension icons
 ```
 
-### Backend Requirements
+### Permissions
 
-The extension uses the standard OAuth routes with a `redirect_uri` parameter:
+- `activeTab` - Read current tab's URL and title
+- `contextMenus` - Add right-click menu item
+- `storage` - Store session and settings
+- `identity` - Handle OAuth flows
+- `host_permissions` - Communicate with ClipJot server
 
-- `GET /auth/google?redirect_uri=...` - Initiates Google OAuth for extension
-- `GET /auth/github?redirect_uri=...` - Initiates GitHub OAuth for extension
-
-When `redirect_uri` is provided, the backend encodes it in the OAuth state and redirects back to the extension with the session token after authentication.
-
-### Building for Production
+### Chrome Web Store
 
 For publishing to the Chrome Web Store:
 
-1. Update the version in `manifest.json`
-2. Zip the extension directory:
-   ```bash
-   zip -r clipjot-extension.zip chrome-extension/
-   ```
-3. Upload to the Chrome Web Store Developer Dashboard
+```bash
+zip -r clipjot-extension.zip chrome-extension/
+```
+
+Upload to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/).
