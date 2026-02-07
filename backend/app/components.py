@@ -9,6 +9,7 @@ from fasthtml.common import *
 from typing import Optional
 from urllib.parse import urlparse
 
+from . import config
 from .models import Bookmark, Tag, User
 
 
@@ -73,6 +74,27 @@ def heroicon(name: str, size: str = "w-5 h-5", cls: str = "", **attrs):
 
         # GitHub logo (solid) - brand icon
         "github": '''<path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>''',
+
+        # Book open (outline) - for documentation
+        "book-open": '''<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />''',
+
+        # Key (outline) - for authentication
+        "key": '''<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />''',
+
+        # Exclamation triangle (outline) - for warnings/errors
+        "exclamation-triangle": '''<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />''',
+
+        # Clock (outline) - for rate limits/time
+        "clock": '''<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />''',
+
+        # Arrow down tray (outline) - for download/export
+        "arrow-down-tray": '''<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />''',
+
+        # Clipboard document check (outline) - for copy
+        "clipboard-document-check": '''<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />''',
+
+        # Check (outline) - for success states
+        "check": '''<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />''',
     }
 
     path_content = icons.get(name, icons["bookmark"])
@@ -94,7 +116,21 @@ def heroicon(name: str, size: str = "w-5 h-5", cls: str = "", **attrs):
 
 def page_head(title: str = "ClipJot"):
     """Generate page head with CSS/JS dependencies."""
+    # Google Analytics (if configured)
+    ga_elements = ()
+    if config.GOOGLE_ANALYTICS_ID:
+        ga_elements = (
+            Script(src=f"https://www.googletagmanager.com/gtag/js?id={config.GOOGLE_ANALYTICS_ID}", async_=True),
+            Script(f"""
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){{dataLayer.push(arguments);}}
+                gtag('js', new Date());
+                gtag('config', '{config.GOOGLE_ANALYTICS_ID}');
+            """),
+        )
+
     return (
+        *ga_elements,
         Title(title),
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
@@ -168,6 +204,8 @@ def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, fl
                     A("RingZero LLC", href="https://ringzero.ai", cls="hover:underline", target="_blank"),
                     Span(" · ", cls="mx-1"),
                     A("Privacy Policy", href="/privacy", cls="hover:underline"),
+                    Span(" · ", cls="mx-1"),
+                    A("Developers", href="/docs/api", cls="hover:underline"),
                     cls="text-base-content/50 text-sm",
                 ),
                 cls="py-8 text-center",
@@ -1309,3 +1347,285 @@ def format_date(iso_date: Optional[str]) -> str:
         return dt.strftime("%b %d, %Y")
     except Exception:
         return iso_date[:10] if iso_date else ""
+
+
+# =============================================================================
+# API Documentation Components
+# =============================================================================
+
+def docs_page_layout(content, title: str = "API Documentation - ClipJot"):
+    """Page layout for documentation pages (public, no auth required)."""
+    return Html(
+        Head(*page_head(title)),
+        Body(
+            # Minimal navbar for docs
+            Nav(
+                Div(
+                    A(
+                        heroicon("bookmark", "w-6 h-6 shrink-0", "text-indigo-500"),
+                        "ClipJot",
+                        href="/",
+                        cls="btn btn-ghost text-xl gap-2",
+                    ),
+                    cls="flex-1",
+                ),
+                Div(
+                    A("Docs", href="/docs/api/v1", cls="btn btn-ghost btn-sm"),
+                    A("Changelog", href="/docs/api/changelog", cls="btn btn-ghost btn-sm"),
+                    A("Sign In", href="/login", cls="btn btn-primary btn-sm"),
+                    cls="flex-none gap-2",
+                ),
+                cls="navbar bg-base-100 shadow-lg",
+            ),
+            Main(
+                content,
+                cls="container mx-auto px-4 py-6 max-w-6xl",
+            ),
+            Footer(
+                P(
+                    "© 2025 ",
+                    A("RingZero LLC", href="https://ringzero.ai", cls="hover:underline", target="_blank"),
+                    Span(" · ", cls="mx-1"),
+                    A("Privacy Policy", href="/privacy", cls="hover:underline"),
+                    Span(" · ", cls="mx-1"),
+                    A("Developers", href="/docs/api", cls="hover:underline"),
+                    cls="text-base-content/50 text-sm",
+                ),
+                cls="py-8 text-center",
+            ),
+            cls="min-h-screen bg-base-200",
+        ),
+        lang="en",
+    )
+
+
+def docs_sidebar_nav(sections: list, current_section: str = None):
+    """Sidebar navigation for API docs with sticky positioning."""
+    nav_items = []
+    for section in sections:
+        is_active = section["id"] == current_section
+        nav_items.append(
+            A(
+                heroicon(section.get("icon", "book-open"), "w-4 h-4"),
+                section["title"],
+                href=f"#{ section['id']}",
+                cls=f"flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-base-200 {'bg-primary text-primary-content' if is_active else ''}",
+            )
+        )
+
+    return Div(
+        Div(
+            H3("On this page", cls="text-sm font-semibold text-base-content/70 mb-3"),
+            Nav(*nav_items, cls="flex flex-col gap-1"),
+            cls="sticky top-6",
+        ),
+        cls="hidden lg:block w-48 shrink-0",
+    )
+
+
+def code_example_tabs(examples: dict, endpoint_key: str):
+    """Tabbed code examples with copy button."""
+    tab_id = f"code-tabs-{endpoint_key.replace('/', '-')}"
+
+    tabs = []
+    panels = []
+
+    for i, (lang, code) in enumerate(examples.items()):
+        tab_name = {"curl": "cURL", "python": "Python", "javascript": "JavaScript"}.get(lang, lang)
+        is_first = i == 0
+
+        tabs.append(
+            A(
+                tab_name,
+                cls=f"tab {'tab-active' if is_first else ''}",
+                role="tab",
+                data_tab=f"{tab_id}-{lang}",
+                onclick=f"switchCodeTab('{tab_id}', '{lang}')",
+            )
+        )
+
+        panels.append(
+            Div(
+                Pre(
+                    Code(code.strip(), cls=f"language-{lang}"),
+                    cls="bg-base-300 p-4 rounded-lg text-sm overflow-x-auto",
+                ),
+                Button(
+                    heroicon("clipboard-document-check", "w-4 h-4"),
+                    "Copy",
+                    cls="btn btn-xs btn-ghost absolute top-2 right-2",
+                    onclick=f"copyCode(this)",
+                ),
+                id=f"{tab_id}-{lang}",
+                cls=f"code-panel relative {'hidden' if not is_first else ''}",
+                data_lang=lang,
+            )
+        )
+
+    return Div(
+        Div(*tabs, cls="tabs tabs-boxed mb-2", role="tablist"),
+        *panels,
+        cls="mt-4",
+        id=tab_id,
+    )
+
+
+def schema_table(schema: dict, title: str = "Parameters"):
+    """Render a request/response schema as a table."""
+    if not schema:
+        return None
+
+    rows = []
+    for field_name, field_info in schema.items():
+        required = field_info.get("required", False)
+        field_type = field_info.get("type", "string")
+        description = field_info.get("description", "")
+
+        rows.append(
+            Tr(
+                Td(
+                    Code(field_name, cls="text-primary"),
+                    Span(" *", cls="text-error") if required else None,
+                ),
+                Td(Code(field_type, cls="text-xs opacity-70")),
+                Td(description, cls="text-sm"),
+            )
+        )
+
+    return Div(
+        H4(title, cls="font-semibold text-sm mb-2"),
+        Table(
+            Thead(
+                Tr(
+                    Th("Field", cls="text-left"),
+                    Th("Type", cls="text-left"),
+                    Th("Description", cls="text-left"),
+                )
+            ),
+            Tbody(*rows),
+            cls="table table-xs w-full",
+        ),
+        cls="mb-4",
+    )
+
+
+def endpoint_doc(endpoint_key: str, endpoint: dict):
+    """Document a single API endpoint."""
+    method = endpoint.get("method", "POST")
+    path = endpoint.get("path", "")
+    summary = endpoint.get("summary", "")
+    description = endpoint.get("description", "")
+    scope = endpoint.get("scope")
+    request_schema = endpoint.get("request_schema", {})
+    response_schema = endpoint.get("response_schema", {})
+    examples = endpoint.get("examples", {})
+
+    # Method badge color
+    method_cls = "badge-success" if method == "GET" else "badge-info"
+
+    return Div(
+        # Header
+        Div(
+            Span(method, cls=f"badge {method_cls} font-mono mr-2"),
+            Code(path, cls="text-lg font-mono"),
+            cls="flex items-center mb-2",
+        ),
+        # Summary
+        P(summary, cls="text-lg font-medium mb-2"),
+        # Description
+        P(description, cls="text-base-content/70 mb-4") if description != summary else None,
+        # Scope badge
+        Div(
+            Span("Scope: ", cls="text-sm text-base-content/60"),
+            Span(scope or "public", cls=f"badge badge-sm {'badge-warning' if scope == 'write' else 'badge-info' if scope == 'read' else 'badge-ghost'}"),
+            cls="mb-4",
+        ) if scope is not None else Div(
+            Span("Public endpoint", cls="text-sm text-base-content/60"),
+            cls="mb-4",
+        ),
+        # Request schema
+        schema_table(request_schema, "Request Body") if request_schema else None,
+        # Response schema
+        schema_table(response_schema, "Response") if response_schema else None,
+        # Code examples
+        code_example_tabs(examples, endpoint_key) if examples else None,
+        cls="card bg-base-100 shadow-md p-6 mb-6",
+        id=f"endpoint-{endpoint_key.replace('/', '-')}",
+    )
+
+
+def docs_section(section_id: str, title: str, icon: str, content):
+    """A documentation section with anchor."""
+    return Section(
+        Div(
+            heroicon(icon, "w-6 h-6", "text-primary"),
+            H2(title, cls="text-2xl font-bold"),
+            cls="flex items-center gap-3 mb-6",
+        ),
+        content,
+        id=section_id,
+        cls="mb-12 scroll-mt-6",
+    )
+
+
+def landing_developers():
+    """Developer section for landing page."""
+    return Div(
+        H2("For Developers", cls="text-2xl font-bold text-center mb-8"),
+        Div(
+            Div(
+                Div(
+                    heroicon("code-bracket", "w-8 h-8", "text-primary"),
+                    cls="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4",
+                ),
+                H3("REST API", cls="text-lg font-semibold mb-2"),
+                P(
+                    "Full API access to your bookmarks. Build integrations, automate workflows, "
+                    "or create your own clients.",
+                    cls="text-base-content/70 mb-4"
+                ),
+                A(
+                    "View API Docs",
+                    href="/docs/api",
+                    cls="btn btn-primary btn-sm",
+                ),
+                cls="card-body items-center text-center",
+            ),
+            cls="card bg-base-100 shadow-md max-w-md mx-auto",
+        ),
+        cls="py-12 px-4",
+    )
+
+
+def docs_code_scripts():
+    """JavaScript for code tabs and copy functionality."""
+    return Script("""
+        function switchCodeTab(tabGroupId, lang) {
+            const group = document.getElementById(tabGroupId);
+            if (!group) return;
+
+            // Update tab active states
+            group.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('tab-active', tab.dataset.tab === tabGroupId + '-' + lang);
+            });
+
+            // Show/hide panels
+            group.querySelectorAll('.code-panel').forEach(panel => {
+                panel.classList.toggle('hidden', panel.dataset.lang !== lang);
+            });
+        }
+
+        function copyCode(btn) {
+            const panel = btn.closest('.code-panel');
+            const code = panel.querySelector('code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg> Copied!';
+                btn.classList.add('text-success');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('text-success');
+                }, 2000);
+            });
+        }
+    """)

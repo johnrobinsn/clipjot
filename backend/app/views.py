@@ -16,8 +16,11 @@ from .components import (
     tag_list_item, tag_chip, pagination, modal, modal_container,
     bulk_actions_bar, flash_message, settings_nav, keyboard_help_hint,
     new_links_banner, landing_hero, landing_features, landing_downloads,
-    heroicon,
+    landing_developers, heroicon,
+    docs_page_layout, docs_sidebar_nav, docs_section, endpoint_doc,
+    docs_code_scripts,
 )
+from . import api_docs
 
 
 # =============================================================================
@@ -393,6 +396,7 @@ def landing_page():
         landing_hero(),
         landing_features(),
         landing_downloads(),
+        landing_developers(),
     )
     return page_layout(content, title="ClipJot - Save Links From Anywhere")
 
@@ -1628,3 +1632,227 @@ def internal_latest_bookmark(request, db):
         json.dumps({"id": latest_id, "last_updated": last_updated}),
         media_type="application/json",
     )
+
+
+# =============================================================================
+# API Documentation Routes
+# =============================================================================
+
+def api_docs_v1():
+    """API Documentation v1 page.
+
+    GET /docs/api/v1
+    """
+    sections = api_docs.SECTIONS
+
+    # Build content for each section
+    section_content = []
+
+    # Overview section
+    overview_content = Div(
+        P(
+            "The ClipJot API provides programmatic access to your bookmarks. "
+            "All endpoints use POST method and accept/return JSON.",
+            cls="text-lg mb-4"
+        ),
+        Div(
+            H3("Base URL", cls="font-semibold mb-2"),
+            Code(f"{config.BASE_URL}/api/v1", cls="bg-base-300 px-3 py-2 rounded-lg block"),
+            cls="mb-6",
+        ),
+        Div(
+            H3("Request Format", cls="font-semibold mb-2"),
+            P("All requests must include:", cls="mb-2"),
+            Ul(
+                Li(Code("Content-Type: application/json"), " header"),
+                Li(Code("Authorization: Bearer <token>"), " header (except public endpoints)"),
+                Li("JSON request body"),
+                cls="list-disc list-inside mb-4 space-y-1",
+            ),
+            cls="mb-6",
+        ),
+    )
+    section_content.append(docs_section("overview", "Overview", "book-open", overview_content))
+
+    # Authentication section
+    auth_content = Div(
+        P(
+            "Most API endpoints require authentication via Bearer token. "
+            "Tokens can be obtained through OAuth login or by creating an API token in Settings.",
+            cls="mb-4"
+        ),
+        Div(
+            H3("Token Types", cls="font-semibold mb-2"),
+            Ul(
+                Li(Strong("Session tokens"), " - Created during OAuth login, used by web UI and mobile apps"),
+                Li(Strong("API tokens"), " - Created in Settings > API Tokens, for scripts and integrations"),
+                cls="list-disc list-inside mb-4 space-y-1",
+            ),
+            cls="mb-6",
+        ),
+        Div(
+            H3("Token Scopes", cls="font-semibold mb-2"),
+            Ul(
+                Li(Code("read"), " - Can read bookmarks and tags"),
+                Li(Code("write"), " - Can read, create, update, and delete bookmarks and tags"),
+                cls="list-disc list-inside mb-4 space-y-1",
+            ),
+            cls="mb-6",
+        ),
+        Div(
+            H3("Example Request", cls="font-semibold mb-2"),
+            Pre(
+                Code('''curl -X POST https://your-domain.com/api/v1/bookmarks/list \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{}'
+'''),
+                cls="bg-base-300 p-4 rounded-lg text-sm overflow-x-auto",
+            ),
+            cls="mb-6",
+        ),
+        # Auth endpoints
+        *[endpoint_doc(key, ep) for key, ep in api_docs.ENDPOINTS.items() if ep.get("section") == "auth"],
+    )
+    section_content.append(docs_section("auth", "Authentication", "key", auth_content))
+
+    # Bookmarks section
+    bookmarks_endpoints = [endpoint_doc(key, ep) for key, ep in api_docs.ENDPOINTS.items() if ep.get("section") == "bookmarks"]
+    section_content.append(docs_section("bookmarks", "Bookmarks", "bookmark", Div(*bookmarks_endpoints)))
+
+    # Tags section
+    tags_endpoints = [endpoint_doc(key, ep) for key, ep in api_docs.ENDPOINTS.items() if ep.get("section") == "tags"]
+    section_content.append(docs_section("tags", "Tags", "tag", Div(*tags_endpoints)))
+
+    # Data section
+    data_endpoints = [endpoint_doc(key, ep) for key, ep in api_docs.ENDPOINTS.items() if ep.get("section") == "data"]
+    section_content.append(docs_section("data", "Import & Export", "arrow-down-tray", Div(*data_endpoints)))
+
+    # Errors section
+    error_rows = []
+    for code, info in api_docs.ERROR_CODES.items():
+        error_rows.append(
+            Tr(
+                Td(Code(code, cls="text-error")),
+                Td(str(info.get("status", ""))),
+                Td(info.get("description", "")),
+            )
+        )
+
+    errors_content = Div(
+        P("When an error occurs, the API returns a JSON object with error details:", cls="mb-4"),
+        Pre(
+            Code('{"error": "Human-readable message", "code": "ERROR_CODE"}'),
+            cls="bg-base-300 p-4 rounded-lg text-sm mb-6",
+        ),
+        Table(
+            Thead(
+                Tr(
+                    Th("Code", cls="text-left"),
+                    Th("HTTP Status", cls="text-left"),
+                    Th("Description", cls="text-left"),
+                )
+            ),
+            Tbody(*error_rows),
+            cls="table w-full",
+        ),
+    )
+    section_content.append(docs_section("errors", "Errors", "exclamation-triangle", errors_content))
+
+    # Rate limits section
+    rate_limits_content = Div(
+        P(
+            f"The API is rate limited to {config.RATE_LIMIT_REQUESTS} requests "
+            f"per {config.RATE_LIMIT_WINDOW} seconds per token.",
+            cls="mb-4"
+        ),
+        P(
+            "When rate limited, the API returns a 429 status code. "
+            "Check the Retry-After header for how long to wait.",
+            cls="mb-4"
+        ),
+        Div(
+            H3("Rate Limit Headers", cls="font-semibold mb-2"),
+            Ul(
+                Li(Code("X-RateLimit-Limit"), " - Maximum requests per window"),
+                Li(Code("X-RateLimit-Remaining"), " - Requests remaining in current window"),
+                Li(Code("X-RateLimit-Reset"), " - Unix timestamp when the window resets"),
+                Li(Code("Retry-After"), " - Seconds to wait (only on 429 response)"),
+                cls="list-disc list-inside space-y-1",
+            ),
+            cls="mb-6",
+        ),
+    )
+    section_content.append(docs_section("rate-limits", "Rate Limits", "clock", rate_limits_content))
+
+    # Main content with sidebar
+    content = Div(
+        # Page header
+        Div(
+            H1("API Documentation", cls="text-3xl font-bold"),
+            Span("v1", cls="badge badge-primary ml-3"),
+            cls="flex items-center mb-2",
+        ),
+        P("Build integrations with the ClipJot REST API.", cls="text-base-content/70 mb-8"),
+        # Layout with sidebar
+        Div(
+            # Sidebar
+            docs_sidebar_nav(sections),
+            # Main content
+            Div(
+                *section_content,
+                cls="flex-1 min-w-0",
+            ),
+            cls="flex gap-8",
+        ),
+        # Code tab scripts
+        docs_code_scripts(),
+    )
+
+    return docs_page_layout(content, title="API Documentation v1 - ClipJot")
+
+
+def api_changelog():
+    """API Changelog page.
+
+    GET /docs/api/changelog
+    """
+    content = Div(
+        H1("API Changelog", cls="text-3xl font-bold mb-2"),
+        P("Version history and migration guides.", cls="text-base-content/70 mb-8"),
+        # v1 release
+        Div(
+            Div(
+                Div(
+                    Span("v1", cls="badge badge-primary mr-2"),
+                    Span("Current", cls="badge badge-success"),
+                    cls="flex items-center mb-2",
+                ),
+                H2("Version 1.0", cls="text-xl font-bold"),
+                P("Released January 2025", cls="text-sm text-base-content/60 mb-4"),
+                P("Initial API release with full bookmark and tag management capabilities.", cls="mb-4"),
+                H3("Features", cls="font-semibold mb-2"),
+                Ul(
+                    Li("Bookmark CRUD operations (add, edit, delete, list, search)"),
+                    Li("Incremental sync with long polling support"),
+                    Li("Tag management (create, update, delete, list)"),
+                    Li("Data export and import"),
+                    Li("Invite code authentication"),
+                    Li("Rate limiting (100 requests/60 seconds)"),
+                    cls="list-disc list-inside space-y-1",
+                ),
+                cls="card-body",
+            ),
+            cls="card bg-base-100 shadow-md mb-6",
+        ),
+        # Future versions placeholder
+        Div(
+            P(
+                "Future API versions will be documented here with migration guides.",
+                cls="text-base-content/60 italic",
+            ),
+            cls="text-center py-8",
+        ),
+    )
+
+    return docs_page_layout(content, title="API Changelog - ClipJot")
