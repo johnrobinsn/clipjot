@@ -1,147 +1,132 @@
-# ClipJot Android Client
+# ClipJot for Android
 
-Android app for saving bookmarks to your ClipJot server.
+Save bookmarks to [ClipJot](https://clipjot.net) from any app.
 
 ## Features
 
-- **Share Intent Receiver**: Save URLs from any app using Android's share sheet
-- **Bottom Sheet UI**: Quick capture with expandable form
-- **Tag Support**: Autocomplete from your tag vocabulary, create new tags on-the-fly
-- **OAuth Authentication**: Sign in with Google or GitHub
-- **Secure Token Storage**: Uses Android EncryptedSharedPreferences
-- **Configurable Backend**: Connect to self-hosted or hosted ClipJot instance
+- **Share from anywhere** - Save links from any app using Android's share sheet
+- **Quick capture** - Bottom sheet UI for fast saving
+- **Tag support** - Add tags with autocomplete
+- **Direct Share** - Quick share targets for one-tap saving
+- **Secure** - Encrypted token storage, HTTPS-only
 
-## Requirements
+## Installation
 
-- Android 10 (API 29) or higher
-- ClipJot backend server
+### Download APK
 
-## Building
+1. Go to the [latest release](https://github.com/johnrobinsn/clipjot/releases/tag/android-v1.0.0)
+2. Download `app-release.apk`
+3. On your Android device, open the APK file
+4. If prompted, allow installation from unknown sources
+5. Tap **Install**
 
-### Prerequisites
+> **Note:** Requires Android 10 or higher.
 
+### Sign In
+
+1. Open ClipJot from your app drawer
+2. Sign in with **Google** or **GitHub**
+3. You're ready to save bookmarks!
+
+## Usage
+
+### Save a Link
+
+1. Find something you want to save (in a browser, Twitter, etc.)
+2. Tap the **Share** button
+3. Select **ClipJot** from the share sheet
+4. Add tags or a comment (optional)
+5. Tap **Save**
+
+### Quick Save with Direct Share
+
+After saving a few bookmarks, ClipJot appears in your Direct Share targets for even faster saving:
+
+1. Tap **Share** on any content
+2. Look for the ClipJot icon in the top row
+3. Tap to save instantly
+
+### View Your Bookmarks
+
+1. Open the ClipJot app
+2. Browse or search your saved links
+3. Tap any bookmark to open it
+
+## Settings
+
+Open the app and tap the **gear icon** to access settings:
+
+- **Backend URL** - Server address (default: `https://clipjot.net`)
+- **Account** - View logged-in account
+- **Sign Out** - Log out of your account
+
+## Troubleshooting
+
+**"Session expired" or signed out?**
+- Open the app and sign in again
+
+**App not appearing in share sheet?**
+- Make sure you're sharing text/URL content
+- Try restarting your device
+
+**Can't install APK?**
+- Go to Settings > Security > Install unknown apps
+- Enable for your file manager or browser
+
+---
+
+## For Developers
+
+### Building from Source
+
+**Requirements:**
 - Android Studio Hedgehog (2023.1.1) or later
 - JDK 17
 
-### Build Steps
+**Build debug APK:**
+```bash
+cd clients/android
+./gradlew assembleDebug
+```
 
-1. Open the project in Android Studio:
+**Build release APK** (requires signing configuration):
+```bash
+./gradlew assembleRelease
+```
+
+### Release Signing
+
+1. Create `keystore.properties` in the android directory:
+   ```properties
+   storeFile=path/to/your-keystore.jks
+   storePassword=your-store-password
+   keyAlias=your-key-alias
+   keyPassword=your-key-password
    ```
-   File > Open > clients/android
-   ```
 
-2. Sync Gradle files when prompted
-
-3. Build the debug APK:
-   ```bash
-   ./gradlew assembleDebug
-   ```
-   The APK will be at `app/build/outputs/apk/debug/app-debug.apk`
-
-4. For release builds:
+2. Build the release APK:
    ```bash
    ./gradlew assembleRelease
    ```
 
-### Running on Emulator
-
-For local development with the backend running on localhost:
-
-1. The app uses `http://localhost:5001` as the default backend URL
-2. On Android emulator, localhost refers to the emulator itself, not your host machine
-3. Set up reverse port forwarding so the emulator can reach your host's localhost:
-   ```bash
-   adb reverse tcp:5001 tcp:5001
-   ```
-   This maps `localhost:5001` inside the emulator to `localhost:5001` on your host machine.
-
-4. Install and launch the app:
-   ```bash
-   ./gradlew installDebug
-   adb shell am start -a android.intent.action.SEND -t "text/plain" \
-       --es android.intent.extra.TEXT "https://example.com" \
-       -n com.clipjot.android/.ui.share.ShareActivity
-   ```
-
-**Note**: The `adb reverse` mapping is required for OAuth flows to work correctly, since GitHub/Google redirect back to `localhost:5001`.
-
-**Alternative**: Instead of `adb reverse`, you can change the backend URL in the app's Settings to `http://10.0.2.2:5001` (the special Android emulator IP that routes to the host). However, this won't work for OAuth redirects.
-
-## Usage
-
-### First Time Setup
-
-1. Install the app on your Android device
-2. Open Settings and configure your backend URL
-3. Tap "Test Connection" to verify connectivity
-4. Return to the app and sign in with Google or GitHub
-
-### Saving Bookmarks
-
-1. Find a URL you want to save in any app (browser, Twitter, etc.)
-2. Tap the Share button
-3. Select "ClipJot" from the share sheet
-4. Add a title, tags, and optional comment
-5. Tap "Save"
-
-### Managing Settings
-
-- Open the app directly to access Settings
-- Configure backend URL
-- View account information
-- Log out
-
-## Project Structure
+### Project Structure
 
 ```
-app/src/main/
-├── java/com/clipjot/android/
-│   ├── ClipJotApplication.java     # Application class
-│   ├── data/
-│   │   ├── api/                    # Retrofit API client
-│   │   │   ├── ClipJotApi.java     # API interface
-│   │   │   ├── ApiClient.java      # Retrofit singleton
-│   │   │   ├── AuthInterceptor.java
-│   │   │   └── model/              # Request/response models
-│   │   └── prefs/                  # Preferences
-│   │       ├── TokenManager.java   # Secure token storage
-│   │       └── SettingsManager.java
-│   ├── ui/
-│   │   ├── auth/                   # Login & OAuth
-│   │   ├── share/                  # Share intent handling
-│   │   └── settings/               # Settings screen
-│   └── util/
-│       └── UrlValidator.java
-└── res/
-    ├── layout/                     # XML layouts
-    ├── values/                     # Strings, colors, themes
-    └── drawable/                   # Icons
+app/src/main/java/com/clipjot/android/
+├── data/api/          # API client (Retrofit)
+├── data/prefs/        # Token & settings storage
+├── ui/auth/           # Login screens
+├── ui/share/          # Share sheet handling
+├── ui/links/          # Bookmark list
+└── ui/settings/       # Settings screen
 ```
 
-## API Endpoints Used
+### Local Development
 
-| Endpoint | Purpose |
-|----------|---------|
-| `POST /api/v1/bookmarks/add` | Save new bookmark |
-| `POST /api/v1/tags/list` | Fetch user's tags |
-| `GET /auth/google` | Start Google OAuth |
-| `GET /auth/github` | Start GitHub OAuth |
-
-## Deep Link
-
-The app registers a deep link handler for OAuth callbacks:
-
-```
-clipjot://oauth/callback?token={session_token}
+For testing with a local backend:
+```bash
+# Forward emulator port to host
+adb reverse tcp:5001 tcp:5001
 ```
 
-## Dependencies
-
-- **AndroidX**: AppCompat, Material, Browser, Security
-- **Retrofit**: HTTP client
-- **Gson**: JSON parsing
-- **OkHttp**: HTTP logging
-
-## License
-
-Same as the main ClipJot project.
+Then set backend URL to `http://localhost:5001` in Settings.

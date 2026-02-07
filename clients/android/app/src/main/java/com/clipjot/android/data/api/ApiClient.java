@@ -2,6 +2,7 @@ package com.clipjot.android.data.api;
 
 import android.content.Context;
 
+import com.clipjot.android.BuildConfig;
 import com.clipjot.android.data.api.model.ApiError;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.google.gson.Gson;
@@ -38,7 +39,9 @@ public class ApiClient {
             currentBaseUrl = baseUrl;
 
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            logging.setLevel(BuildConfig.DEBUG
+                    ? HttpLoggingInterceptor.Level.BODY
+                    : HttpLoggingInterceptor.Level.NONE);
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(new AuthInterceptor(context))
@@ -70,7 +73,9 @@ public class ApiClient {
             currentBaseUrlNoAuth = baseUrl;
 
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+            logging.setLevel(BuildConfig.DEBUG
+                    ? HttpLoggingInterceptor.Level.BODY
+                    : HttpLoggingInterceptor.Level.NONE);
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(logging)

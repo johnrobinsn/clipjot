@@ -1,0 +1,26 @@
+# Built files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Build output
+/build
+/app/build
+/.gradle
+
+# Local configuration
+local.properties
+keystore.properties
+
+# Signing keys (NEVER commit these)
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
