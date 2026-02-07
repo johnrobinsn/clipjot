@@ -1,5 +1,7 @@
 # ClipJot
 
+![ClipJot](docs/images/banner.png)
+
 Save and organize bookmarks from anywhere.
 
 **Production:** [https://clipjot.net](https://clipjot.net)
