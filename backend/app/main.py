@@ -299,15 +299,15 @@ def docs_api_redirect():
 
 
 @rt("/docs/api/v1")
-def docs_api_v1():
+def docs_api_v1(request):
     """API Documentation v1."""
-    return views.api_docs_v1()
+    return views.api_docs_v1(request, get_db())
 
 
 @rt("/docs/api/changelog")
-def docs_api_changelog():
+def docs_api_changelog(request):
     """API Changelog."""
-    return views.api_changelog()
+    return views.api_changelog(request, get_db())
 
 
 @rt("/llms.txt")

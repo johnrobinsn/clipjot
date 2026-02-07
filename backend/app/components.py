@@ -1353,12 +1353,12 @@ def format_date(iso_date: Optional[str]) -> str:
 # API Documentation Components
 # =============================================================================
 
-def docs_page_layout(content, title: str = "API Documentation - ClipJot"):
-    """Page layout for documentation pages (public, no auth required)."""
+def docs_page_layout(content, title: str = "API Documentation - ClipJot", user: Optional[User] = None):
+    """Page layout for documentation pages (public, shows profile menu when authenticated)."""
     return Html(
         Head(*page_head(title)),
         Body(
-            # Minimal navbar for docs
+            # Navbar for docs - shows profile menu when authenticated
             Nav(
                 Div(
                     A(
@@ -1372,7 +1372,7 @@ def docs_page_layout(content, title: str = "API Documentation - ClipJot"):
                 Div(
                     A("Docs", href="/docs/api/v1", cls="btn btn-ghost btn-sm"),
                     A("Changelog", href="/docs/api/changelog", cls="btn btn-ghost btn-sm"),
-                    A("Sign In", href="/login", cls="btn btn-primary btn-sm"),
+                    user_menu(user) if user else A("Sign In", href="/login", cls="btn btn-primary btn-sm"),
                     cls="flex-none gap-2",
                 ),
                 cls="navbar bg-base-100 shadow-lg",

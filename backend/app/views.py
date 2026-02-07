@@ -1638,11 +1638,15 @@ def internal_latest_bookmark(request, db):
 # API Documentation Routes
 # =============================================================================
 
-def api_docs_v1():
+def api_docs_v1(request, db):
     """API Documentation v1 page.
 
     GET /docs/api/v1
     """
+    # Get user if authenticated (optional - docs are public)
+    result = get_current_user(request, db)
+    user = result[0] if result else None
+
     sections = api_docs.SECTIONS
 
     # Build content for each section
@@ -1809,14 +1813,18 @@ def api_docs_v1():
         docs_code_scripts(),
     )
 
-    return docs_page_layout(content, title="API Documentation v1 - ClipJot")
+    return docs_page_layout(content, title="API Documentation v1 - ClipJot", user=user)
 
 
-def api_changelog():
+def api_changelog(request, db):
     """API Changelog page.
 
     GET /docs/api/changelog
     """
+    # Get user if authenticated (optional - docs are public)
+    result = get_current_user(request, db)
+    user = result[0] if result else None
+
     content = Div(
         H1("API Changelog", cls="text-3xl font-bold mb-2"),
         P("Version history and migration guides.", cls="text-base-content/70 mb-8"),
@@ -1855,4 +1863,4 @@ def api_changelog():
         ),
     )
 
-    return docs_page_layout(content, title="API Changelog - ClipJot")
+    return docs_page_layout(content, title="API Changelog - ClipJot", user=user)
