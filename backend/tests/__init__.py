@@ -1,1 +1,0 @@
-"""ClipJot backend tests."""
