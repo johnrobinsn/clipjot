@@ -47,15 +47,9 @@ async function init() {
   sessionToken = storage.sessionToken || null;
   quickSave = storage.quickSave || false;
 
-  console.log('Init - backendUrl:', backendUrl);
-  console.log('Init - sessionToken:', sessionToken ? 'present' : 'missing');
-  console.log('Init - quickSave:', quickSave);
-
   if (sessionToken) {
     // Verify session is still valid
-    console.log('Verifying session...');
     const isValid = await verifySession();
-    console.log('Session valid:', isValid);
     if (isValid) {
       // Check for pending bookmark from context menu
       const pending = await chrome.storage.local.get('pendingBookmark');
@@ -82,7 +76,6 @@ async function init() {
  */
 async function verifySession() {
   try {
-    console.log('Calling API to verify session...');
     const response = await fetch(`${backendUrl}/api/v1/tags/list`, {
       method: 'POST',
       headers: {
@@ -91,7 +84,6 @@ async function verifySession() {
       },
       body: JSON.stringify({}),
     });
-    console.log('Verify response status:', response.status);
     return response.ok;
   } catch (error) {
     console.error('Session verification failed:', error);
@@ -247,18 +239,15 @@ async function handleLogin(provider) {
 
   try {
     // Use Chrome's identity API to handle the OAuth flow
-    console.log('Starting OAuth flow with URL:', authUrl);
     const responseUrl = await chrome.identity.launchWebAuthFlow({
       url: authUrl,
       interactive: true,
     });
-    console.log('OAuth response URL:', responseUrl);
 
     // Parse the response URL to get the token
     const url = new URL(responseUrl);
     const token = url.searchParams.get('token');
     const error = url.searchParams.get('error');
-    console.log('Parsed token:', token ? 'present' : 'missing', 'error:', error);
 
     if (error) {
       showLoginError(`Login failed: ${error}`);
@@ -268,7 +257,6 @@ async function handleLogin(provider) {
     if (token) {
       sessionToken = token;
       await chrome.storage.local.set({ sessionToken: token });
-      console.log('Token saved successfully');
       // Show success briefly, then close
       loginError.textContent = 'Login successful!';
       loginError.classList.remove('hidden');
