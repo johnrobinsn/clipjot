@@ -213,4 +213,4 @@ ClipJot will now appear directly in the share sheet without extra taps.
 
 ## License
 
-MIT License - see project root LICENSE file.
+Apache License 2.0 - see project root LICENSE file.

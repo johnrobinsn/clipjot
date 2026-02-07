@@ -250,7 +250,7 @@ clipjot-web/
 
 ### Open Source Considerations
 
-- **LICENSE**: Ensure license is clear (MIT, Apache 2.0, etc.)
+- **LICENSE**: Ensure license is clear (Apache 2.0)
 - **CONTRIBUTING.md**: Guidelines for contributors
 - **Issue templates**: Bug reports, feature requests
 - **Branch protection**: Require PR reviews for main branch
