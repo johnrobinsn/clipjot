@@ -164,7 +164,8 @@ def page_layout(content, title: str = "ClipJot", user: Optional[User] = None, fl
             ),
             Footer(
                 P(
-                    "© 2025 RingZero LLC",
+                    "© 2025 ",
+                    A("RingZero LLC", href="https://ringzero.ai", cls="hover:underline", target="_blank"),
                     Span(" · ", cls="mx-1"),
                     A("Privacy Policy", href="/privacy", cls="hover:underline"),
                     cls="text-base-content/50 text-sm",
