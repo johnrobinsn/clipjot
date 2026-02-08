@@ -34,11 +34,7 @@ async function init() {
  * Update account section visibility based on auth state
  */
 function updateAccountSection(isLoggedIn) {
-  if (isLoggedIn) {
-    accountSection.classList.remove('hidden');
-  } else {
-    accountSection.classList.add('hidden');
-  }
+  accountSection.style.display = isLoggedIn ? 'block' : 'none';
 }
 
 /**
