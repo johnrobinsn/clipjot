@@ -44,6 +44,8 @@ android {
             buildConfigField "String", "DEFAULT_BACKEND_URL", "\"https://clipjot.net\""
         }
         debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
             minifyEnabled false
             // Development backend URL
             buildConfigField "String", "DEFAULT_BACKEND_URL", "\"https://clipjot.net\""
