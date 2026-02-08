@@ -12,6 +12,10 @@ const changeShortcutBtn = document.getElementById('change-shortcut');
 const saveBtn = document.getElementById('save-btn');
 const statusMessage = document.getElementById('status-message');
 const accountSection = document.getElementById('account-section');
+const profileInfo = document.getElementById('profile-info');
+const profileEmail = document.getElementById('profile-email');
+const profileType = document.getElementById('profile-type');
+const profileSince = document.getElementById('profile-since');
 const signOutBtn = document.getElementById('sign-out-btn');
 
 /**
@@ -26,6 +30,11 @@ async function init() {
   // Show/hide account section based on auth state
   updateAccountSection(!!storage.sessionToken);
 
+  // Load profile if logged in
+  if (storage.sessionToken) {
+    await loadProfile(storage.backendUrl || DEFAULT_BACKEND_URL, storage.sessionToken);
+  }
+
   // Load keyboard shortcut
   await loadShortcut();
 }
@@ -35,6 +44,30 @@ async function init() {
  */
 function updateAccountSection(isLoggedIn) {
   accountSection.style.display = isLoggedIn ? 'block' : 'none';
+}
+
+/**
+ * Load and display user profile information
+ */
+async function loadProfile(backendUrl, sessionToken) {
+  try {
+    const response = await fetch(`${backendUrl}/api/v1/user/profile`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    profileEmail.textContent = data.email || '';
+    profileType.textContent = data.is_premium ? 'Premium' : 'Free';
+    profileSince.textContent = data.created_at ? data.created_at.slice(0, 10) : '';
+    profileInfo.style.display = 'block';
+  } catch (error) {
+    // Silently fail - profile info is non-critical
+  }
 }
 
 /**

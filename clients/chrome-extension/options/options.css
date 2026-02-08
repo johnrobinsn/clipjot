@@ -31,6 +31,9 @@
 .hidden { display: none; }
 .font-medium { font-weight: 500; }
 .border-t { border-top-width: 1px; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
 
 body {
   padding: 1rem;

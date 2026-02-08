@@ -78,6 +78,23 @@
 
         <!-- Account Section (shown when logged in) -->
         <div id="account-section" class="mt-6 pt-6 border-t border-base-300" style="display: none;">
+          <div id="profile-info" class="mb-4" style="display: none;">
+            <h3 class="font-medium text-sm mb-2">Account</h3>
+            <div class="text-sm profile-details">
+              <div class="flex justify-between mb-1">
+                <span class="text-base-content/60">Email</span>
+                <span id="profile-email"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-base-content/60">Account type</span>
+                <span id="profile-type"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-base-content/60">Member since</span>
+                <span id="profile-since"></span>
+              </div>
+            </div>
+          </div>
           <button id="sign-out-btn" class="btn btn-outline btn-error btn-sm w-full">
             Sign Out
           </button>
