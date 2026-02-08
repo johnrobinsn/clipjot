@@ -11,18 +11,34 @@ const shortcutDisplay = document.getElementById('shortcut-display');
 const changeShortcutBtn = document.getElementById('change-shortcut');
 const saveBtn = document.getElementById('save-btn');
 const statusMessage = document.getElementById('status-message');
+const accountSection = document.getElementById('account-section');
+const signOutBtn = document.getElementById('sign-out-btn');
 
 /**
  * Initialize the options page
  */
 async function init() {
   // Load current settings
-  const storage = await chrome.storage.local.get(['backendUrl', 'quickSave']);
+  const storage = await chrome.storage.local.get(['backendUrl', 'quickSave', 'sessionToken']);
   backendUrlInput.value = storage.backendUrl || DEFAULT_BACKEND_URL;
   quickSaveToggle.checked = storage.quickSave || false;
 
+  // Show/hide account section based on auth state
+  updateAccountSection(!!storage.sessionToken);
+
   // Load keyboard shortcut
   await loadShortcut();
+}
+
+/**
+ * Update account section visibility based on auth state
+ */
+function updateAccountSection(isLoggedIn) {
+  if (isLoggedIn) {
+    accountSection.classList.remove('hidden');
+  } else {
+    accountSection.classList.add('hidden');
+  }
 }
 
 /**
@@ -151,10 +167,37 @@ function showStatus(message, type = 'info') {
   }, 3000);
 }
 
+/**
+ * Handle sign out
+ */
+async function handleSignOut() {
+  signOutBtn.disabled = true;
+  signOutBtn.textContent = 'Signing out...';
+
+  try {
+    await chrome.runtime.sendMessage({ type: 'SIGN_OUT' });
+    showStatus('Signed out successfully', 'success');
+    updateAccountSection(false);
+  } catch (error) {
+    showStatus('Failed to sign out', 'error');
+  } finally {
+    signOutBtn.disabled = false;
+    signOutBtn.textContent = 'Sign Out';
+  }
+}
+
 // Event Listeners
 saveBtn.addEventListener('click', saveSettings);
 quickSaveToggle.addEventListener('change', saveQuickSave);
 changeShortcutBtn.addEventListener('click', openShortcutsPage);
+signOutBtn.addEventListener('click', handleSignOut);
+
+// Listen for storage changes to update UI
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.sessionToken) {
+    updateAccountSection(!!changes.sessionToken.newValue);
+  }
+});
 
 // Refresh shortcut display when returning to this tab
 document.addEventListener('visibilitychange', () => {

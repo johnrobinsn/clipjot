@@ -11,6 +11,20 @@ const DEFAULT_BACKEND_URL = 'https://clipjot.net';
 
 // Create context menu on install
 chrome.runtime.onInstalled.addListener(() => {
+  createContextMenus();
+});
+
+// Update context menus when storage changes (e.g., login/logout)
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.sessionToken) {
+    updateSignOutMenu(!!changes.sessionToken.newValue);
+  }
+});
+
+/**
+ * Create all context menus
+ */
+function createContextMenus() {
   // Create context menu for links
   chrome.contextMenus.create({
     id: 'save-link-to-clipjot',
@@ -38,7 +52,42 @@ chrome.runtime.onInstalled.addListener(() => {
     title: 'Settings...',
     contexts: ['action'],
   });
-});
+
+  // Check auth state and add sign out menu if logged in
+  chrome.storage.local.get(['sessionToken'], (result) => {
+    if (result.sessionToken) {
+      createSignOutMenu();
+    }
+  });
+}
+
+/**
+ * Create Sign Out menu item
+ */
+function createSignOutMenu() {
+  chrome.contextMenus.create({
+    id: 'clipjot-sign-out',
+    title: 'Sign Out',
+    contexts: ['action'],
+  });
+}
+
+/**
+ * Update Sign Out menu based on auth state
+ */
+function updateSignOutMenu(isLoggedIn) {
+  if (isLoggedIn) {
+    // Try to create - will fail silently if already exists
+    chrome.contextMenus.create({
+      id: 'clipjot-sign-out',
+      title: 'Sign Out',
+      contexts: ['action'],
+    }, () => chrome.runtime.lastError); // Suppress error if already exists
+  } else {
+    // Remove sign out menu
+    chrome.contextMenus.remove('clipjot-sign-out', () => chrome.runtime.lastError);
+  }
+}
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -53,6 +102,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   // Handle "Settings..." - open options page
   if (info.menuItemId === 'open-clipjot-settings') {
     chrome.runtime.openOptionsPage();
+    return;
+  }
+
+  // Handle "Sign Out"
+  if (info.menuItemId === 'clipjot-sign-out') {
+    await handleSignOut();
     return;
   }
 
@@ -104,7 +159,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
-// Handle messages from popup
+// Handle messages from popup or options page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_PENDING_BOOKMARK') {
     chrome.storage.local.get('pendingBookmark', (result) => {
@@ -117,6 +172,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'SAVE_BOOKMARK') {
     saveBookmark(message.data).then(sendResponse);
+    return true;
+  }
+
+  if (message.type === 'SIGN_OUT') {
+    handleSignOut().then(sendResponse);
+    return true;
+  }
+
+  if (message.type === 'GET_AUTH_STATE') {
+    chrome.storage.local.get(['sessionToken'], (result) => {
+      sendResponse({ isLoggedIn: !!result.sessionToken });
+    });
     return true;
   }
 });
@@ -158,5 +225,37 @@ async function saveBookmark(data) {
     }
   } catch (error) {
     return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Handle sign out - revoke session on server and clear local storage
+ */
+async function handleSignOut() {
+  try {
+    const storage = await chrome.storage.local.get(['backendUrl', 'sessionToken']);
+    const backendUrl = storage.backendUrl || DEFAULT_BACKEND_URL;
+    const sessionToken = storage.sessionToken;
+
+    if (sessionToken) {
+      // Try to revoke session on server (don't wait for it)
+      fetch(`${backendUrl}/api/v1/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      }).catch(() => {}); // Ignore errors
+    }
+
+    // Clear local session
+    await chrome.storage.local.remove('sessionToken');
+
+    return { success: true };
+  } catch (error) {
+    // Still clear local session even if server call fails
+    await chrome.storage.local.remove('sessionToken');
+    return { success: true };
   }
 }
