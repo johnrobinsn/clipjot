@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import com.clipjot.android.BuildConfig;
 import com.clipjot.android.R;
 import com.clipjot.android.data.api.ApiClient;
 import com.clipjot.android.data.api.model.InviteCodeAuthResponse;
@@ -35,7 +36,7 @@ import retrofit2.Response;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String CALLBACK_URI = "clipjot://oauth/callback";
+    private static final String CALLBACK_URI = BuildConfig.OAUTH_SCHEME + "://oauth/callback";
 
     private SettingsManager settingsManager;
     private TokenManager tokenManager;

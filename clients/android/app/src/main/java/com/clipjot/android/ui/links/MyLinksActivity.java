@@ -93,6 +93,10 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private Integer latestKnownBookmarkId = null;
     private String latestKnownUpdateTimestamp = null;
 
+    // Track last clicked item for scroll position restoration
+    private Integer lastClickedBookmarkId = null;
+    private int lastClickedItemOffset = 0;
+
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
     private final Handler newLinksHandler = new Handler(Looper.getMainLooper());
@@ -161,19 +165,15 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
                         // Changes detected - do a full refresh
                         hideNewLinksBanner();
                         loadBookmarks(true);
-                    } else {
-                        // No changes - just do silent refresh
-                        silentRefresh();
                     }
-                } else {
-                    silentRefresh();
+                    // No changes - don't refresh, scroll position already correct
                 }
+                // Silently ignore errors - user can pull to refresh if needed
             }
 
             @Override
             public void onFailure(Call<LatestBookmarkResponse> call, Throwable t) {
-                // On error, fall back to silent refresh
-                silentRefresh();
+                // Silently ignore - user can pull to refresh if needed
             }
         });
     }
@@ -204,6 +204,8 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
                     if (bookmarks != null) {
                         adapter.updateBookmarks(bookmarks);
+                        // Restore scroll position after update
+                        recyclerView.post(() -> restoreScrollPosition());
                     }
                     updateEmptyState();
                 }
@@ -215,6 +217,21 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
                 // Silently ignore - user can pull to refresh if needed
             }
         });
+    }
+
+    /**
+     * Restore scroll position to the last clicked item.
+     */
+    private void restoreScrollPosition() {
+        if (lastClickedBookmarkId == null) return;
+
+        int position = adapter.getPositionForId(lastClickedBookmarkId);
+        if (position >= 0) {
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            if (layoutManager != null) {
+                layoutManager.scrollToPositionWithOffset(position, lastClickedItemOffset);
+            }
+        }
     }
 
     private void bindViews() {
@@ -535,6 +552,8 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
                     if (refresh) {
                         adapter.setBookmarks(bookmarks != null ? bookmarks : Collections.emptyList());
+                        // Restore scroll position after refresh
+                        recyclerView.post(() -> restoreScrollPosition());
                         // Track latest bookmark ID and update timestamp for new links detection (only on first page, no search)
                         if (currentQuery.isEmpty() && bookmarks != null && !bookmarks.isEmpty()) {
                             BookmarkResponse firstBookmark = bookmarks.get(0);
@@ -619,6 +638,22 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
 
     @Override
     public void onBookmarkClick(BookmarkResponse bookmark) {
+        // Save clicked item ID for scroll position restoration
+        lastClickedBookmarkId = bookmark.getId();
+
+        // Tell adapter which item is "last clicked" for visual indicator
+        adapter.setLastClickedId(bookmark.getId());
+
+        // Save the item's offset from RecyclerView top
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        int position = adapter.getPositionForId(bookmark.getId());
+        if (layoutManager != null) {
+            View itemView = layoutManager.findViewByPosition(position);
+            if (itemView != null) {
+                lastClickedItemOffset = itemView.getTop();
+            }
+        }
+
         // Open URL in browser
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(bookmark.getUrl()));

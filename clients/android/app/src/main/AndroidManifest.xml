@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="clipjot"
+                    android:scheme="${oauthScheme}"
                     android:host="oauth"
                     android:path="/callback" />
             </intent-filter>

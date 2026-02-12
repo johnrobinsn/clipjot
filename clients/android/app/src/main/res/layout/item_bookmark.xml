@@ -12,15 +12,28 @@
     app:cardElevation="1dp"
     app:cardCornerRadius="8dp">
 
-    <LinearLayout
+    <!-- FrameLayout wrapper to allow indicator to span full height -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <!-- Checkbox for selection mode -->
-        <com.google.android.material.checkbox.MaterialCheckBox
+        <!-- Last clicked indicator - subtle left accent bar spanning full card height -->
+        <View
+            android:id="@+id/lastClickedIndicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Checkbox for selection mode -->
+            <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/selectionCheckbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -102,6 +115,8 @@
             android:src="@drawable/ic_edit"
             android:contentDescription="@string/edit"
             app:tint="?android:textColorSecondary" />
-    </LinearLayout>
+        </LinearLayout>
+
+    </FrameLayout>
 
 </com.google.android.material.card.MaterialCardView>

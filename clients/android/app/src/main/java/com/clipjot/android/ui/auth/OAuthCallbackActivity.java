@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.clipjot.android.R;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
+import com.clipjot.android.ui.links.MyLinksActivity;
 import com.clipjot.android.ui.share.ShareActivity;
 
 /**
@@ -44,8 +45,11 @@ public class OAuthCallbackActivity extends AppCompatActivity {
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
-                    // Just save token and finish - LoginActivity.onResume() will navigate to MyLinksActivity
+                    // Navigate directly to MyLinksActivity (LoginActivity may have been destroyed)
                     Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, MyLinksActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }
 
                 finish();

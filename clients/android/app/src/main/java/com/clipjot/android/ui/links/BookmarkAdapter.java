@@ -40,6 +40,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
     private final Set<Integer> selectedIds = new HashSet<>();
     private boolean selectionMode = false;
     private OnBookmarkClickListener listener;
+    private Integer lastClickedId = null;
 
     public interface OnBookmarkClickListener {
         void onBookmarkClick(BookmarkResponse bookmark);
@@ -182,6 +183,40 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
         }
     }
 
+    /**
+     * Get the position of a bookmark by its ID.
+     * @return position or -1 if not found
+     */
+    public int getPositionForId(int bookmarkId) {
+        for (int i = 0; i < bookmarks.size(); i++) {
+            if (bookmarks.get(i).getId() == bookmarkId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Set the last clicked bookmark ID for visual indicator.
+     */
+    public void setLastClickedId(Integer id) {
+        Integer oldId = this.lastClickedId;
+        this.lastClickedId = id;
+        // Refresh old and new items to update indicator
+        if (oldId != null) {
+            int oldPos = getPositionForId(oldId);
+            if (oldPos >= 0) notifyItemChanged(oldPos);
+        }
+        if (id != null) {
+            int newPos = getPositionForId(id);
+            if (newPos >= 0) notifyItemChanged(newPos);
+        }
+    }
+
+    public Integer getLastClickedId() {
+        return lastClickedId;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -204,6 +239,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
     class ViewHolder extends RecyclerView.ViewHolder {
         private final MaterialCardView card;
         private final MaterialCheckBox checkbox;
+        private final View lastClickedIndicatorView;
         private final TextView titleText;
         private final TextView domainText;
         private final HorizontalScrollView tagsScrollView;
@@ -216,6 +252,7 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
             super(itemView);
             card = itemView.findViewById(R.id.bookmarkCard);
             checkbox = itemView.findViewById(R.id.selectionCheckbox);
+            lastClickedIndicatorView = itemView.findViewById(R.id.lastClickedIndicator);
             titleText = itemView.findViewById(R.id.titleText);
             domainText = itemView.findViewById(R.id.domainText);
             tagsScrollView = itemView.findViewById(R.id.tagsScrollView);
@@ -282,6 +319,10 @@ public class BookmarkAdapter extends RecyclerView.Adapter<BookmarkAdapter.ViewHo
             } else {
                 card.setChecked(false);
             }
+
+            // Last clicked indicator
+            boolean isLastClicked = lastClickedId != null && bookmark.getId() == lastClickedId.intValue();
+            lastClickedIndicatorView.setVisibility(isLastClicked ? View.VISIBLE : View.GONE);
 
             // Click listeners
             card.setOnClickListener(v -> {
