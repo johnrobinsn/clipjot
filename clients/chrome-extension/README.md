@@ -13,31 +13,34 @@ Save bookmarks to [ClipJot](https://clipjot.net) with one click.
 
 ## Installation
 
-### Step 1: Download
+### Option A: Chrome Web Store (easiest)
 
-**Option A: Download ZIP** (easiest)
+1. Visit the [ClipJot extension page](https://chromewebstore.google.com/detail/ocaphhejpkkbiinjcbfpocgempolhdfd) on the Chrome Web Store
+2. Click **Add to Chrome**
+3. The ClipJot icon will appear in your toolbar
+
+### Option B: Download ZIP from GitHub
+
 1. Go to the [latest release](https://github.com/johnrobinsn/clipjot/releases/tag/chrome-v1.0.0)
 2. Under "Assets", download `Source code (zip)`
 3. Extract the ZIP file
 4. The extension is in the `clients/chrome-extension` folder
+5. Open Chrome and go to `chrome://extensions/`
+6. Turn on **Developer mode** (toggle in the top right corner)
+7. Click **Load unpacked** and select the `chrome-extension` folder
 
-**Option B: Clone with Git**
+### Option C: Clone with Git
+
 ```bash
 git clone https://github.com/johnrobinsn/clipjot.git
 cd clipjot/clients/chrome-extension
 ```
 
-### Step 2: Install in Chrome
-
-1. Open Chrome and go to `chrome://extensions/`
-2. Turn on **Developer mode** (toggle in the top right corner)
-3. Click **Load unpacked**
-4. Select the `chrome-extension` folder you downloaded
-5. The ClipJot icon will appear in your toolbar
+Then load unpacked in Chrome (see Option B, steps 5-7).
 
 > **Tip:** Click the puzzle piece icon in Chrome's toolbar and pin ClipJot for easy access.
 
-### Step 3: Sign In
+### Sign In
 
 1. Click the ClipJot icon in your toolbar
 2. Sign in with **Google** or **GitHub**

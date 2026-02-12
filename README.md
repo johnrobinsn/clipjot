@@ -79,7 +79,7 @@ Visit [https://clipjot.net](https://clipjot.net) and sign in with Google or GitH
 
 - **iOS:** Build from [clients/ios/](clients/ios/) (requires Xcode)
 - **Android:** Build from [clients/android/](clients/android/) (requires Android Studio)
-- **Chrome:** Load from [clients/chrome-extension/](clients/chrome-extension/)
+- **Chrome:** Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/ocaphhejpkkbiinjcbfpocgempolhdfd) or load from [clients/chrome-extension/](clients/chrome-extension/)
 
 ## License
 
