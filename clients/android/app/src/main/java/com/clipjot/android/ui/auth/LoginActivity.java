@@ -4,14 +4,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.auth.AuthTabIntent;
 
 import com.clipjot.android.BuildConfig;
 import com.clipjot.android.R;
@@ -33,6 +33,11 @@ import retrofit2.Response;
 
 /**
  * Login activity with OAuth provider buttons.
+ *
+ * Uses Chrome Auth Tab API (Chrome 137+) for OAuth, which automatically
+ * intercepts the custom scheme redirect and closes the tab. Falls back
+ * to regular Custom Tabs on older Chrome, where OAuthCallbackActivity
+ * handles the redirect via intent filter.
  */
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,6 +45,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private SettingsManager settingsManager;
     private TokenManager tokenManager;
+
+    // Auth Tab launcher — handles OAuth result when Chrome 137+ is available.
+    // On older Chrome, this receives RESULT_CANCELED and the existing
+    // OAuthCallbackActivity handles the redirect instead.
+    private final ActivityResultLauncher<Intent> authLauncher =
+            AuthTabIntent.registerActivityResultLauncher(this, this::handleAuthResult);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,15 +121,34 @@ public class LoginActivity extends AppCompatActivity {
             String redirectUri = URLEncoder.encode(CALLBACK_URI, "UTF-8");
             String authUrl = backendUrl + "/auth/" + provider + "?redirect_uri=" + redirectUri;
 
-            // Use Chrome Custom Tabs for better UX
-            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
-                    .setShowTitle(true)
-                    .build();
-            customTabsIntent.launchUrl(this, Uri.parse(authUrl));
+            // Use Auth Tab API (Chrome 137+) — automatically intercepts the
+            // custom scheme redirect and closes the tab. Falls back to regular
+            // Custom Tabs on older Chrome.
+            AuthTabIntent authTabIntent = new AuthTabIntent.Builder().build();
+            authTabIntent.launch(authLauncher, Uri.parse(authUrl), BuildConfig.OAUTH_SCHEME);
 
         } catch (UnsupportedEncodingException e) {
             Toast.makeText(this, R.string.error_oauth_failed, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void handleAuthResult(AuthTabIntent.AuthResult result) {
+        if (result.resultCode == AuthTabIntent.RESULT_OK && result.resultUri != null) {
+            // Auth Tab intercepted the redirect — extract token directly
+            String token = result.resultUri.getQueryParameter("token");
+            String error = result.resultUri.getQueryParameter("error");
+
+            if (token != null && !token.isEmpty()) {
+                tokenManager.saveToken(token);
+                Toast.makeText(this, R.string.login_success, Toast.LENGTH_SHORT).show();
+                navigateToMyLinks();
+            } else if (error != null && !error.isEmpty()) {
+                showOAuthErrorDialog(error);
+            }
+        }
+        // For RESULT_CANCELED: either user closed the tab, or Auth Tab isn't
+        // supported and it fell back to Custom Tabs. In the fallback case,
+        // OAuthCallbackActivity handles the redirect and onResume() picks it up.
     }
 
     private void openSettings() {
@@ -185,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Check if we got logged in while away (e.g., after OAuth callback)
+        // Fallback: check if OAuthCallbackActivity saved a token (Custom Tabs flow)
         if (tokenManager.hasToken()) {
             navigateToMyLinks();
         }

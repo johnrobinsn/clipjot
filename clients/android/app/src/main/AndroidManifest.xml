@@ -54,7 +54,7 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="true"
-            android:theme="@style/Theme.ClipJot"
+            android:theme="@style/Theme.ClipJot.NoActionBar"
             android:parentActivityName=".ui.links.MyLinksActivity">
             <!-- App preferences from system settings -->
             <intent-filter>

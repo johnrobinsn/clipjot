@@ -139,7 +139,6 @@ public class BookmarkBottomSheet extends BottomSheetDialogFragment {
 
         // Setup UI
         urlInput.setText(url);
-        urlInput.setEnabled(false);
 
         if (initialTitle != null && !initialTitle.isEmpty()) {
             titleInput.setText(initialTitle);
@@ -152,6 +151,9 @@ public class BookmarkBottomSheet extends BottomSheetDialogFragment {
         setupSettingsButton();
         setupTagInput();
         setupSaveButton();
+
+        // Cancel link
+        view.findViewById(R.id.cancelLink).setOnClickListener(v -> dismiss());
 
         // Load tags from server
         loadTags();
