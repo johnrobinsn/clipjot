@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode overrides for accessibility -->
+    <color name="link_blue">#38bdf8</color>
+</resources>
