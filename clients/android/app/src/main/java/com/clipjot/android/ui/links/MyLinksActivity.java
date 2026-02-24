@@ -269,6 +269,7 @@ public class MyLinksActivity extends AppCompatActivity implements BookmarkAdapte
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setLogo(R.drawable.ic_app_icon);
         // No back button on main screen
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);

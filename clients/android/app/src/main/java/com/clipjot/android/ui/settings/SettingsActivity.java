@@ -68,6 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
         // Use layout toolbar instead of system ActionBar
         com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setLogo(R.drawable.ic_app_icon);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
