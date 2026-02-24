@@ -162,12 +162,14 @@ public class SettingsActivity extends AppCompatActivity {
                     if (createdAt != null && createdAt.length() >= 10) {
                         accountSince.setText(createdAt.substring(0, 10));
                     }
+                } else {
+                    android.util.Log.e("SettingsActivity", "Profile API error: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileResponse> call, Throwable t) {
-                // Non-critical: profile fields stay empty
+                android.util.Log.e("SettingsActivity", "Profile API failure: " + t.getMessage());
             }
         });
     }

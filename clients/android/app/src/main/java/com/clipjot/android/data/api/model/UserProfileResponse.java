@@ -14,7 +14,7 @@ public class UserProfileResponse {
     private String provider;
 
     @SerializedName("is_premium")
-    private boolean isPremium;
+    private int isPremium;
 
     @SerializedName("created_at")
     private String createdAt;
@@ -28,7 +28,7 @@ public class UserProfileResponse {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return isPremium != 0;
     }
 
     public String getCreatedAt() {
