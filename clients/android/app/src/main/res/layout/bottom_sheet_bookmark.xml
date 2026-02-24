@@ -189,31 +189,27 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <!-- Messages -->
-        <TextView
-            android:id="@+id/errorMessage"
+        <!-- Status area - reserves space to prevent panel resize on save -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="@color/error"
-            android:visibility="gone" />
+            android:layout_marginTop="12dp">
 
-        <TextView
-            android:id="@+id/successMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="@color/success"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/statusMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="1"
+                android:visibility="invisible" />
 
-        <!-- Progress Indicator -->
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progressIndicator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:indeterminate="true"
-            android:visibility="gone" />
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:indeterminate="true"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <!-- Save / Cancel row -->
         <LinearLayout

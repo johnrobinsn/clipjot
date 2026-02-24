@@ -71,8 +71,7 @@ public class BookmarkBottomSheet extends BottomSheetDialogFragment {
     private ImageButton settingsButton;
     private MaterialButton saveButton;
     private LinearProgressIndicator progressIndicator;
-    private TextView errorMessage;
-    private TextView successMessage;
+    private TextView statusMessage;
 
     private List<Tag> allTags = new ArrayList<>();
     private Set<String> selectedTags = new HashSet<>();
@@ -134,8 +133,7 @@ public class BookmarkBottomSheet extends BottomSheetDialogFragment {
         settingsButton = view.findViewById(R.id.settingsButton);
         saveButton = view.findViewById(R.id.saveButton);
         progressIndicator = view.findViewById(R.id.progressIndicator);
-        errorMessage = view.findViewById(R.id.errorMessage);
-        successMessage = view.findViewById(R.id.successMessage);
+        statusMessage = view.findViewById(R.id.statusMessage);
 
         // Setup UI
         urlInput.setText(url);
@@ -423,20 +421,20 @@ public class BookmarkBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void showError(String message) {
-        errorMessage.setText(message);
-        errorMessage.setVisibility(View.VISIBLE);
-        successMessage.setVisibility(View.GONE);
+        statusMessage.setText(message);
+        statusMessage.setTextColor(requireContext().getColor(R.color.error));
+        statusMessage.setVisibility(View.VISIBLE);
     }
 
     private void showSuccess(String message) {
-        successMessage.setText(message);
-        successMessage.setVisibility(View.VISIBLE);
-        errorMessage.setVisibility(View.GONE);
+        statusMessage.setText(message);
+        statusMessage.setTextColor(requireContext().getColor(R.color.success));
+        statusMessage.setVisibility(View.VISIBLE);
     }
 
     private void hideMessages() {
-        errorMessage.setVisibility(View.GONE);
-        successMessage.setVisibility(View.GONE);
+        statusMessage.setText("");
+        statusMessage.setVisibility(View.INVISIBLE);
     }
 
     @Override
