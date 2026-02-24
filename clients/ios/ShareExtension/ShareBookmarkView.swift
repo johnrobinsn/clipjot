@@ -29,7 +29,10 @@ struct ShareBookmarkView: View {
     }
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    // Sky blue — adapts for dark mode accessibility
+    private let primaryColor = Color(UIColor { $0.userInterfaceStyle == .dark
+        ? UIColor(red: 56/255, green: 189/255, blue: 248/255, alpha: 1)   // #38bdf8
+        : UIColor(red: 2/255, green: 132/255, blue: 199/255, alpha: 1) }) // #0284c7
 
     var body: some View {
         NavigationStack {
@@ -280,7 +283,9 @@ struct TagInputView: View {
 
     @State private var inputText = ""
 
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255)
+    private let primaryColor = Color(UIColor { $0.userInterfaceStyle == .dark
+        ? UIColor(red: 56/255, green: 189/255, blue: 248/255, alpha: 1)
+        : UIColor(red: 2/255, green: 132/255, blue: 199/255, alpha: 1) })
 
     private var suggestions: [Tag] {
         guard !inputText.isEmpty else { return [] }

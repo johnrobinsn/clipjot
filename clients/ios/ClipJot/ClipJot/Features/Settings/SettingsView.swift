@@ -12,7 +12,7 @@ struct SettingsView: View {
     @State private var connectionStatus: ConnectionStatus?
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     enum ConnectionStatus {
         case success

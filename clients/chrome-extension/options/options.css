@@ -1,10 +1,15 @@
 /* ClipJot Chrome Extension Options Styles */
 
 /* Custom DaisyUI theme colors (OKLCH format for DaisyUI 4) */
-:root, [data-theme="light"], [data-theme="dark"] {
-  --p: 0.5457 0.2118 264.05;  /* #6366f1 indigo */
-  --pf: 0.4958 0.2044 265.75; /* #4f46e5 darker indigo */
+:root, [data-theme="light"] {
+  --p: 0.5876 0.1389 241.97;  /* #0284c7 sky blue */
+  --pf: 0.5000 0.1193 242.75; /* #0369a1 darker sky */
   --pc: 1 0 0;                 /* white */
+}
+[data-theme="dark"] {
+  --p: 0.7535 0.1390 232.66;  /* #38bdf8 light sky (a11y) */
+  --pf: 0.5876 0.1389 241.97; /* #0284c7 */
+  --pc: 0.20 0.02 250;        /* dark text on light primary */
 }
 
 /* Tailwind utility classes (since we can't use CDN scripts) */
@@ -48,7 +53,7 @@ body {
 .brand-icon {
   width: 2rem;
   height: 2rem;
-  color: #6366f1;
+  color: #0284c7;
   flex-shrink: 0;
 }
 

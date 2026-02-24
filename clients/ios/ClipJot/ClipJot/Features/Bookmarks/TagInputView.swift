@@ -10,7 +10,7 @@ struct TagInputView: View {
     @FocusState private var isInputFocused: Bool
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     /// Filtered suggestions based on input
     private var suggestions: [Tag] {
@@ -143,7 +143,7 @@ struct TagChip: View {
     let onRemove: () -> Void
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     var body: some View {
         HStack(spacing: 4) {

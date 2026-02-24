@@ -6,21 +6,31 @@ import UniformTypeIdentifiers
 struct BookmarkRowView: View {
     let bookmark: Bookmark
     let isSelected: Bool
+    let isLastClicked: Bool
     let onEdit: () -> Void
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     @State private var showCopiedFeedback = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Selection indicator (shown in selection mode)
-            if isSelected {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(primaryColor)
-                    .font(.title2)
+        HStack(alignment: .top, spacing: 0) {
+            // Last clicked indicator - accent bar on left edge
+            if isLastClicked {
+                Rectangle()
+                    .fill(primaryColor)
+                    .frame(width: 4)
+                    .padding(.trailing, 8)
             }
+
+            HStack(alignment: .top, spacing: 12) {
+                // Selection indicator (shown in selection mode)
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(primaryColor)
+                        .font(.title2)
+                }
 
             VStack(alignment: .leading, spacing: 6) {
                 // Title
@@ -89,6 +99,7 @@ struct BookmarkRowView: View {
                     .padding(8)
             }
             .buttonStyle(.plain)
+            }
         }
         .padding(.vertical, 8)
         .contentShape(Rectangle()) // Make entire row tappable
@@ -128,12 +139,14 @@ struct BookmarkRowView: View {
 /// Non-selection mode row (simpler)
 struct SimpleBookmarkRowView: View {
     let bookmark: Bookmark
+    let isLastClicked: Bool
     let onEdit: () -> Void
 
     var body: some View {
         BookmarkRowView(
             bookmark: bookmark,
             isSelected: false,
+            isLastClicked: isLastClicked,
             onEdit: onEdit
         )
     }
@@ -153,6 +166,7 @@ struct SimpleBookmarkRowView: View {
                 updatedAt: nil
             ),
             isSelected: false,
+            isLastClicked: true,
             onEdit: {}
         )
 
@@ -168,6 +182,7 @@ struct SimpleBookmarkRowView: View {
                 updatedAt: nil
             ),
             isSelected: true,
+            isLastClicked: false,
             onEdit: {}
         )
     }

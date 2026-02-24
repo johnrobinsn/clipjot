@@ -8,7 +8,7 @@ struct LoginView: View {
     @State private var showInviteCode = false
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     var body: some View {
         NavigationStack {

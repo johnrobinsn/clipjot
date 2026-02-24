@@ -10,25 +10,41 @@ struct BookmarkListView: View {
     @State private var showAddBookmark = false
     @State private var editingBookmark: Bookmark?
     @State private var showDeleteConfirmation = false
+    @State private var lastClickedBookmarkId: Int? = nil
     @Environment(\.scenePhase) private var scenePhase
 
     // Brand color
-    private let primaryColor = Color(red: 99/255, green: 102/255, blue: 241/255) // #6366f1
+    private let primaryColor = AppTheme.primary
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Main list
-                listContent
+            ScrollViewReader { scrollProxy in
+                ZStack {
+                    // Main list
+                    listContent(scrollProxy: scrollProxy)
 
-                // New links banner
-                if viewModel.hasNewLinks {
-                    newLinksBanner
+                    // New links banner
+                    if viewModel.hasNewLinks {
+                        newLinksBanner
+                    }
+
+                    // Loading overlay for initial load
+                    if viewModel.isLoading && viewModel.bookmarks.isEmpty {
+                        ProgressView()
+                    }
                 }
-
-                // Loading overlay for initial load
-                if viewModel.isLoading && viewModel.bookmarks.isEmpty {
-                    ProgressView()
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .active {
+                        // Scroll to last clicked item when returning from browser
+                        if let bookmarkId = lastClickedBookmarkId {
+                            withAnimation {
+                                scrollProxy.scrollTo(bookmarkId, anchor: .center)
+                            }
+                        }
+                        Task {
+                            await viewModel.silentRefresh()
+                        }
+                    }
                 }
             }
             .navigationTitle("ClipJot")
@@ -83,19 +99,12 @@ struct BookmarkListView: View {
         .task {
             await viewModel.loadBookmarks()
         }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                Task {
-                    await viewModel.silentRefresh()
-                }
-            }
-        }
     }
 
     // MARK: - Subviews
 
     @ViewBuilder
-    private var listContent: some View {
+    private func listContent(scrollProxy: ScrollViewProxy) -> some View {
         if viewModel.bookmarks.isEmpty && !viewModel.isLoading {
             emptyState
         } else {
@@ -104,12 +113,15 @@ struct BookmarkListView: View {
                     BookmarkRowView(
                         bookmark: bookmark,
                         isSelected: selectedBookmarks.contains(bookmark),
+                        isLastClicked: bookmark.id == lastClickedBookmarkId,
                         onEdit: { editingBookmark = bookmark }
                     )
+                    .id(bookmark.id)
                     .onTapGesture {
                         if isSelectionMode {
                             toggleSelection(bookmark)
                         } else {
+                            lastClickedBookmarkId = bookmark.id
                             openURL(bookmark.url)
                         }
                     }
