@@ -60,6 +60,13 @@ actor APIClient {
         try await post(endpoint: "api/v1/tags/list", body: EmptyBody())
     }
 
+    // MARK: - User Endpoints
+
+    /// Get current user's profile
+    func getUserProfile() async throws -> UserProfileResponse {
+        try await post(endpoint: "api/v1/user/profile", body: EmptyBody())
+    }
+
     // MARK: - Auth Endpoints
 
     /// Authenticate with an invite code (no auth header required)

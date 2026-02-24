@@ -11,6 +11,7 @@ import com.clipjot.android.data.api.model.InviteCodeRequest;
 import com.clipjot.android.data.api.model.LatestBookmarkResponse;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
+import com.clipjot.android.data.api.model.UserProfileResponse;
 
 import java.util.Map;
 
@@ -80,4 +81,11 @@ public interface ClipJotApi {
      */
     @GET("api/internal/latest-bookmark")
     Call<LatestBookmarkResponse> getLatestBookmarkId();
+
+    /**
+     * Get the current user's profile information.
+     * Requires read scope.
+     */
+    @POST("api/v1/user/profile")
+    Call<UserProfileResponse> getUserProfile(@Body Map<String, Object> body);
 }

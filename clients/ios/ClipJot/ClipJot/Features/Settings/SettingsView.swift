@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var quickSaveEnabled: Bool = false
     @State private var isTestingConnection = false
     @State private var connectionStatus: ConnectionStatus?
+    @State private var profile: UserProfileResponse?
 
     // Brand color
     private let primaryColor = AppTheme.primary
@@ -86,9 +87,36 @@ struct SettingsView: View {
                 // Account Section
                 if TokenManager.shared.isLoggedIn {
                     Section("Account") {
-                        if let email = SettingsManager.shared.userEmail {
+                        if let profile = profile {
                             HStack {
-                                Text("Logged in as")
+                                Text("Email")
+                                Spacer()
+                                Text(profile.email)
+                                    .foregroundColor(.secondary)
+                            }
+                            if let provider = profile.provider {
+                                HStack {
+                                    Text("Sign-in")
+                                    Spacer()
+                                    Text(provider.capitalized)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            HStack {
+                                Text("Account type")
+                                Spacer()
+                                Text(profile.isPremium ? "Premium" : "Free")
+                                    .foregroundColor(.secondary)
+                            }
+                            HStack {
+                                Text("Member since")
+                                Spacer()
+                                Text(String(profile.createdAt.prefix(10)))
+                                    .foregroundColor(.secondary)
+                            }
+                        } else if let email = SettingsManager.shared.userEmail {
+                            HStack {
+                                Text("Email")
                                 Spacer()
                                 Text(email)
                                     .foregroundColor(.secondary)
@@ -156,6 +184,9 @@ struct SettingsView: View {
             .onAppear {
                 loadSettings()
             }
+            .task {
+                await loadProfile()
+            }
         }
     }
 
@@ -169,6 +200,15 @@ struct SettingsView: View {
     private func saveSettings() {
         SettingsManager.shared.backendUrl = backendUrl
         SettingsManager.shared.quickSaveEnabled = quickSaveEnabled
+    }
+
+    private func loadProfile() async {
+        guard TokenManager.shared.isLoggedIn else { return }
+        do {
+            profile = try await APIClient.shared.getUserProfile()
+        } catch {
+            // Non-critical: profile fields stay empty
+        }
     }
 
     private func testConnection() async {

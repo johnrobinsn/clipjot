@@ -14,6 +14,7 @@ const statusMessage = document.getElementById('status-message');
 const accountSection = document.getElementById('account-section');
 const profileInfo = document.getElementById('profile-info');
 const profileEmail = document.getElementById('profile-email');
+const profileProvider = document.getElementById('profile-provider');
 const profileType = document.getElementById('profile-type');
 const profileSince = document.getElementById('profile-since');
 const signOutBtn = document.getElementById('sign-out-btn');
@@ -62,6 +63,7 @@ async function loadProfile(backendUrl, sessionToken) {
     if (!response.ok) return;
     const data = await response.json();
     profileEmail.textContent = data.email || '';
+    profileProvider.textContent = data.provider ? data.provider.charAt(0).toUpperCase() + data.provider.slice(1) : '';
     profileType.textContent = data.is_premium ? 'Premium' : 'Free';
     profileSince.textContent = data.created_at ? data.created_at.slice(0, 10) : '';
     profileInfo.style.display = 'block';

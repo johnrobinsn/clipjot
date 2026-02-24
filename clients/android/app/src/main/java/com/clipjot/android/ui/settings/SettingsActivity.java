@@ -19,6 +19,7 @@ import com.clipjot.android.data.api.ClipJotApi;
 import com.clipjot.android.ui.auth.LoginActivity;
 import com.clipjot.android.data.api.model.LogoutResponse;
 import com.clipjot.android.data.api.model.TagsResponse;
+import com.clipjot.android.data.api.model.UserProfileResponse;
 import com.clipjot.android.data.prefs.SettingsManager;
 import com.clipjot.android.data.prefs.TokenManager;
 import com.clipjot.android.util.UrlValidator;
@@ -55,6 +56,9 @@ public class SettingsActivity extends AppCompatActivity {
     private View accountSection;
     private View loginSection;
     private TextView accountEmail;
+    private TextView accountProvider;
+    private TextView accountType;
+    private TextView accountSince;
     private MaterialSwitch quickSaveSwitch;
 
     private SettingsManager settingsManager;
@@ -93,6 +97,9 @@ public class SettingsActivity extends AppCompatActivity {
         accountSection = findViewById(R.id.accountSection);
         loginSection = findViewById(R.id.loginSection);
         accountEmail = findViewById(R.id.accountEmail);
+        accountProvider = findViewById(R.id.accountProvider);
+        accountType = findViewById(R.id.accountType);
+        accountSince = findViewById(R.id.accountSince);
         quickSaveSwitch = findViewById(R.id.quickSaveSwitch);
     }
 
@@ -125,13 +132,44 @@ public class SettingsActivity extends AppCompatActivity {
         loginSection.setVisibility(loggedIn ? View.GONE : View.VISIBLE);
 
         if (loggedIn) {
+            // Show cached email immediately
             String email = settingsManager.getUserEmail();
             if (email != null && !email.isEmpty()) {
                 accountEmail.setText(email);
             } else {
                 accountEmail.setText(R.string.account_logged_in);
             }
+
+            // Fetch full profile from server
+            loadProfile();
         }
+    }
+
+    private void loadProfile() {
+        ClipJotApi api = ApiClient.getApi(this);
+        api.getUserProfile(Collections.emptyMap()).enqueue(new Callback<UserProfileResponse>() {
+            @Override
+            public void onResponse(Call<UserProfileResponse> call, Response<UserProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserProfileResponse profile = response.body();
+                    accountEmail.setText(profile.getEmail() != null ? profile.getEmail() : "");
+                    String provider = profile.getProvider();
+                    if (provider != null && !provider.isEmpty()) {
+                        accountProvider.setText(provider.substring(0, 1).toUpperCase() + provider.substring(1));
+                    }
+                    accountType.setText(profile.isPremium() ? "Premium" : "Free");
+                    String createdAt = profile.getCreatedAt();
+                    if (createdAt != null && createdAt.length() >= 10) {
+                        accountSince.setText(createdAt.substring(0, 10));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserProfileResponse> call, Throwable t) {
+                // Non-critical: profile fields stay empty
+            }
+        });
     }
 
     private void startOAuth(String provider) {

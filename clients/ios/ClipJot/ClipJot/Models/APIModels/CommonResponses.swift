@@ -26,6 +26,22 @@ struct LatestBookmarkResponse: Codable {
     }
 }
 
+// MARK: - User Profile
+
+/// Response from user profile endpoint.
+struct UserProfileResponse: Codable {
+    let email: String
+    let provider: String?
+    let isPremium: Bool
+    let createdAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case email, provider
+        case isPremium = "is_premium"
+        case createdAt = "created_at"
+    }
+}
+
 // MARK: - Invite Code Auth
 
 /// Request body for invite code authentication.
