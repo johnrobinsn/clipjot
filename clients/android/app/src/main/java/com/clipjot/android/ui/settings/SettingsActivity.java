@@ -60,6 +60,8 @@ public class SettingsActivity extends AppCompatActivity {
     private TextView accountType;
     private TextView accountSince;
     private MaterialSwitch quickSaveSwitch;
+    private MaterialButton advancedToggleButton;
+    private View advancedSection;
 
     private SettingsManager settingsManager;
     private TokenManager tokenManager;
@@ -101,6 +103,8 @@ public class SettingsActivity extends AppCompatActivity {
         accountType = findViewById(R.id.accountType);
         accountSince = findViewById(R.id.accountSince);
         quickSaveSwitch = findViewById(R.id.quickSaveSwitch);
+        advancedToggleButton = findViewById(R.id.advancedToggleButton);
+        advancedSection = findViewById(R.id.advancedSection);
     }
 
     private void setupUI() {
@@ -120,6 +124,12 @@ public class SettingsActivity extends AppCompatActivity {
         quickSaveSwitch.setChecked(settingsManager.isQuickSaveEnabled());
         quickSaveSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             settingsManager.setQuickSaveEnabled(isChecked);
+        });
+
+        // Setup advanced toggle
+        advancedToggleButton.setOnClickListener(v -> {
+            boolean visible = advancedSection.getVisibility() == View.VISIBLE;
+            advancedSection.setVisibility(visible ? View.GONE : View.VISIBLE);
         });
 
         // Update account section visibility

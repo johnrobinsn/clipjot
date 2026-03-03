@@ -34,7 +34,8 @@
 
     <!-- Settings -->
     <string name="settings">Settings</string>
-    <string name="settings_title">Settings</string>
+    <string name="settings_title">ClipJot Settings</string>
+    <string name="advanced">Advanced</string>
     <string name="backend_url_title">Backend URL</string>
     <string name="backend_url_hint">https://your-server.com</string>
     <string name="settings_saved">Settings saved</string>
@@ -61,7 +62,7 @@
     <string name="warning_http_insecure">Warning: Using HTTP is insecure. Use HTTPS for production.</string>
 
     <!-- My Links -->
-    <string name="my_links_title">My Links</string>
+    <string name="my_links_title">ClipJot Links</string>
     <string name="add_link">Add Link</string>
     <string name="my_links">My Links</string>
     <string name="search_links">Search links…</string>
