@@ -32,13 +32,36 @@ struct LatestBookmarkResponse: Codable {
 struct UserProfileResponse: Codable {
     let email: String
     let provider: String?
-    let isPremium: Bool
+    private let isPremiumRaw: IntOrBool
     let createdAt: String
+
+    var isPremium: Bool { isPremiumRaw.boolValue }
 
     enum CodingKeys: String, CodingKey {
         case email, provider
-        case isPremium = "is_premium"
+        case isPremiumRaw = "is_premium"
         case createdAt = "created_at"
+    }
+}
+
+/// Decodes both JSON `true`/`false` and `0`/`1` as a boolean.
+struct IntOrBool: Codable {
+    let boolValue: Bool
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let boolVal = try? container.decode(Bool.self) {
+            boolValue = boolVal
+        } else if let intVal = try? container.decode(Int.self) {
+            boolValue = intVal != 0
+        } else {
+            boolValue = false
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(boolValue)
     }
 }
 

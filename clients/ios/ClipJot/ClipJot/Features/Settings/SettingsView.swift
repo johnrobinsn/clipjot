@@ -11,6 +11,9 @@ struct SettingsView: View {
     @State private var isTestingConnection = false
     @State private var connectionStatus: ConnectionStatus?
     @State private var profile: UserProfileResponse?
+    @State private var profileError: String?
+    @State private var isLoadingProfile = false
+    @State private var showAdvanced = false
 
     // Brand color
     private let primaryColor = AppTheme.primary
@@ -23,60 +26,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Backend URL Section
-                Section {
-                    TextField("Backend URL", text: $backendUrl)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(.URL)
-
-                    Button {
-                        Task {
-                            await testConnection()
-                        }
-                    } label: {
-                        HStack {
-                            Text("Test Connection")
-                            Spacer()
-                            if isTestingConnection {
-                                ProgressView()
-                            } else if let status = connectionStatus {
-                                switch status {
-                                case .success:
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                case .failure:
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.red)
-                                }
-                            }
-                        }
-                    }
-                    .disabled(backendUrl.isEmpty || isTestingConnection)
-
-                    Button("Reset to Default") {
-                        backendUrl = "https://clipjot.net"
-                        connectionStatus = nil
-                    }
-                    .foregroundColor(.secondary)
-                } header: {
-                    Text("Server")
-                } footer: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("The URL of your ClipJot server")
-
-                        if !backendUrl.isEmpty && !URLValidator.isHTTPS(backendUrl) {
-                            Text("Warning: Non-HTTPS connections are not secure")
-                                .foregroundColor(.orange)
-                        }
-
-                        if case .failure(let message) = connectionStatus {
-                            Text(message)
-                                .foregroundColor(.red)
-                        }
-                    }
-                }
-
                 // Quick Save Section
                 Section {
                     Toggle("Quick Save Mode", isOn: $quickSaveEnabled)
@@ -87,13 +36,27 @@ struct SettingsView: View {
                 // Account Section
                 if TokenManager.shared.isLoggedIn {
                     Section("Account") {
-                        if let profile = profile {
+                        if isLoadingProfile {
+                            HStack {
+                                Text("Loading profile...")
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+
+                        // Email — show from profile or cached value
+                        if let email = profile?.email ?? SettingsManager.shared.userEmail {
                             HStack {
                                 Text("Email")
                                 Spacer()
-                                Text(profile.email)
+                                Text(email)
                                     .foregroundColor(.secondary)
                             }
+                        }
+
+                        // Profile details (from API)
+                        if let profile = profile {
                             if let provider = profile.provider {
                                 HStack {
                                     Text("Sign-in")
@@ -114,13 +77,12 @@ struct SettingsView: View {
                                 Text(String(profile.createdAt.prefix(10)))
                                     .foregroundColor(.secondary)
                             }
-                        } else if let email = SettingsManager.shared.userEmail {
-                            HStack {
-                                Text("Email")
-                                Spacer()
-                                Text(email)
-                                    .foregroundColor(.secondary)
-                            }
+                        }
+
+                        if let error = profileError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.red)
                         }
 
                         Button(role: .destructive) {
@@ -170,7 +132,83 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+
+                // Advanced Section
+                Section {
+                    Button {
+                        withAnimation {
+                            showAdvanced.toggle()
+                        }
+                    } label: {
+                        HStack {
+                            Text("Advanced")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .rotationEffect(.degrees(showAdvanced ? 90 : 0))
+                        }
+                    }
+                }
+
+                if showAdvanced {
+                    // Backend URL Section
+                    Section {
+                        TextField("Backend URL", text: $backendUrl)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .keyboardType(.URL)
+
+                        Button {
+                            Task {
+                                await testConnection()
+                            }
+                        } label: {
+                            HStack {
+                                Text("Test Connection")
+                                Spacer()
+                                if isTestingConnection {
+                                    ProgressView()
+                                } else if let status = connectionStatus {
+                                    switch status {
+                                    case .success:
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                    case .failure:
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                        }
+                        .disabled(backendUrl.isEmpty || isTestingConnection)
+
+                        Button("Reset to Default") {
+                            backendUrl = "https://clipjot.net"
+                            connectionStatus = nil
+                        }
+                        .foregroundColor(.secondary)
+                    } header: {
+                        Text("Server")
+                    } footer: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("The URL of your ClipJot server")
+
+                            if !backendUrl.isEmpty && !URLValidator.isHTTPS(backendUrl) {
+                                Text("Warning: Non-HTTPS connections are not secure")
+                                    .foregroundColor(.orange)
+                            }
+
+                            if case .failure(let message) = connectionStatus {
+                                Text(message)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                }
             }
+            .presentationDetents([.medium, .large])
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -204,11 +242,15 @@ struct SettingsView: View {
 
     private func loadProfile() async {
         guard TokenManager.shared.isLoggedIn else { return }
+        isLoadingProfile = true
+        profileError = nil
         do {
             profile = try await APIClient.shared.getUserProfile()
         } catch {
-            // Non-critical: profile fields stay empty
+            profileError = "Profile load failed: \(error.localizedDescription)"
+            print("Failed to load profile: \(error)")
         }
+        isLoadingProfile = false
     }
 
     private func testConnection() async {

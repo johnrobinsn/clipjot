@@ -61,8 +61,8 @@ struct BookmarkRowView: View {
                 if !bookmark.tags.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
-                            ForEach(bookmark.tags, id: \.self) { tag in
-                                Text(tag)
+                            ForEach(bookmark.tags) { tag in
+                                Text(tag.name)
                                     .font(.caption2)
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 8)
@@ -82,10 +82,18 @@ struct BookmarkRowView: View {
             Button {
                 copyBookmark()
             } label: {
-                Image(systemName: showCopiedFeedback ? "checkmark" : "doc.on.doc")
-                    .font(.body)
-                    .foregroundColor(showCopiedFeedback ? .green : .secondary)
-                    .padding(8)
+                if showCopiedFeedback {
+                    Image(systemName: "checkmark")
+                        .font(.body)
+                        .foregroundColor(.green)
+                        .frame(width: 18, height: 18)
+                        .padding(8)
+                } else {
+                    CopyIconShape()
+                        .fill(Color.secondary)
+                        .frame(width: 18, height: 18)
+                        .padding(8)
+                }
             }
             .buttonStyle(.plain)
 
@@ -93,9 +101,9 @@ struct BookmarkRowView: View {
             Button {
                 onEdit()
             } label: {
-                Image(systemName: "pencil")
-                    .font(.body)
-                    .foregroundColor(.secondary)
+                EditPencilShape()
+                    .fill(Color.secondary)
+                    .frame(width: 18, height: 18)
                     .padding(8)
             }
             .buttonStyle(.plain)
@@ -160,7 +168,7 @@ struct SimpleBookmarkRowView: View {
                 url: "https://example.com/article",
                 title: "Example Article Title That Might Be Long",
                 comment: "This is a note about the bookmark",
-                tags: ["swift", "ios", "development"],
+                tags: [Tag(id: 1, name: "swift"), Tag(id: 2, name: "ios"), Tag(id: 3, name: "development")],
                 clientName: "ios",
                 createdAt: "2024-01-15",
                 updatedAt: nil

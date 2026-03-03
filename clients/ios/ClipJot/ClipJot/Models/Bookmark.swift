@@ -7,7 +7,7 @@ struct Bookmark: Identifiable, Codable, Equatable, Hashable {
     let url: String
     let title: String?
     let comment: String?
-    let tags: [String]
+    let tags: [Tag]
     let clientName: String?
     let createdAt: String
     let updatedAt: String?
@@ -21,6 +21,11 @@ struct Bookmark: Identifiable, Codable, Equatable, Hashable {
         case clientName = "client_name"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+    }
+
+    /// Tag names as strings for display and form use
+    var tagNames: [String] {
+        tags.map { $0.name }
     }
 
     /// Display title - uses title if available, otherwise URL

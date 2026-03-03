@@ -10,6 +10,7 @@ struct BookmarkListView: View {
     @State private var showAddBookmark = false
     @State private var editingBookmark: Bookmark?
     @State private var showDeleteConfirmation = false
+    @State private var showAbout = false
     @State private var lastClickedBookmarkId: Int? = nil
     @Environment(\.scenePhase) private var scenePhase
 
@@ -47,8 +48,9 @@ struct BookmarkListView: View {
                     }
                 }
             }
-            .navigationTitle("ClipJot")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .searchable(
                 text: $viewModel.searchQuery,
                 placement: .navigationBarDrawer(displayMode: .always),
@@ -62,6 +64,9 @@ struct BookmarkListView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showAbout) {
+                AboutView()
             }
             .sheet(isPresented: $showAddBookmark) {
                 BookmarkFormView(mode: .add) {
@@ -85,14 +90,33 @@ struct BookmarkListView: View {
             } message: {
                 Text("Are you sure you want to delete \(selectedBookmarks.count) bookmark(s)?")
             }
-            .alert("Error", isPresented: .init(
+            .sheet(isPresented: .init(
                 get: { viewModel.error != nil },
                 set: { if !$0 { viewModel.clearError() } }
             )) {
-                Button("OK") { viewModel.clearError() }
-            } message: {
                 if let error = viewModel.error {
-                    Text(error)
+                    NavigationStack {
+                        ScrollView {
+                            Text(error)
+                                .font(.system(.body, design: .monospaced))
+                                .textSelection(.enabled)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .navigationTitle("Error")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Dismiss") { viewModel.clearError() }
+                            }
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Copy") {
+                                    UIPasteboard.general.string = error
+                                }
+                            }
+                        }
+                    }
+                    .presentationDetents([.medium])
                 }
             }
         }
@@ -206,12 +230,22 @@ struct BookmarkListView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
+        ToolbarItem(placement: .topBarLeading) {
             if isSelectionMode {
                 Button("Cancel") {
                     isSelectionMode = false
                     selectedBookmarks.removeAll()
                 }
+            } else {
+                HStack(spacing: 8) {
+                    BookmarkLogoShape()
+                        .fill(primaryColor)
+                        .frame(width: 22, height: 22)
+                    Text("ClipJot Links")
+                        .font(.system(size: 20, weight: .semibold))
+                }
+                .fixedSize()
+                .padding(.horizontal, 8)
             }
         }
 
@@ -235,6 +269,12 @@ struct BookmarkListView: View {
                         showSettings = true
                     } label: {
                         Label("Settings", systemImage: "gearshape")
+                    }
+
+                    Button {
+                        showAbout = true
+                    } label: {
+                        Label("About", systemImage: "info.circle")
                     }
 
                     Button(role: .destructive) {

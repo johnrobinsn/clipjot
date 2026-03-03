@@ -5,7 +5,16 @@ import Foundation
 struct Tag: Identifiable, Codable, Equatable, Hashable {
     let id: Int
     let name: String
+    let bookmarkCount: Int?
 
-    // Identifiable conformance using name as identifier
-    // (tags are unique by name within a user's account)
+    enum CodingKeys: String, CodingKey {
+        case id, name
+        case bookmarkCount = "bookmark_count"
+    }
+
+    init(id: Int, name: String, bookmarkCount: Int? = nil) {
+        self.id = id
+        self.name = name
+        self.bookmarkCount = bookmarkCount
+    }
 }

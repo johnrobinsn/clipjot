@@ -180,7 +180,7 @@ struct BookmarkFormView: View {
             url = bookmark.url
             title = bookmark.title ?? ""
             comment = bookmark.comment ?? ""
-            tags = bookmark.tags
+            tags = bookmark.tagNames
         }
 
         isLoading = false
@@ -256,7 +256,7 @@ struct BookmarkFormView: View {
             url: "https://example.com",
             title: "Example",
             comment: "A note",
-            tags: ["test"],
+            tags: [Tag(id: 1, name: "test")],
             clientName: "ios",
             createdAt: "2024-01-15",
             updatedAt: nil

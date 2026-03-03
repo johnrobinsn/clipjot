@@ -155,7 +155,13 @@ actor APIClient {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            throw APIError.decodingError(error)
+            let rawSnippet = String(data: data, encoding: .utf8)?.prefix(200) ?? "n/a"
+            print("Decoding failed for \(T.self). Raw: \(rawSnippet)")
+            print("Decoding error: \(error)")
+            throw APIError.decodingError(DecodingDebugError(
+                underlying: error,
+                rawSnippet: String(rawSnippet)
+            ))
         }
     }
 
@@ -170,3 +176,13 @@ actor APIClient {
 
 /// Empty body for POST requests that don't need data
 private struct EmptyBody: Encodable {}
+
+/// Wraps a decoding error with a snippet of the raw response for debugging.
+struct DecodingDebugError: LocalizedError {
+    let underlying: Error
+    let rawSnippet: String
+
+    var errorDescription: String? {
+        "Parse error: \(underlying.localizedDescription)\n\nResponse: \(rawSnippet)"
+    }
+}
