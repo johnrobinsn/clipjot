@@ -129,10 +129,32 @@ struct BookmarkListView: View {
 
     @ViewBuilder
     private func listContent(scrollProxy: ScrollViewProxy) -> some View {
-        if viewModel.bookmarks.isEmpty && !viewModel.isLoading {
-            emptyState
-        } else {
-            List(selection: isSelectionMode ? $selectedBookmarks : nil) {
+        List(selection: isSelectionMode ? $selectedBookmarks : nil) {
+            if viewModel.bookmarks.isEmpty && !viewModel.isLoading {
+                // Empty state inside the List so pull-to-refresh works
+                VStack(spacing: 16) {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 48))
+                        .foregroundColor(.secondary)
+
+                    if viewModel.searchQuery.isEmpty {
+                        Text("No bookmarks yet")
+                            .font(.headline)
+                        Text("Tap + to add your first bookmark")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("No results found")
+                            .font(.headline)
+                        Text("Try a different search term")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 80)
+                .listRowSeparator(.hidden)
+            } else {
                 ForEach(viewModel.bookmarks) { bookmark in
                     BookmarkRowView(
                         bookmark: bookmark,
@@ -175,31 +197,9 @@ struct BookmarkListView: View {
                     .listRowSeparator(.hidden)
                 }
             }
-            .listStyle(.plain)
-            .environment(\.editMode, .constant(isSelectionMode ? .active : .inactive))
         }
-    }
-
-    private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "bookmark")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary)
-
-            if viewModel.searchQuery.isEmpty {
-                Text("No bookmarks yet")
-                    .font(.headline)
-                Text("Tap + to add your first bookmark")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("No results found")
-                    .font(.headline)
-                Text("Try a different search term")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-        }
+        .listStyle(.plain)
+        .environment(\.editMode, .constant(isSelectionMode ? .active : .inactive))
     }
 
     private var newLinksBanner: some View {

@@ -120,8 +120,11 @@ final class BookmarkListViewModel: ObservableObject {
 
     /// Silent refresh when app resumes from background (no loading indicator)
     func silentRefresh() async {
-        // Only refresh if we have data already (not initial load)
-        guard !bookmarks.isEmpty else { return }
+        // If empty, do a full load to pick up newly added bookmarks
+        guard !bookmarks.isEmpty else {
+            await loadBookmarks()
+            return
+        }
         // Don't refresh while already loading
         guard !isLoading, !isLoadingMore else { return }
 

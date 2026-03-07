@@ -1,9 +1,17 @@
 import Foundation
 
 /// Generic success response for operations like delete, logout.
+/// Flexible: accepts {"success": true}, {"deleted": true}, {"logged_out": true}, etc.
 struct SuccessResponse: Codable {
-    let success: Bool
+    let success: Bool?
+    let deleted: Bool?
+    let loggedOut: Bool?
     let message: String?
+
+    enum CodingKeys: String, CodingKey {
+        case success, deleted, message
+        case loggedOut = "logged_out"
+    }
 }
 
 /// Response from delete endpoint.
